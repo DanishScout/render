@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PER 90 - Analytics Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cloudflare.com">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Menu -->
+        <aside class="sidebar">
+            <div class="logo"><span class="logo-main">PER</span><span class="logo-sub">90</span></div>
+            <nav class="nav-menu">
+                <button class="nav-item active" onclick="switchView('landing')"><i class="fa-solid fa-house"></i> <span>Dashboard</span></button>
+                <div class="nav-section">Visualiseringer</div>
+                <button class="nav-item" onclick="switchView('pizza')"><i class="fa-solid fa-chart-pie"></i> <span>Pizza Chart</span></button>
+                <button class="nav-item" onclick="switchView('radar')"><i class="fa-solid fa-circle-nodes"></i> <span>Radar Chart</span></button>
+                <button class="nav-item" onclick="switchView('scatter')"><i class="fa-solid fa-chart-line"></i> <span>Scatter Plot</span></button>
+            </nav>
+            <div class="sidebar-footer"><i class="fa-solid fa-circle-info"></i> v1.0.0</div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <div class="pitch-watermark"></div>
+
+            <!-- Dashboard / Landing Page -->
+            <section id="view-landing" class="content-view active">
+                <div class="hero-container">
+                    <div class="dashboard-tag"><i class="fa-solid fa-shield-halved"></i> ANALYTICAL SYSTEM ACTIVE</div>
+                    <h1 class="hero-title">ALL YOU NEED<br><span class="highlight">PER 90.</span></h1>
+                    <p class="hero-subtitle">Performance-filtrering på tværs af europæiske topdivisioner.</p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-value">4.440</div><div class="stat-label">Minutter analyseret</div></div>
+                    <div class="stat-card"><div class="stat-value">684</div><div class="stat-label">Aktive spillere</div></div>
+                    <div class="stat-card"><div class="stat-value">47</div><div class="stat-label">Metrikker målt</div></div>
+                    <div class="stat-card"><div class="stat-value">73</div><div class="stat-label">Rollemodeller</div></div>
+                </div>
+            </section>
+
+            <!-- Pizza Chart View (Helt ren - Javascript overtager alt herfra) -->
+            <section id="view-pizza" class="content-view">
+                <div class="view-header"><h2>Pizza Chart Indsigt</h2><p>Percentil-profil baseret på positionsgrupper</p></div>
+                <div id="pizza-chart-target"></div>
+            </section>
+
+            <!-- Radar Chart View -->
+            <section id="view-radar" class="content-view">
+                <div class="view-header"><h2>Radar Chart Sammenligning</h2><p>Multidimensional styrkeanalyse</p></div>
+                <div id="radar-chart-target" class="chart-box"></div>
+            </section>
+
+            <!-- Scatter Plot View -->
+            <section id="view-scatter" class="content-view">
+                <div class="view-header"><h2>Scatter Plot Korrelation</h2><p>Effektivitet vs Volummetriske datapunkter</p></div>
+                <div id="scatter-chart-target" class="chart-box"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts med cache-busting -->
+    <script src="pizza.js?v=1.0.4"></script>
+    <script src="radar.js?v=1.0.4"></script>
+    <script src="scatter.js?v=1.0.4"></script>
+    <script src="global.js?v=1.0.4"></script>
+</body>
+</html>
