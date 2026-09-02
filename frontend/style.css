@@ -306,9 +306,10 @@ body {
         font-size: 20px;
     }
 
+    /* 1. OPDATERING: GØR NAV-MENU KLAR TIL RENE TEKST-NAVNE */
     .nav-menu {
         flex-direction: row;
-        gap: 6px;
+        gap: 4px;
         flex-grow: 0;
     }
 
@@ -318,9 +319,12 @@ body {
     }
 
     .nav-item {
-        padding: 8px 12px;
-        font-size: 13px;
-        gap: 6px;
+        padding: 6px 10px;
+        font-size: 11px; /* Justeret en smule for at sikre plads til alle 4 navne på stribe */
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        gap: 0;
         border-radius: 4px;
     }
 
@@ -330,8 +334,13 @@ body {
         background-color: var(--accent-purple-dim);
     }
     
+    /* Skjul ikoner og tving navne frem */
+    .nav-item i {
+        display: none !important;
+    }
+    
     .nav-item span {
-        display: none; /* Vis kun ikoner på mobil for at undgå rod */
+        display: inline !important;
     }
 
     .main-content {
@@ -363,22 +372,49 @@ body {
         font-size: 24px;
     }
 
-    /* Tving inline flex-filtre til at stable lodret */
+    /* 2. OPDATERING: FILTER-SELECTORE SIDE OM SIDE MED HORISONTAL SWIPE */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"] {
-        flex-direction: column !important;
-        align-items: center !important;
-        gap: 12px !important;
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        align-items: flex-end !important;
+        gap: 10px !important;
         width: 100% !important;
+        overflow-x: auto !important;
+        padding-bottom: 12px; /* Ekstra plads så rullebjælken ikke klemmer skyggerne */
+        -webkit-overflow-scrolling: touch; /* Gør swipet blødt på iOS/Safari */
+        scrollbar-width: none; /* Skjul standard scrollbar i Firefox */
+    }
+    
+    /* Skjul rullebjælke i Chrome, Safari og Edge for app-look */
+    div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar {
+        display: none !important;
     }
 
+    /* Symmetriske, faste bredder så de kan stå på en vandret række */
     .filter-group {
-        width: 100% !important; 
-        max-width: 340px;
+        width: 150px !important; 
+        flex-shrink: 0 !important; /* Forhindrer browseren i at klemme boksene */
+        max-width: none !important;
     }
     
     .multiselect {
-        width: 100% !important;
-        max-width: 340px;
+        width: 160px !important; 
+        flex-shrink: 0 !important;
+        max-width: none !important;
+    }
+
+    /* Optimer tekststørrelsen i triggers så intet falder ud over kanten */
+    .custom-select-trigger, 
+    .selectBox {
+        padding: 10px 8px !important;
+        font-size: 12px !important;
+    }
+
+    /* Hold dine custom options-lister brede nok til at læse navne, selvom triggeren er smal */
+    .custom-options-list, 
+    #checkboxes-container {
+        width: 250px !important; /* Gør rullelisten bredere end selve knappen for bedre læsbarhed */
+        max-height: 280px !important;
     }
 
     /* Gør diagrammet og rapport-kortet flydende */
