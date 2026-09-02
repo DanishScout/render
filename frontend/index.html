@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PER 90 - Retro Football Analytics</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Henter FontAwesome fra nettet så dine ikoner faktisk virker -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- html2canvas biblioteket der gør det muligt at downloade som billede i scale 4 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Rå retro sidebar med solid sort blækkant -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-main">PER</span><span class="logo-sub">90</span>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" onclick="switchView('landing')">
+                    <i class="fa-solid fa-house"></i> <span>Dashboard</span>
+                </button>
+                <div class="nav-section">Analyseværktøjer</div>
+                <button class="nav-item" onclick="switchView('pizza')">
+                    <i class="fa-solid fa-chart-pie"></i> <span>Pizza Chart</span>
+                </button>
+                <button class="nav-item" onclick="switchView('radar')">
+                    <i class="fa-solid fa-circle-nodes"></i> <span>Radar Chart</span>
+                </button>
+                <button class="nav-item" onclick="switchView('scatter')">
+                    <i class="fa-solid fa-chart-line"></i> <span>Scatter Plot</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <i class="fa-solid fa-bolt"></i> RETRO v1.0
+            </div>
+        </aside>
+
+        <!-- Hovedvindue med farverige pop-art baggrunde -->
+        <main class="main-content">
+            <!-- Landing Page View -->
+            <section id="view-landing" class="content-view active">
+                <div class="hero-container">
+                    <div class="dashboard-tag">JOGA BONITO EDITION</div>
+                    <h1 class="hero-title">ALL YOU NEED<br><span class="highlight">PER 90.</span></h1>
+                    <p class="hero-subtitle">
+                        Avanceret performance-filtrering på tværs af historiske og moderne topdivisioner. Øjet ser argumentet — procenterne færdiggør illustrationen.
+                    </p>
+                </div>
+
+                <!-- Stats Grid transformeret til tunge, farverige vector-kort (Color Blocking) -->
+                <div class="stats-grid">
+                    <!-- Kort 1: Rooney Manchester Rød -->
+                    <div class="stat-card c-rooney">
+                        <div class="stat-value">4.440</div>
+                        <div class="stat-label">Minutter</div>
+                        <div class="stat-desc">Højeste individuelle spilletid analyseret</div>
+                    </div>
+                    <!-- Kort 2: Ronaldinho / Ronaldo Canary Gul -->
+                    <div class="stat-card c-ronaldinho">
+                        <div class="stat-value">684</div>
+                        <div class="stat-label">Spillere</div>
+                        <div class="stat-desc">Kombineret global liga-database</div>
+                    </div>
+                    <!-- Kort 3: Edgar Davids Tændt Orange -->
+                    <div class="stat-card c-davids">
+                        <div class="stat-value">47</div>
+                        <div class="stat-label">Metrikker</div>
+                        <div class="stat-desc">Performance-parametre målt pr. kamp</div>
+                    </div>
+                    <!-- Kort 4: Henry Arsenal Dyb Rød -->
+                    <div class="stat-card c-henry">
+                        <div class="stat-value">73</div>
+                        <div class="stat-label">Modeller</div>
+                        <div class="stat-desc">Taktiske og algoritmiske spillestile</div>
+                    </div>
+                </div>
+            </section>
+            <!-- Pizza Chart View -->
+            <section id="view-pizza" class="content-view">
+                <div class="view-header">
+                    <h2>Pizza Chart Indsigt</h2>
+                    <p>Percentil-profil for valgte spillere</p>
+                </div>
+
+                <!-- Super-styled Custom Dropdown Kontrolpanel centreret i midten -->
+                <div class="filter-panel" style="display: flex; gap: 16px; margin-bottom: 32px; position: relative; z-index: 110; justify-content: center; width: 100%;">
+                    
+                    <!-- Custom Dropdown 1: Vælg Spiller med integreret Søgefelt -->
+                    <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; width: 230px; position: relative;">
+                        <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Select player</label>
+                        <div class="custom-select-wrapper" id="custom-player-wrapper" style="position: relative;">
+                            <div class="custom-select-trigger" onclick="toggleCustomDropdown('player')" style="position: relative; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(8px); transition: border-color 0.2s;">
+                                <span id="custom-player-selected-text">Indlæser...</span>
+                                <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
+                            </div>
+                            
+                            <!-- Rulleliste med fastlåst søgefelt øverst -->
+                            <div class="custom-options-list" id="custom-player-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; box-shadow: 0 15px 30px rgba(0,0,0,0.8); max-height: 300px; overflow-y: auto; z-index: 120; padding: 0;">
+                                <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid var(--border-color); z-index: 130;">
+                                    <input type="text" id="player-search-input" oninput="filterPlayerList()" placeholder="Søg efter spiller..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none; transition: border-color 0.2s;" onclick="event.stopPropagation();">
+                                </div>
+                                <div id="custom-player-items-container"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Dropdown 2: Vælg Position -->
+                    <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; width: 230px; position: relative;">
+                        <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Position to compare against</label>
+                        <div class="custom-select-wrapper" id="custom-pos-wrapper" style="position: relative;">
+                            <div class="custom-select-trigger" onclick="toggleCustomDropdown('pos')" style="position: relative; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(8px); transition: border-color 0.2s;">
+                                <span id="custom-pos-selected-text">Indlæser...</span>
+                                <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
+                            </div>
+                            <div class="custom-options-list" id="custom-pos-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; box-shadow: 0 15px 30px rgba(0,0,0,0.8); max-height: 300px; overflow-y: auto; z-index: 120; padding: 4px 0;">
+                                <!-- Positionsliste indsættes via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Dropdown 3: Vælg Metrikker (Kategoriseret) -->
+                    <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; width: 260px; position: relative;">
+                        <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Select Metrics (Kategoriseret)</label>
+                        <div class="multiselect" style="position: relative;">
+                            <div class="selectBox" onclick="toggleCheckboxDropdown()" style="position: relative; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(8px);">
+                                <span id="metrics-select-text">Vælg parametre...</span>
+                                <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
+                            </div>
+                            <div id="checkboxes-container" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; flex-direction: column; gap: 12px; box-shadow: 0 15px 30px rgba(0,0,0,0.7); max-height: 400px; overflow-y: auto; z-index: 120;">
+                                <!-- Flueben genereres via pizza.js -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Rent HTML Canvas Rapport-kort (Klar til 4x html2canvas download) -->
+                <div class="chart-container-wrapper c-ronaldinho" id="chart-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
+                    <!-- Advarsels-overlay hvis der er valgt under 3 metrikker -->
+                    <div id="pizza-warning-overlay" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 6, 18, 0.9); border-radius: 12px; justify-content: center; align-items: center; z-index: 150; padding: 20px;">
+                        <div style="color: #ff007f; font-weight: 700; text-align: center; font-family: monospace;">
+                            <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; margin-bottom: 10px;"></i><br>
+                            CHOOSE AT LEAST 3 METRICS
+                        </div>
+                    </div>
+                    
+                    <!-- Dynamisk Spillertekst -->
+                    <div style="text-align: center; margin-bottom: 25px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+                        <h2 class="p-nm" id="canvas-player-title" style="font-size: 28px; font-weight: 900; color: #ffffff; margin: 0 0 4px 0; letter-spacing: -0.5px;">Indlæser...</h2>
+                        <div id="canvas-player-subtitle" style="font-size: 14px; color: #948aa3; font-weight: 500;">Søg efter en spiller for at generere profil</div>
+                    </div>
+
+                    <!-- Selve dit rå HTML5 Canvas element -->
+                    <div class="chart-box" style="width: 100%; max-width: 500px; height: 440px; display: flex; justify-content: center; align-items: center;">
+                        <canvas id="pizza-chart-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
+                    </div>
+                </div>
+
+                <!-- Download-knap -->
+                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;">
+                    <button onclick="downloadPNG()" style="background: var(--accent-purple); color: #ffffff; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.2s, background 0.2s; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);">
+                        <i class="fa-solid fa-download"></i> Download as PNG
+                    </button>
+                </div>
+            </section>
+
+            <!-- Radar Chart View -->
+            <section id="view-radar" class="content-view">
+                <div class="view-header">
+                    <h2>Radar Chart Sammenligning</h2>
+                    <p>Multidimensional styrkeanalyse</p>
+                </div>
+                <div class="chart-container-wrapper c-davids">
+                    <div class="chart-box">
+                        <canvas id="radar-chart-canvas"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scatter Plot View -->
+            <section id="view-scatter" class="content-view">
+                <div class="view-header">
+                    <h2>Scatter Plot Korrelation</h2>
+                    <p>Effektivitet vs Volummetriske datapunkter</p>
+                </div>
+                <div class="chart-container-wrapper c-rooney">
+                    <div class="chart-box">
+                        <canvas id="scatter-chart-canvas"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="global.js"></script>
+    <script src="pizza.js?v=3"></script>
+    <script src="radar.js"></script>
+    <script src="scatter.js"></script>
+</body>
+</html>
