@@ -1,3 +1,7 @@
+/* ==========================================================================
+   PER 90 - CORE STYLES (DESKTOP GRUNDLAG)
+   ========================================================================== */
+
 :root {
     --bg-dark: #0b0612;          /* Dyb mørk lilla basen */
     --bg-card: rgba(20, 13, 33, 0.6); /* Semi-transparent overflade med flot glaseffekt */
@@ -30,7 +34,7 @@ body {
     width: 100vw;
 }
 
-/* Sidebar layout og dimensioner (Holdes på de strømlinede 200px) */
+/* Sidebar layout og dimensioner */
 .sidebar {
     width: 200px;
     background-color: var(--bg-sidebar);
@@ -86,31 +90,24 @@ body {
 .nav-item:hover { color: var(--text-primary); background-color: rgba(255, 255, 255, 0.03); }
 .nav-item.active { color: var(--text-primary); background-color: var(--accent-purple-dim); border-left: 3px solid var(--accent-purple); }
 .sidebar-footer { color: var(--text-muted); font-size: 12px; display: flex; align-items: center; gap: 8px; }
-/* --- HOVEDINDHOLD WINDOW WITH SMOOTH STRIPES --- */
+
+/* Hovedindhold vindue med banestriber */
 .main-content {
     flex-grow: 1;
     padding: 60px;
-    overflow-x: hidden; /* Sikrer 100% mod sidelæns scrolling */
+    overflow-x: hidden;
     overflow-y: auto;
     position: relative;
-    
-    /* 
-       DET SAMLEDE, STRØMLINEDE STRIDEMØNSTER:
-       1. Radial-gradienten giver en meget svag og blød lilla belysning oppe i hjørnet.
-       2. Linear-gradienten genererer de dæmpede vandrette banestriber (60px høje), 
-          der skifter roligt mellem dine mørkelilla FM-nuancer uden at stjæle fokus.
-    */
     background-image: 
         radial-gradient(circle at 85% 25%, rgba(168, 85, 247, 0.05) 0%, transparent 50%),
         linear-gradient(to bottom, 
             #0b0612 0%, #0b0612 50%, 
-            #0f091a 50%, #0f091a 100__
+            #0f091a 50%, #0f091a 100%
         );
     background-size: 100% 100%, 100% 60px;
     background-repeat: no-repeat, repeat;
 }
 
-/* Nulstiller og tømmer baggrundsvandmærket helt, så der er fuldstændig ro på skærmen */
 .pitch-watermark {
     position: absolute;
     top: 0;
@@ -126,10 +123,11 @@ body {
     content: none !important;
     display: none !important;
 }
+
 .content-view {
     display: none;
     position: relative;
-    z-index: 1; /* Lægger oversigter og grafer foran baggrundsstriberne */
+    z-index: 1;
     animation: fadeIn 0.4s ease;
 }
 
@@ -142,7 +140,7 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- HERO SEKTION --- */
+/* Hero Sektion */
 .hero-container {
     max-width: 600px;
     margin-top: 40px;
@@ -179,7 +177,7 @@ body {
     line-height: 1.6;
 }
 
-/* --- SYMMETRISK MINIMALISTISK STATS GRID --- */
+/* Stats Grid */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -190,7 +188,7 @@ body {
 
 .stat-card {
     background-color: var(--bg-card);
-    backdrop-filter: blur(8px); /* Slører striberne blødt lige under dine kort */
+    backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -226,7 +224,7 @@ body {
     line-height: 1.4;
 }
 
-/* Graf-beholdere (Pizza, Radar, Scatter) */
+/* Graf beholdere */
 .view-header {
     margin-bottom: 32px;
 }
@@ -268,4 +266,155 @@ body {
     max-width: 100%;
     max-height: 550px;
     object-fit: contain;
+}
+
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (IPAD & MOBILOPTIMERING) - NYT TILFØJET
+   ========================================================================== */
+
+@media screen and (max-width: 900px) {
+    body {
+        overflow-y: auto; 
+        height: auto;
+    }
+
+    .app-container {
+        flex-direction: column; 
+        height: auto;
+        width: 100vw;
+    }
+
+    /* Omdan sidebar til en sticky topbar */
+    .sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 16px;
+        flex-direction: row; 
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        background-color: var(--bg-sidebar);
+        z-index: 1000;
+    }
+
+    .logo {
+        margin-bottom: 0; 
+        font-size: 20px;
+    }
+
+    .nav-menu {
+        flex-direction: row;
+        gap: 6px;
+        flex-grow: 0;
+    }
+
+    .nav-section, 
+    .sidebar-footer {
+        display: none !important;
+    }
+
+    .nav-item {
+        padding: 8px 12px;
+        font-size: 13px;
+        gap: 6px;
+        border-radius: 4px;
+    }
+
+    .nav-item.active {
+        border-left: none;
+        border-bottom: 2px solid var(--accent-purple); 
+        background-color: var(--accent-purple-dim);
+    }
+    
+    .nav-item span {
+        display: none; /* Vis kun ikoner på mobil for at undgå rod */
+    }
+
+    .main-content {
+        padding: 24px 16px; 
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    .hero-title {
+        font-size: 28px;
+    }
+    
+    .view-header h2 {
+        font-size: 22px;
+    }
+
+    /* Stabel stat-kort 2x2 */
+    .stats-grid {
+        grid-template-columns: 1fr 1fr; 
+        gap: 12px;
+        padding-top: 24px;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .stats-grid .stat-value {
+        font-size: 24px;
+    }
+
+    /* Tving inline flex-filtre til at stable lodret */
+    div[style*="display: flex; gap: 16px; margin-bottom: 32px;"] {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+
+    .filter-group {
+        width: 100% !important; 
+        max-width: 340px;
+    }
+    
+    .multiselect {
+        width: 100% !important;
+        max-width: 340px;
+    }
+
+    /* Gør diagrammet og rapport-kortet flydende */
+    .chart-container-wrapper, 
+    #chart-only {
+        padding: 16px 12px !important;
+        min-height: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+    }
+
+    #pizza-svg-element {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 400px;
+        margin-top: 0 !important;
+    }
+    
+    .p-nm {
+        font-size: 20px !important;
+    }
+    
+    .p-sub-bar {
+        gap: 8px !important;
+        font-size: 11px !important;
+    }
+    
+    .header-card {
+        padding: 12px 16px !important;
+        margin-bottom: 12px !important;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .stats-grid {
+        grid-template-columns: 1fr; 
+    }
 }
