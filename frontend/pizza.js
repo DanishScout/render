@@ -49,72 +49,23 @@ function resetPlayerSearch() {
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
+        /* RETTET: Nu importeres Gabarito korrekt, hvis browseren isolerer JavaScript-styles */
         @import url('https://googleapis.com');
+
         .custom-option-item { padding: 10px 14px; color: #f3f1f6; cursor: pointer; font-size: 14px; transition: all 0.15s ease; font-family: var(--font-family), sans-serif; }
         .custom-option-item:hover { background-color: rgba(168, 85, 247, 0.25) !important; color: #ffffff !important; padding-left: 18px; }
         .custom-option-item.selected-active { background-color: var(--accent-purple) !important; color: #ffffff !important; }
         #chart-only { position: relative; padding: 15px 15px 35px; border-radius: 24px; width: 100%; max-width: 710px; border: 1px solid rgba(0,240,255,.08); box-shadow: 0 30px 60px -15px #000, inset 0 1px 0 rgba(255,255,255,.05); box-sizing: border-box; opacity: .85; overflow: hidden; background: #0B1220; display: flex; flex-direction: column; align-items: center; margin: 20px auto !important; font-family: var(--font-family), sans-serif; color: #e5e7eb; }
         #chart-only::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(#0f172a, #020617); z-index: 0; border-radius: 24px; }
-        
-        .header-card { 
-            position: relative; 
-            z-index: 2; 
-            width: 100%; 
-            max-width: clamp(320px, 90vw, 575px); 
-            margin: clamp(10px, 2vw, 15px) auto clamp(15px, 3vw, 25px); 
-            padding: clamp(12px, 3vw, 20px) clamp(16px, 4vw, 25px); 
-            background: transparent; 
-            border: 1px solid rgba(0, 240, 255, 0.08); 
-            border-radius: 16px; 
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4); 
-            box-sizing: border-box; 
-        }
+        .header-card { position: relative; z-index: 2; width: 100%; max-width: 575px; margin: 15px auto 25px; padding: 20px 25px; background: transparent; border: 1px solid rgba(0, 240, 255, 0.08); border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4); box-sizing: border-box; }
         .h-cnt { display: flex; gap: 20px; width: 100%; box-sizing: border-box; }
         .p-meta-right { display: flex; flex-direction: column; flex-grow: 1; }
-        
-        .p-nm { 
-            font-size: clamp(18px, 4vw, 27px) !important; 
-            font-weight: 900; 
-            margin: 0 0 clamp(6px, 1.5vw, 10px); 
-            text-transform: uppercase; 
-            letter-spacing: -.5px; 
-            color: #fff; 
-        }
+        .p-nm { font-size: 27px; font-weight: 900; margin: 0 0 10px; text-transform: uppercase; letter-spacing: -.5px; color: #fff; }
         .tactic-line { width: 100%; height: 2px; margin-bottom: 12px; }
-        
-        .p-sub-bar { 
-            display: flex; 
-            align-items: center; 
-            gap: clamp(8px, 2vw, 14px); 
-            font-size: clamp(11px, 2vw, 13px) !important; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            letter-spacing: .5px; 
-            flex-wrap: wrap; 
-        }
+        .p-sub-bar { display: flex; align-items: center; gap: 14px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; flex-wrap: wrap; }
         .meta-item { display: flex; align-items: center; gap: 6px; color: #fff; }
-        
-        .meta-item svg { 
-            opacity: .6; 
-            fill: none; 
-            stroke-width: 2.5; 
-            stroke-linecap: round; 
-            stroke-linejoin: round; 
-            width: clamp(13px, 2vw, 15px); 
-            height: clamp(13px, 2vw, 15px); 
-        }
-        
-        .logo-shape { 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            width: clamp(18px, 2.5vw, 22px); 
-            height: clamp(18px, 2.5vw, 22px); 
-            background: rgba(0,240,255,0.1); 
-            border-radius: 50%; 
-            padding: 2px; 
-            box-sizing: border-box; 
-        }
+        .meta-item svg { opacity: .6; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; width: 15px; height: 15px; }
+        .logo-shape { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: rgba(0,240,255,0.1); border-radius: 50%; padding: 2px; box-sizing: border-box; }
         .club-crest-small { width: 100%; height: 100%; object-fit: contain; }
         .data-val { color: #94a3b8; font-weight: 600; }
         .pipe-divider { color: rgba(0,240,255,.2); font-size: 14px; }
@@ -142,21 +93,42 @@ document.addEventListener("DOMContentLoaded", () => {
             text-size-adjust: none !important;
         }
 
-        .chart-footer, .chart-footer-source { 
-            text-align: center; 
-            width: 100%; 
-            font-size: clamp(9px, 1.8vw, 11px) !important; 
-            font-weight: 300; 
-            color: #e5e7eb; 
-            letter-spacing: .4px; 
-            padding: 0 40px; 
-            box-sizing: border-box; 
-            position: relative; 
-            z-index: 2; 
-            font-family: var(--font-family), sans-serif; 
+        .chart-footer, .chart-footer-source { text-align: center; width: 100%; font-size: 11px; font-weight: 300; color: #e5e7eb; letter-spacing: .4px; padding: 0 40px; box-sizing: border-box; position: relative; z-index: 2; font-family: var(--font-family), sans-serif; }
+        .chart-footer { margin-top: 1px; opacity: 0.75; }
+        .chart-footer-source { margin-top: 6px; opacity: 0.5; }
+
+        /* ==========================================================================
+           NYT: MOBIL-OPTIMERING SÅ HEADER/CONTAINER OG FOOTER PASSER PÅ EN MOBIL
+           ========================================================================== */
+        @media (max-width: 480px) {
+            .header-card {
+                padding: 12px 16px !important;
+                margin: 5px auto 15px !important;
+                max-width: 90% !important;
+            }
+            .p-nm {
+                font-size: 18px !important;
+                margin: 0 0 6px !important;
+            }
+            .p-sub-bar {
+                gap: 8px !important;
+                font-size: 11px !important;
+            }
+            .meta-item svg {
+                width: 13px !important;
+                height: 13px !important;
+            }
+            .logo-shape {
+                width: 18px !important;
+                height: 18px !important;
+            }
+            .chart-footer, .chart-footer-source {
+                font-size: 1px !important;
+                padding: 0 20px !important;
+            }
+            .chart-footer { margin-top: 5px !important; }
+            .chart-footer-source { margin-top: 3px !important; }
         }
-        .chart-footer { margin-top: clamp(2px, 1vw, 6px); opacity: 0.75; }
-        .chart-footer-source { margin-top: clamp(2px, 1vw, 6px); opacity: 0.5; }
     `;
     document.head.appendChild(style);
     buildCategorizedMetrics();
@@ -167,6 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!e.target.closest('.multiselect')) toggleDisplay($("checkboxes-container"), false);
     });
 });
+
 // ==========================================
 // DEL 3 AF 4: DROPDOWN OG ARRAY-PARSING FIX
 // ==========================================
@@ -196,13 +169,13 @@ async function initCustomPizzaSelectors() {
         ]);
         
         if (players.length > 0 && $("custom-player-items-container")) {
-            CURRENT_SELECTED_PLAYER = players; 
+            CURRENT_SELECTED_PLAYER = players[0]; 
             $("custom-player-selected-text").innerText = CURRENT_SELECTED_PLAYER;
             $("custom-player-items-container").innerHTML = players.map(p => `<div class="custom-option-item ${p === CURRENT_SELECTED_PLAYER ? 'selected-active' : ''}" onclick="selectCustomItem('player', '${p.replace(/'/g, "\\'")}')">${p}</div>`).join('');
         }
 
         if (positions.length > 0 && $("custom-pos-options")) {
-            CURRENT_SELECTED_POS = positions; 
+            CURRENT_SELECTED_POS = positions[0]; 
             $("custom-pos-selected-text").innerText = CURRENT_SELECTED_POS;
             $("custom-pos-options").innerHTML = positions.map(pos => `<div class="custom-option-item ${pos === CURRENT_SELECTED_POS ? 'selected-active' : ''}" id="opt-pos-${pos}" onclick="selectCustomItem('pos', '${pos}')">${pos}</div>`).join('');
         }
@@ -281,8 +254,8 @@ async function loadPizzaChartDataWithFilters(playerName, comparePos, metricsList
                 </div>
             </div>
             <svg width="710" height="570" viewBox="0 0 710 570" id="pizza-svg-element"></svg>
-            <div class="chart-footer">${apiResponse.player_name}'s percentile rank vs. ${leagueVal} ${CURRENT_SELECTED_POS}s</div>
-            <div class="chart-footer-source">Generated via per-90.streamlit.app</div>
+            <div class="chart-footer" style="font-family: var(--font-family), sans-serif;">${apiResponse.player_name}'s percentile rank vs. ${leagueVal} ${CURRENT_SELECTED_POS}s</div>
+            <div class="chart-footer-source" style="font-family: var(--font-family), sans-serif;">Generated via per-90.streamlit.app</div>
         `;
         buildPizzaVektorChart(apiResponse, sColor);
     } catch (e) { console.error("Interface fejl:", e); }
@@ -312,6 +285,7 @@ function buildPizzaVektorChart(data, selectedColor) {
         markup += `<text x="${CX + 258 * cos}" y="${CY + 250 * sin}" class="ax-lbl" style="font-family: var(--font-family), sans-serif;" text-anchor="${anchor}" dominant-baseline="middle" fill="#94a3b8">${metric}</text>`;
 
         if (score > 15) {
+            /* HER GENNEMTVINGER VI NEON/KATEGORIFARVEN MED EN INLINE FILL STYLE-REGEL */
             markup += `<g><rect x="${CX + currentR * cos - 13}" y="${CY + currentR * sin - 7}" width="26" height="14" rx="3" class="box-bg-rect" stroke="${c}" stroke-width="1.5" /><text x="${CX + currentR * cos}" y="${CY + currentR * sin}" class="tx-b" style="font-family: var(--font-family), sans-serif; fill: ${c} !important;" text-anchor="middle" dominant-baseline="central">${score}</text></g>`;
         }
     });
