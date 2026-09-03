@@ -37,20 +37,18 @@
                     </button>
                 </div>
             
-                <!-- MOBIL CUSTOM DROPDOWN MENU: Vises kun på mobilen og kan kollapse -->
+                <!-- MOBIL-MENU: Vises kun på mobilen (Uden emojis, styres rent via CSS-ark) -->
                 <div class="mobile-nav-custom-dropdown" id="custom-menu-wrapper">
-                    <div class="custom-menu-trigger" onclick="toggleMobileMenuDropdown()" id="custom-menu-trigger-text">
-                        <span>🏠 Dashboard</span>
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </div>
-                    <div class="custom-menu-options" id="custom-menu-options-list">
-                        <div class="custom-menu-item" onclick="selectMobileView('landing', '🏠 Dashboard')">🏠 Dashboard</div>
-                        <div class="custom-menu-item" onclick="selectMobileView('pizza', '🍕 Pizza Chart')">🍕 Pizza Chart</div>
-                        <div class="custom-menu-item" onclick="selectMobileView('radar', '🕸️ Radar Chart')">🕸️ Radar Chart</div>
-                        <div class="custom-menu-item" onclick="selectMobileView('scatter', '📈 Scatter Plot')">📈 Scatter Plot</div>
-                    </div>
+                    <select id="mobile-view-selector" onchange="switchView(this.value)">
+                        <option value="landing">Dashboard</option>
+                        <option value="pizza">Pizza Chart</option>
+                        <option value="radar">Radar Chart</option>
+                        <option value="scatter">Scatter Plot</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down"></i>
                 </div>
             </nav>
+
 
 
         <!-- Hovedvindue med farverige pop-art baggrunde -->
