@@ -575,10 +575,10 @@ body {
     
     /* DESIGN OG TYPOGRAFI TIL PIZZADIAGRAM */
     .p-nm { 
-        font-size: 12px !important; 
+        font-size: 16px !important; 
         
         /* JUSTER LINJEN HER (Hvis linjen er en border på navnet): */
-        padding-bottom: 4px !important;  /* Mindre tal rykker linjen OP mod navnet - større tal rykker den NED */
+        padding-bottom: 6px !important;  /* Mindre tal rykker linjen OP mod navnet - større tal rykker den NED */
         margin-bottom: 2px !important;  /* Større tal skubber subtitlerne længere NED under linjen */
     }
     
@@ -588,7 +588,7 @@ body {
         
         /* JUSTER LINJEN HER (Hvis linjen er en border på subtitlerne): */
         margin-top: 0px !important;   /* Større tal rykker linjen LÆNGERE NED fra spillernavnet */
-        padding-top: 2px !important;    /* Større tal skubber underteksten LÆNGERE NED fra linjen */
+        padding-top: 0px !important;    /* Større tal skubber underteksten LÆNGERE NED fra linjen */
     }
 
     .header-card { 
