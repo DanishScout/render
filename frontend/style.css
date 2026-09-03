@@ -575,7 +575,7 @@ body {
     
     /* DESIGN OG TYPOGRAFI TIL PIZZADIAGRAM */
     .p-nm { 
-        font-size: 16px !important; 
+        font-size: 30px !important; 
         
         /* JUSTER LINJEN HER (Hvis linjen er en border på navnet): */
         padding-bottom: 6px !important;  /* Mindre tal rykker linjen OP mod navnet - større tal rykker den NED */
