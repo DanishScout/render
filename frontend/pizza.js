@@ -108,20 +108,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 max-width: 80% !important;        /* Skåret ind fra 90% til 80% for at gøre den smallere */
             }
             .p-nm {
-                font-size: 16px !important;       /* Gjort en anelse mindre (fra 18px), så det passer til den lavere boks */
+                font-size: 10px !important;       /* spillernavn */
                 margin: 0 0 4px !important;       /* Mindre afstand ned til den lysende streg */
             }
             .p-sub-bar {
                 gap: 6px !important;              /* Trækker ikonerne og teksterne tættere sammen */
-                font-size: 10px !important;       /* Gør teksten en anelse mindre for at spare højde */
+                font-size: 8px !important;       /* liga postion osv */
             }
             .meta-item svg {
-                width: 12px !important;
-                height: 12px !important;
+                width: 9px !important;
+                height: 9px !important;
             }
             .logo-shape {
-                width: 16px !important;
-                height: 16px !important;
+                width: 12px !important;
+                height: 12px !important;
             }
             .chart-footer, .chart-footer-source {
                 font-size: 8px !important;        /* Hævet en anelse fra 5px til 8px, så det reelt kan læses på en telefon */
