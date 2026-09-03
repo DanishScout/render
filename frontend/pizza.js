@@ -49,7 +49,9 @@ function resetPlayerSearch() {
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
+        /* RETTET: Nu importeres Gabarito korrekt, hvis browseren isolerer JavaScript-styles */
         @import url('https://googleapis.com');
+
         .custom-option-item { padding: 10px 14px; color: #f3f1f6; cursor: pointer; font-size: 14px; transition: all 0.15s ease; font-family: var(--font-family), sans-serif; }
         .custom-option-item:hover { background-color: rgba(168, 85, 247, 0.25) !important; color: #ffffff !important; padding-left: 18px; }
         .custom-option-item.selected-active { background-color: var(--accent-purple) !important; color: #ffffff !important; }
@@ -76,7 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
             fill: #94a3b8; 
             font-weight: 700; 
             letter-spacing: .5px; 
-            /* NYT: Tvinger browseren til at skalere teksten lineært med diagrammet */
             text-shadow: none;
             -webkit-text-size-adjust: none !important;
             text-size-adjust: none !important;
@@ -84,20 +85,50 @@ document.addEventListener("DOMContentLoaded", () => {
         .slice-b { stroke-width: 1.75; stroke-linejoin: round; }
         .box-bg-rect { fill: #0B1220 !important; }
         
-        /* HER SIKRER VI, AT STRUKTUREN ARVER RIGTIG FILL-FARVE FRA JS */
         .tx-b { 
             font-size: 11px; 
             font-weight: 900; 
             fill: inherit !important;
-            /* NYT: Forhindrer mobilen i at puste tallene op */
             -webkit-text-size-adjust: none !important;
             text-size-adjust: none !important;
         }
 
-        
-        .chart-footer, .chart-footer-source { text-align: center; width: 100%; font-size: 11px; font-weight: 300; color: #e5e7eb; letter-spacing: .4px; padding: 0 40px; box-sizing: border-box; position: relative; z-index: 2; }
+        .chart-footer, .chart-footer-source { text-align: center; width: 100%; font-size: 11px; font-weight: 300; color: #e5e7eb; letter-spacing: .4px; padding: 0 40px; box-sizing: border-box; position: relative; z-index: 2; font-family: var(--font-family), sans-serif; }
         .chart-footer { margin-top: 1px; opacity: 0.75; }
         .chart-footer-source { margin-top: 6px; opacity: 0.5; }
+
+        /* ==========================================================================
+           NYT: MOBIL-OPTIMERING SÅ HEADER/CONTAINER OG FOOTER PASSER PÅ EN MOBIL
+           ========================================================================== */
+        @media (max-width: 480px) {
+            .header-card {
+                padding: 12px 16px !important;
+                margin: 5px auto 15px !important;
+                max-width: 90% !important;
+            }
+            .p-nm {
+                font-size: 18px !important;
+                margin: 0 0 6px !important;
+            }
+            .p-sub-bar {
+                gap: 8px !important;
+                font-size: 11px !important;
+            }
+            .meta-item svg {
+                width: 13px !important;
+                height: 13px !important;
+            }
+            .logo-shape {
+                width: 18px !important;
+                height: 18px !important;
+            }
+            .chart-footer, .chart-footer-source {
+                font-size: 9px !important;
+                padding: 0 20px !important;
+            }
+            .chart-footer { margin-top: 5px !important; }
+            .chart-footer-source { margin-top: 3px !important; }
+        }
     `;
     document.head.appendChild(style);
     buildCategorizedMetrics();
@@ -108,6 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!e.target.closest('.multiselect')) toggleDisplay($("checkboxes-container"), false);
     });
 });
+
 // ==========================================
 // DEL 3 AF 4: DROPDOWN OG ARRAY-PARSING FIX
 // ==========================================
