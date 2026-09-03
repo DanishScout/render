@@ -578,12 +578,12 @@ body {
         font-size: 12px !important; 
         
         /* JUSTER LINJEN HER (Hvis linjen er en border på navnet): */
-        padding-bottom: 6px !important;  /* Mindre tal rykker linjen OP mod navnet - større tal rykker den NED */
+        padding-bottom: 10px !important;  /* Mindre tal rykker linjen OP mod navnet - større tal rykker den NED */
         margin-bottom: 10px !important;  /* Større tal skubber subtitlerne længere NED under linjen */
     }
     
     .p-sub-bar { 
-        gap: 8px !important; 
+        gap: 4px !important; 
         font-size: 8px !important; 
         
         /* JUSTER LINJEN HER (Hvis linjen er en border på subtitlerne): */
