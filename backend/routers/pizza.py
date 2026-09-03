@@ -1,61 +1,48 @@
+# ==========================================================================
+# PER 90 - PIZZA.PY (RETTET ILOC) - DEL 1 AF 2
+# ==========================================================================
 from fastapi import APIRouter, HTTPException, Query
 import pandas as pd
 from typing import List
 
 router = APIRouter(prefix="/api", tags=["pizza"])
 
-# Det avancerede, kategoriserede metrik-katalog fra din Streamlit app
 AVAILABLE_METRICS_MAP = {
     "Shooting": {
-        "total goals_p90": "Goals",
-        "xG_p90": "npxG",
-        "total ontarget attempt_p90": "Shots On Target",
-        "attempt_success_pct_p90": "On Target %"
+        "total goals_p90": "Goals", "xG_p90": "npxG",
+        "total ontarget attempt_p90": "Shots On Target", "attempt_success_pct_p90": "On Target %"
     },
     "Passing": {
-        "total assists_p90": "Assists",
-        "xA_p90": "xA",
-        "total att assist_p90": "Key Passes",
-        "xT_pass_p90": "xT via Live Passes"
+        "total assists_p90": "Assists", "xA_p90": "xA",
+        "total att assist_p90": "Key Passes", "xT_pass_p90": "xT via Live Passes"
     },
     "Possession": {
-        "total won contest_p90": "Successful Dribbles",
-        "total contest_p90": "Dribble Attempts",
+        "total won contest_p90": "Successful Dribbles", "total contest_p90": "Dribble Attempts",
         "dribble_success_pct_p90": "Dribble Success %"
     },
     "Defending": {
-        "tackle_success_pct_p90": "Tackles Won %",
-        "aerial_success_pct_p90": "Aerials Won %",
-        "duel_success_pct_p90": "Duels Won %",
-        "total won tackle_p90": "Tackles Won"
+        "tackle_success_pct_p90": "Tackles Won %", "aerial_success_pct_p90": "Aerials Won %",
+        "duel_success_pct_p90": "Duels Won %", "total won tackle_p90": "Tackles Won"
     }
 }
 
-# Flad tilgængelig ordbog til hurtigt opslag på tværs af kategorier
 FLAT_METRICS = {k: v for cat in AVAILABLE_METRICS_MAP.values() for k, v in cat.items()}
 
 @router.get("/pizza/players")
 def get_all_players():
-    """Henter alle spillere sorteret alfabetisk"""
     from app import GLOBAL_DATASET
-    if GLOBAL_DATASET is None or GLOBAL_DATASET.empty:
-        return []
-    players = sorted(GLOBAL_DATASET['Player Name'].dropna().unique().tolist())
-    return players
+    if GLOBAL_DATASET is None or GLOBAL_DATASET.empty: return []
+    return sorted(GLOBAL_DATASET['Player Name'].dropna().unique().tolist())
 
 @router.get("/pizza/positions")
 def get_all_positions():
-    """Henter alle unikke positioner til sammenlignings-dropdownen"""
     from app import GLOBAL_DATASET
-    if GLOBAL_DATASET is None or GLOBAL_DATASET.empty:
-        return []
-    
+    if GLOBAL_DATASET is None or GLOBAL_DATASET.empty: return []
     pos_column = 'Pos.' if 'Pos.' in GLOBAL_DATASET.columns else ('Position' if 'Position' in GLOBAL_DATASET.columns else None)
-    if not pos_column:
-        return []
-        
-    positions = sorted(GLOBAL_DATASET[pos_column].dropna().unique().tolist())
-    return positions
+    if not pos_column: return []
+    return sorted(GLOBAL_DATASET[pos_column].dropna().unique().tolist())# ==========================================================================
+# PER 90 - PIZZA.PY (RETTET DATA-UDTRÆK) - DEL 2 AF 2
+# ==========================================================================
 
 @router.get("/pizza")
 def get_pizza_data(
@@ -67,58 +54,65 @@ def get_pizza_data(
     if GLOBAL_DATASET is None or GLOBAL_DATASET.empty:
         raise HTTPException(status_code=500, detail="Datamotoren er tom.")
 
-    # Find den rigtige positionskolonne i dit CSV-ark
     pos_column = 'Pos.' if 'Pos.' in GLOBAL_DATASET.columns else ('Position' if 'Position' in GLOBAL_DATASET.columns else None)
     if not pos_column:
-        raise HTTPException(status_code=500, detail="Positionskolonne ('Pos.' eller 'Position') mangler i CSV.")
+        raise HTTPException(status_code=500, detail="Positionskolonne mangler i CSV.")
 
-    # Find spillerens række
     player_row = GLOBAL_DATASET[GLOBAL_DATASET['Player Name'].str.lower() == player.lower()]
     if player_row.empty:
         raise HTTPException(status_code=404, detail=f"Spilleren '{player}' blev ikke fundet.")
     
+    # KORREKT ILOC[0] FIX HER 🎯
     target_player_data = player_row.iloc[0]
     player_league = target_player_data.get('League', None)
 
-    # Streamlit logik: Filtrer efter SAMME liga OG den VALGTE sammenlignings-position
     filter_mask = (GLOBAL_DATASET[pos_column] == compare_pos)
     if player_league is not None:
         filter_mask = filter_mask & (GLOBAL_DATASET['League'] == player_league)
         
     comparison_df = GLOBAL_DATASET[filter_mask].copy()
 
-    # Hvis spilleren falder uden for gruppen (pga. positionsskift), tilføjes han midlertidigt til beregningen
     if player not in comparison_df['Player Name'].values:
         comparison_df = pd.concat([comparison_df, player_row], ignore_index=True)
 
     labels = []
     percentiles = []
 
-    # Gennemgå de metrikker, frontenden efterspørger
     for csv_column, display_name in FLAT_METRICS.items():
         if metrics is not None and display_name not in metrics:
             continue
 
         if csv_column in comparison_df.columns:
-            # Dynamisk percentil-beregning (method='max' svarer til din Streamlits weak rank * 100)
             comparison_df[f'{csv_column}_pct'] = comparison_df[csv_column].rank(pct=True, method='max') * 100.0
-            
             player_pct_row = comparison_df[comparison_df['Player Name'].str.lower() == player.lower()]
             pct_val = player_pct_row[f'{csv_column}_pct'].iloc[0] if not player_pct_row.empty else 0.0
-            
-            if pd.isna(pct_val):
-                pct_val = 0.0
-
+            if pd.isna(pct_val): pct_val = 0.0
             labels.append(display_name)
             percentiles.append(round(max(0.0, min(float(pct_val), 100.0)), 1))
         else:
             labels.append(f"{display_name} (Mangler)")
             percentiles.append(0.0)
 
+    # TRÆKKER DATA UD FRA DIN CSV
+    extracted_mins = target_player_data.get('total mins played', target_player_data.get('Mins', 0))
+    if pd.isna(extracted_mins): 
+        extracted_mins = 0
+    else:
+        extracted_mins = int(extracted_mins)
+
     return {
         "player_name": target_player_data['Player Name'],
         "team": target_player_data.get('Team', 'Ukendt Klub'),
+        
+        # Din pizza.js renderer ud fra apiResponse.league, så vi mapper klubnavnet ('Team') hertil:
+        "league": target_player_data.get('Team', 'Ukendt Klub'), 
+        
         "player_pos": target_player_data.get(pos_column, 'Ukendt'),
+        
+        # Sender minutterne med over i JSON-svaret
+        "mins_played": extracted_mins, 
+        
         "metrics": labels,
-        "percentiles": percentiles
+        "percentiles": percentiles,
+        "team_id": str(target_player_data.get('team_id', 'nan'))
     }
