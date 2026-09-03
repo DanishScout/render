@@ -295,7 +295,7 @@ body {
         width: 100vw;
     }
 
-    /* Omdan sidebar til en ren top-bjælke med logo og dropdown */
+    /* Omdan sidebar til en ren top-bjælke med logo og din nye dropdown */
     .sidebar {
         width: 100%;
         height: auto;
@@ -312,27 +312,67 @@ body {
         overflow: visible; 
     }
 
-    /* Fjern den gamle lilla fade-skygge, den er ikke nødvendig mere */
-    .sidebar::after {
-        content: none !important;
-    }
-
     .logo {
         margin-bottom: 0; 
         font-size: 20px;
         flex-shrink: 0;
     }
 
-    /* 🛠️ NY MOBIL LOGIK: Skjul pc-links og vis den nye dropdown ved siden af logoet */
     .nav-menu {
         flex-grow: 0;
     }
+    
     .desktop-nav-links {
-        display: none !important; /* Væk med pc-knapperne */
+        display: none !important; /* Skjul de flade pc-knapper på mobilen */
     }
-    .mobile-nav-dropdown-wrapper {
-        display: block !important; /* Frem med den flotte dropdown */
+
+    /* 🛠️ NY RENT-CSS DROPDOWN-STYLING (Ingen JS-ændringer overhovedet!) */
+    .mobile-nav-custom-dropdown {
         position: relative;
+        width: 160px; /* Kompakt bredde i top-bjælken */
+    }
+
+    .mobile-nav-custom-dropdown select {
+        width: 100%;
+        background: rgba(20, 13, 33, 0.95) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid var(--border-color) !important;
+        padding: 10px 28px 10px 12px !important; /* Plads til pilen i højre side */
+        border-radius: 6px !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        outline: none !important;
+        text-transform: uppercase !important;
+        cursor: pointer !important;
+        letter-spacing: 0.5px !important;
+        
+        /* Fjern browserens grimme standard-pile fuldstændig */
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        transition: border-color 0.2s;
+    }
+
+    .mobile-nav-custom-dropdown select:focus {
+        border-color: var(--accent-purple) !important;
+    }
+
+    /* Vores egen custom font-awesome retro pil */
+    .mobile-nav-custom-dropdown i {
+        position: absolute !important;
+        right: 12px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        font-size: 11px !important;
+        color: var(--text-muted) !important;
+        pointer-events: none !important; /* Gør at man kan klikke "igennem" pilen og ramme menuen */
+    }
+
+    /* De enkelte linjer inde i rullelisten stylkes så mørke som muligt */
+    .mobile-nav-custom-dropdown select option {
+        background: #07030c !important;
+        color: #f3f1f6 !important;
+        padding: 12px !important;
     }
 
     .nav-section, 
@@ -369,7 +409,7 @@ body {
         font-size: 24px;
     }
 
-    /* FILTER-BJÆLKE (Beholder din velfungerende vandrette swipe-effekt til dropdowns) */
+    /* FILTER-BJÆLKE (De tre vandrette swipe-dropdowns i bunden under graferne) */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"] {
         flex-direction: row !important;
         justify-content: flex-start !important;
