@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 height: 18px !important;
             }
             .chart-footer, .chart-footer-source {
-                font-size: 9px !important;
+                font-size: 1px !important;
                 padding: 0 20px !important;
             }
             .chart-footer { margin-top: 5px !important; }
