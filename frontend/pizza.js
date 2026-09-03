@@ -1,8 +1,13 @@
-// ==========================================
-// DEL 1 AF 4: METRIKKER, VARIABLER OG HELPERS
-// ==========================================
+// ==========================================================================
+// PER 90 - PIZZA.JS (KOMPLET FIL) - DEL 1 AF 4
+// ==========================================================================
 
-const AVAILABLE_PIZZA_METRICS = ["Goals", "npxG", "Shots On Target", "On Target %", "Assists", "xA", "Key Passes", "xT via Live Passes", "Successful Dribbles", "Dribble Attempts", "Dribble Success %", "Tackles Won %", "Aerials Won %", "Duels Won %", "Tackles Won"];
+const AVAILABLE_PIZZA_METRICS = [
+    "Goals", "npxG", "Shots On Target", "On Target %", 
+    "Assists", "xA", "Key Passes", "xT via Live Passes", 
+    "Successful Dribbles", "Dribble Attempts", "Dribble Success %", 
+    "Tackles Won %", "Aerials Won %", "Duels Won %", "Tackles Won"
+];
 
 const PIZZA_CATEGORIES = {
     "Shooting": { "Goals": "Goals", "npxG": "npxG", "Shots On Target": "Shots On Target", "On Target %": "On Target %" },
@@ -16,9 +21,10 @@ if (typeof window.pizzaChartInstance === 'undefined') window.pizzaChartInstance 
 
 const $ = id => document.getElementById(id);
 const toggleDisplay = (el, show) => el && (el.style.display = show ? "block" : "none");
-// ==========================================
-// DEL 2 AF 4: REALTIDS-FILTRERING OG STYLES
-// ==========================================
+
+// ==========================================================================
+// REALTIDS-FILTRERING OG EVENT HANDLERS
+// ==========================================================================
 
 async function onPizzaFilterChange() {
     if (!CURRENT_SELECTED_PLAYER || !CURRENT_SELECTED_POS) return;
@@ -45,11 +51,13 @@ function filterPlayerList() {
 function resetPlayerSearch() {
     if ($("player-search-input")) { $("player-search-input").value = ""; filterPlayerList(); }
 }
+// ==========================================================================
+// PER 90 - PIZZA.JS - DEL 2 AF 4
+// ==========================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
-        /* RETTET: Nu importeres Gabarito korrekt, hvis browseren isolerer JavaScript-styles */
         @import url('https://googleapis.com');
 
         .custom-option-item { padding: 10px 14px; color: #f3f1f6; cursor: pointer; font-size: 14px; transition: all 0.15s ease; font-family: var(--font-family), sans-serif; }
@@ -74,59 +82,28 @@ document.addEventListener("DOMContentLoaded", () => {
         .grid-line { stroke: rgba(255,255,255,.06); }
 
         .ax-lbl { 
-            font-size: 13px; 
-            fill: #94a3b8; 
-            font-weight: 700; 
-            letter-spacing: .5px; 
-            text-shadow: none;
-            -webkit-text-size-adjust: none !important;
-            text-size-adjust: none !important;
+            font-size: 13px; fill: #94a3b8; font-weight: 700; letter-spacing: .5px; text-shadow: none;
+            -webkit-text-size-adjust: none !important; text-size-adjust: none !important;
         }
         .slice-b { stroke-width: 1.75; stroke-linejoin: round; }
         .box-bg-rect { fill: #0B1220 !important; }
         
         .tx-b { 
-            font-size: 11px; 
-            font-weight: 900; 
-            fill: inherit !important;
-            -webkit-text-size-adjust: none !important;
-            text-size-adjust: none !important;
+            font-size: 11px; font-weight: 900; fill: inherit !important;
+            -webkit-text-size-adjust: none !important; text-size-adjust: none !important;
         }
 
         .chart-footer, .chart-footer-source { text-align: center; width: 100%; font-size: 11px; font-weight: 300; color: #e5e7eb; letter-spacing: .4px; padding: 0 40px; box-sizing: border-box; position: relative; z-index: 2; font-family: var(--font-family), sans-serif; }
         .chart-footer { margin-top: 1px; opacity: 0.75; }
         .chart-footer-source { margin-top: 6px; opacity: 0.5; }
 
-        /* ==========================================================================
-           NYT: MOBIL-OPTIMERING SÅ HEADER/CONTAINER OG FOOTER PASSER PÅ EN MOBIL
-           ========================================================================== */
         @media (max-width: 480px) {
-            /* RETTET: Gør containeren markant smallere og meget mindre høj */
-            .header-card {
-                padding: 6px 14px !important;    /* 6px top/bund minimerer højden voldsomt */
-                margin: 0px auto 10px !important; /* Mindre luft over og under boksen */
-                max-width: 80% !important;        /* Skåret ind fra 90% til 80% for at gøre den smallere */
-            }
-            .p-nm {
-                font-size: 10px !important;       /* spillernavn */
-                margin: 0 0 4px !important;       /* Mindre afstand ned til den lysende streg */
-            }
-            .p-sub-bar {
-                gap: 6px !important;              /* Trækker ikonerne og teksterne tættere sammen */
-                font-size: 8px !important;       /* liga postion osv */
-            }
-            .meta-item svg {
-                width: 9px !important;
-                height: 9px !important;
-            }
-            .logo-shape {
-                width: 12px !important;
-                height: 12px !important;
-            }
-            .chart-footer, .chart-footer-source {
-                font-size: 8px !important;        /* Hævet en anelse fra 5px til 8px, så det reelt kan læses på en telefon */
-                padding: 0 20px !important;
-            }
+            .header-card { padding: 6px 14px !important; margin: 0px auto 10px !important; max-width: 80% !important; }
+            .p-nm { font-size: 10px !important; margin: 0 0 4px !important; }
+            .p-sub-bar { gap: 6px !important; font-size: 8px !important; }
+            .meta-item svg { width: 9px !important; height: 9px !important; }
+            .logo-shape { width: 12px !important; height: 12px !important; }
+            .chart-footer, .chart-footer-source { font-size: 8px !important; padding: 0 20px !important; }
             .chart-footer { margin-top: 5px !important; }
             .chart-footer-source { margin-top: 3px !important; }
         }
@@ -141,10 +118,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!e.target.closest('.multiselect')) toggleDisplay($("checkboxes-container"), false);
     });
 });
-
-// ==========================================
-// DEL 3 AF 4: DROPDOWN OG ARRAY-PARSING FIX
-// ==========================================
+// ==========================================================================
+// PER 90 - PIZZA.JS - DEL 3 AF 4
+// ==========================================================================
 
 function toggleCustomDropdown(type) {
     const pOpt = $("custom-player-options"), posOpt = $("custom-pos-options");
@@ -191,6 +167,15 @@ async function selectCustomItem(type, value) {
     $(`custom-${type}-selected-text`).innerText = value;
     toggleDisplay($(`custom-${type}-options`), false);
     document.querySelectorAll(`#custom-${type}-options .custom-option-item`).forEach(el => el.classList.toggle('selected-active', el.innerText === value));
+    
+    // RETTET: Lukker skuffen og overlayet automatisk på mobil, når en spiller eller position vælges
+    const drawer = document.querySelector(".filter-drawer");
+    const overlay = document.querySelector(".filter-drawer-overlay");
+    if (drawer && overlay) {
+        drawer.classList.remove("active");
+        overlay.classList.remove("active");
+    }
+
     if (isPlayer) await onPizzaPlayerChange(); else onPizzaFilterChange();
 }
 
@@ -209,9 +194,9 @@ async function onPizzaPlayerChange() {
     } catch (e) { console.error(e); }
     onPizzaFilterChange();
 }
-// ==========================================
-// DEL 4 AF 4: DATA INTERFACES OG VEKTORGENERERING
-// ==========================================
+// ==========================================================================
+// PER 90 - PIZZA.JS - DEL 4 AF 4
+// ==========================================================================
 
 function buildCategorizedMetrics() {
     const container = $("checkboxes-container"); if (!container) return;
@@ -239,6 +224,7 @@ async function loadPizzaChartDataWithFilters(playerName, comparePos, metricsList
         const chartContainer = $("chart-only"); if (!chartContainer) return;
         const sColor = apiResponse.selected_color || "#00f0ff", leagueVal = apiResponse.league || "N/A";
 
+        // RETTET: width og height attributter er pillet ud af det rå SVG element herunder, så boks-skaleringen styres rent via CSS-viewBox
         chartContainer.innerHTML = `
             <div class="header-card">
                 <div class="h-cnt">
@@ -255,7 +241,7 @@ async function loadPizzaChartDataWithFilters(playerName, comparePos, metricsList
                     </div>
                 </div>
             </div>
-            <svg width="710" height="570" viewBox="0 0 710 570" id="pizza-svg-element"></svg>
+            <svg viewBox="0 0 710 570" id="pizza-svg-element"></svg>
             <div class="chart-footer" style="font-family: var(--font-family), sans-serif;">${apiResponse.player_name}'s percentile rank vs. ${leagueVal} ${CURRENT_SELECTED_POS}s</div>
             <div class="chart-footer-source" style="font-family: var(--font-family), sans-serif;">Generated via per-90.streamlit.app</div>
         `;
@@ -287,7 +273,6 @@ function buildPizzaVektorChart(data, selectedColor) {
         markup += `<text x="${CX + 258 * cos}" y="${CY + 250 * sin}" class="ax-lbl" style="font-family: var(--font-family), sans-serif;" text-anchor="${anchor}" dominant-baseline="middle" fill="#94a3b8">${metric}</text>`;
 
         if (score > 15) {
-            /* HER GENNEMTVINGER VI NEON/KATEGORIFARVEN MED EN INLINE FILL STYLE-REGEL */
             markup += `<g><rect x="${CX + currentR * cos - 13}" y="${CY + currentR * sin - 7}" width="26" height="14" rx="3" class="box-bg-rect" stroke="${c}" stroke-width="1.5" /><text x="${CX + currentR * cos}" y="${CY + currentR * sin}" class="tx-b" style="font-family: var(--font-family), sans-serif; fill: ${c} !important;" text-anchor="middle" dominant-baseline="central">${score}</text></g>`;
         }
     });
