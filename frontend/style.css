@@ -91,7 +91,6 @@ body {
 .nav-item.active { color: var(--text-primary); background-color: var(--accent-purple-dim); border-left: 3px solid var(--accent-purple); }
 .sidebar-footer { color: var(--text-muted); font-size: 12px; display: flex; align-items: center; gap: 8px; }
 
-/* Hovedindhold vindue med banestriber */
 .main-content {
     flex-grow: 1;
     padding: 60px;
@@ -99,14 +98,25 @@ body {
     overflow-y: auto;
     position: relative;
     background-image: 
-        radial-gradient(circle at 85% 25%, rgba(168, 85, 247, 0.05) 0%, transparent 50%),
+        /* 1. STADIONLYS OVERLAY: Skaber den lyse, bløde glød på midten af banen som på dit billede */
+        radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.12) 0%, transparent 70%),
+        /* 2. Dæmpende lag for at sikre, at din hvide tekst stadig står knivskarpt ovenpå græsset */
+        linear-gradient(rgba(11, 6, 18, 0.15), rgba(11, 6, 18, 0.15)),
+        /* 3. Det lilla lysglimt i hjørnet, der forbinder appens lilla FM-tema med græsset */
+        radial-gradient(circle at 85% 25%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+        /* 4. DE NATURLIGE STADIONSTRIBER (Blød mellemgrøn og elegant dyb græsgrøn) */
         linear-gradient(to bottom, 
-            #0b0612 0%, #0b0612 50%, 
-            #0f091a 50%, #0f091a 100%
+            #4b8b4b 0%, #4b8b4b 50%, 
+            #2d6136 50%, #2d6136 100%
         );
-    background-size: 100% 100%, 100% 60px;
-    background-repeat: no-repeat, repeat;
+    /* Striberne er sat til 80px i højden for at give mere ro og matche billedets brede striber */
+    background-size: 100% 100%, 100% 100%, 100% 100%, 100% 80px;
+    background-repeat: no-repeat, no-repeat, no-repeat, repeat;
 }
+
+
+
+
 
 .pitch-watermark {
     position: absolute;
@@ -141,11 +151,22 @@ body {
 }
 
 /* Hero Sektion */
+/* EFTER - ERSTAT DIN .HERO-CONTAINER MED DENNE BLOK: */
 .hero-container {
-    max-width: 600px;
+    max-width: 650px; /* Giver en anelse mere plads i bredden */
     margin-top: 40px;
     margin-bottom: 60px;
+    
+    /* DET NYE RAPPORT-KORT DESIGN TIL TEKSTEN: */
+    background-color: var(--bg-card); /* Semi-transparent mørkelilla */
+    backdrop-filter: blur(12px); /* Lækker, sløret glaseffekt mod græsset */
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color); /* Tynd, elegant kantlinje */
+    border-radius: 12px;
+    padding: 32px; /* Giver masser af luft omkring teksten */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4); /* Flot skygge, der løfter kortet fra banen */
 }
+
 
 .dashboard-tag {
     display: inline-flex;
@@ -491,4 +512,3 @@ body {
         grid-template-columns: 1fr; 
     }
 }
-
