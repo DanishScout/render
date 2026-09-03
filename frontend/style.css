@@ -24,6 +24,12 @@
     font-family: var(--font-family) !important; 
 }
 
+/* RETTET HER: Vi laver en undtagelse for FontAwesome, som trumfer reglen ovenfor */
+.fa, .fas, .far, .fab, [class^="fa-"], [class*=" fa-"], .nav-item i {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", sans-serif !important;
+    font-weight: 900 !important;
+}
+
 body {
     background-color: var(--bg-dark);
     color: var(--text-primary);
@@ -31,6 +37,7 @@ body {
     overflow: hidden;
     height: 100vh;
 }
+
 
 
 .app-container {
@@ -128,13 +135,6 @@ body {
     /* RETTET: Det sidste lag gentager sig nu vertikalt nedad (repeat-y) i stedet for mod højre */
     background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat-y;
 }
-
-
-
-
-
-
-
 
 .pitch-watermark {
     position: absolute;
