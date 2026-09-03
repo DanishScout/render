@@ -480,9 +480,15 @@ body {
 
     /* Resten af dit mobil-indhold */
     .main-content {
-        padding: 24px 16px; 
+        padding: 24px 0px !important; /* Fjernet padding i siderne, så filtrene kan rulle helt ud til kanten */
         width: 100%;
-        overflow-x: hidden;
+        overflow-x: clip !important;  /* Tillader indre scrollbars at fungere uden at ødelægge hele sidens layout */
+    }
+
+    /* Vi flytter skærm-paddingen ned på indholdskortene, så dit design og pizzadiagram stadig har luft til kanten */
+    .hero-container, .chart-container-wrapper, .header-card, .stats-grid, .view-header {
+        margin-left: 16px !important;
+        margin-right: 16px !important;
     }
 
     .hero-title { font-size: 28px; }
@@ -491,38 +497,42 @@ body {
     .stat-card { padding: 16px; }
     .stats-grid .stat-value { font-size: 24px; }
 
-    #
-        /* DETTE OMRÅDE KAN NU SCROLLES SIDELÆNS (Spiller, Position, Metrics) */
+
+    /* DETTE OMRÅDE KAN NU SCROLLES SIDELÆNS (Spiller, Position, Metrics) */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"] {
         display: flex !important;
         flex-direction: row !important;
         justify-content: flex-start !important;
         align-items: center !important;
-        gap: 10px !important;
-        width: 100% !important;
+        gap: 12px !important;
+        width: calc(100% - 32px) !important; /* Justeret så den passer ind i det nye layout-flow */
+        margin-left: 16px !important;
+        margin-right: 16px !important;
         
-        /* 1. AKTIVERER DET SIDELÆNS SCROLL KUN FOR DETTE OMRÅDE */
-        overflow-x: auto !important;     
+        /* AKTIVERER DET SIDELÆNS SCROLL OG SIKRER DRIFT PÅ IPHONE */
+        overflow-x: scroll !important;     
         overflow-y: visible !important;  
-        padding-bottom: 16px !important; /* Giver plads til scrolleren under knapperne */
-        -webkit-overflow-scrolling: touch; 
+        padding-bottom: 20px !important; /* Giver masser af luft til scrolleren under knapperne */
+        -webkit-overflow-scrolling: touch !important; 
         position: relative;
         z-index: 110; 
     }
     
-    /* SYNLIG SCROLLER DIREKTE UNDER ELEMENTERNE */
+    /* SYNLIG SCROLLER DIREKTE UNDER ELEMENTERNE - OPTIMERET TIL MOBIL */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar {
         display: block !important;
-        height: 5px !important; /* Gør scroller-linjen synlig og nem at se */
+        -webkit-appearance: none !important; /* Tvinger iOS Safari til at tegne scrollbaren */
+        height: 6px !important; /* Gør scroller-linjen tydelig og nem at se */
     }
     
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar-thumb {
         background-color: var(--accent-purple) !important; /* Neon-gul scroller */
         border-radius: 10px !important;
+        border: 1px solid var(--bg-dark) !important;
     }
 
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05) !important;
+        background: rgba(255, 255, 255, 0.1) !important;
         border-radius: 10px !important;
     }
 
@@ -531,38 +541,38 @@ body {
         content: none !important;
     }
 
-    /* FILTER-ELEMENTERNE (De skal være statiske for at frigøre dropdowns) */
+    /* FILTER-ELEMENTERNE (Gør at de beholder deres fulde bredde under scroll) */
     .filter-group, .multiselect { 
-        width: 145px !important; 
-        flex-shrink: 0 !important; /* Forhindrer knapperne i at blive mast sammen */
+        width: 155px !important; 
+        flex-shrink: 0 !important; /* Livsvigtigt: Forhindrer at knapperne mases sammen eller cuttes internt */
         max-width: none !important; 
         position: static !important; /* MEGET VIGTIGT: Løsriver dropdown fra den vandrette scroll */
     }
     
     .multiselect { 
-        width: 155px !important; 
+        width: 175px !important; 
         padding-right: 0px !important; 
     }
     
     .custom-select-trigger, .selectBox { 
-        padding: 10px 8px !important; 
-        font-size: 11px !important; 
+        padding: 12px 10px !important; 
+        font-size: 12px !important; 
     }
     
-    /* DROPDOWN-LISTERNE SOM ET INTEGRERET MOBIL-OVERLAY */
+    /* DROPDOWN-LISTERNE SOM ET INTEGRERET MOBIL-OVERLAY I BUNDEN */
     .custom-options-list, #checkboxes-container { 
         position: fixed !important;         /* Låser listen til skærmen i stedet for den rullende bjælke */
         top: auto !important;
-        bottom: 20px !important;            /* Lægger sig i bunden af skærmen (ligesom en rigtig mobil-menu) */
+        bottom: 24px !important;            /* Lægger sig i bunden af skærmen (ligesom en rigtig mobil-menu) */
         left: 5% !important;
         width: 90% !important;              /* Centreret og næsten fuld bredde på mobilen */
         max-width: 400px !important;
-        max-height: 250px !important; 
+        max-height: 260px !important; 
         z-index: 99999 !important;          /* Flyver over ALT andet, intet kan cutte den af */
-        background: #0d0614 !important;     /* Solid mørk baggrund */
+        background: #0b1f13 !important;     /* Solid mørkegrøn baggrund for god kontrast */
         border: 2px solid var(--accent-purple) !important; /* Neon kant */
-        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.9) !important;
-        border-radius: 12px !important;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.9) !important;
+        border-radius: 14px !important;
         overflow-y: auto !important;
     }
     
@@ -607,3 +617,4 @@ body {
         grid-template-columns: 1fr; 
     }
 }
+
