@@ -5,63 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PER 90 - Retro Football Analytics</title>
     
-    <!-- RETTET: Nu peger de rigtigt på Google Fonts serverne -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Gabarito:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
-
-    <!-- Henter FontAwesome fra nettet så dine ikoner faktisk virker -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    
-    <!-- html2canvas biblioteket der gør det muligt at downloade som billede i scale 4 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cloudflare.com">
+    <script src="https://cloudflare.com"></script>
 </head>
 <body>
     <div class="app-container">
-        <!-- Rå retro sidebar med solid sort blækkant -->
+        <!-- Sidebar med solid sort blækkant -->
         <aside class="sidebar">
             <div class="logo">
                 <span class="logo-main">PER</span><span class="logo-sub">90</span>
             </div>
             
-            <!-- Åbner og lukker menuen ved tryk -->
             <nav class="nav-menu" onclick="this.classList.toggle('mobile-open')">
-                
-                <!-- Knap 1: Dashboard (Skifter visning og lukker menuen) -->
                 <button class="nav-item active" onclick="event.stopPropagation(); switchView('landing'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
                     <i class="fa-solid fa-house"></i> <span>Dashboard</span>
                 </button>
                 
-                <!-- Denne overskrift skjules automatisk på mobil via CSS -->
                 <div class="nav-section">Analyseværktøjer</div>
                 
-                <!-- Knap 2: Pizza Chart (Skifter visning og lukker menuen) -->
                 <button class="nav-item" onclick="event.stopPropagation(); switchView('pizza'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
                     <i class="fa-solid fa-chart-pie"></i> <span>Pizza Chart</span>
                 </button>
                 
-                <!-- Knap 3: Radar Chart (Skifter visning og lukker menuen) -->
                 <button class="nav-item" onclick="event.stopPropagation(); switchView('radar'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
                     <i class="fa-solid fa-circle-nodes"></i> <span>Radar Chart</span>
                 </button>
                 
-                <!-- Knap 4: Scatter Plot (Skifter visning og lukker menuen) -->
                 <button class="nav-item" onclick="event.stopPropagation(); switchView('scatter'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
                     <i class="fa-solid fa-chart-line"></i> <span>Scatter Plot</span>
                 </button>
-                
             </nav>
             
-            <!-- Denne footer skjules automatisk på mobil via CSS -->
             <div class="sidebar-footer">
                 <i class="fa-solid fa-bolt"></i> RETRO v1.0
             </div>
         </aside>
 
-
-        <!-- Hovedvindue med farverige pop-art baggrunde -->
+        <!-- Hovedvindue -->
         <main class="main-content">
             <!-- Landing Page View -->
             <section id="view-landing" class="content-view active">
@@ -73,27 +58,22 @@
                     </p>
                 </div>
 
-                <!-- Stats Grid transformeret til tunge, farverige vector-kort (Color Blocking) -->
                 <div class="stats-grid">
-                    <!-- Kort 1: Rooney Manchester Rød -->
                     <div class="stat-card c-rooney">
                         <div class="stat-value">4.440</div>
                         <div class="stat-label">Minutter</div>
                         <div class="stat-desc">Højeste individuelle spilletid analyseret</div>
                     </div>
-                    <!-- Kort 2: Ronaldinho / Ronaldo Canary Gul -->
                     <div class="stat-card c-ronaldinho">
                         <div class="stat-value">684</div>
                         <div class="stat-label">Spillere</div>
                         <div class="stat-desc">Kombineret global liga-database</div>
                     </div>
-                    <!-- Kort 3: Edgar Davids Tændt Orange -->
                     <div class="stat-card c-davids">
                         <div class="stat-value">47</div>
                         <div class="stat-label">Metrikker</div>
                         <div class="stat-desc">Performance-parametre målt pr. kamp</div>
                     </div>
-                    <!-- Kort 4: Henry Arsenal Dyb Rød -->
                     <div class="stat-card c-henry">
                         <div class="stat-value">73</div>
                         <div class="stat-label">Modeller</div>
@@ -101,6 +81,7 @@
                     </div>
                 </div>
             </section>
+
             <!-- Pizza Chart View -->
             <section id="view-pizza" class="content-view">
                 <div class="view-header">
@@ -108,59 +89,63 @@
                     <p>Percentil-profil for valgte spillere</p>
                 </div>
 
-                <!-- Super-styled Custom Dropdown Kontrolpanel centreret i midten -->
-                <div class="filter-panel" style="display: flex; gap: 16px; margin-bottom: 32px; position: relative; z-index: 110; justify-content: center; width: 100%;">
-                    
-                    <!-- Custom Dropdown 1: Vælg Spiller med integreret Søgefelt -->
-                    <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; width: 230px; position: relative;">
-                        <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Select player</label>
-                        <div class="custom-select-wrapper" id="custom-player-wrapper" style="position: relative;">
-                            <div class="custom-select-trigger" onclick="toggleCustomDropdown('player')" style="position: relative; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(8px); transition: border-color 0.2s;">
-                                <span id="custom-player-selected-text">Indlæser...</span>
-                                <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
-                            </div>
-                            
-                            <!-- Rulleliste med fastlåst søgefelt øverst -->
-                            <div class="custom-options-list" id="custom-player-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; box-shadow: 0 15px 30px rgba(0,0,0,0.8); max-height: 300px; overflow-y: auto; z-index: 120; padding: 0;">
-                                <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid var(--border-color); z-index: 130;">
-                                    <input type="text" id="player-search-input" oninput="filterPlayerList()" placeholder="Søg efter spiller..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none; transition: border-color 0.2s;" onclick="event.stopPropagation();">
+                <!-- TRIGGERKNAP TIL MOBIL SKUFFE -->
+                <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
+
+                <!-- OVERLAY OG BUND-SKUFFE (BOTTOM SHEET) -->
+                <div class="filter-drawer-overlay"></div>
+                <div class="filter-drawer">
+                    <div class="drawer-header">
+                        <span class="drawer-title">Chart Settings</span>
+                        <button class="close-drawer-btn">✕</button>
+                    </div>
+                    <!-- INDHOLDET I BUND-SKUFFEN (KONTROLPANELET) -->
+                    <div class="filter-panel" style="display: flex; gap: 16px; position: relative; z-index: 110; justify-content: center; width: 100%;">
+                        
+                        <!-- Custom Dropdown 1: Vælg Spiller -->
+                        <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; width: 230px; position: relative;">
+                            <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Select player</label>
+                            <div class="custom-select-wrapper" id="custom-player-wrapper" style="position: relative;">
+                                <div class="custom-select-trigger" onclick="toggleCustomDropdown('player')" style="position: relative; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(8px); transition: border-color 0.2s;">
+                                    <span id="custom-player-selected-text">Indlæser...</span>
+                                    <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
                                 </div>
-                                <div id="custom-player-items-container"></div>
+                                <div class="custom-options-list" id="custom-player-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; box-shadow: 0 15px 30px rgba(0,0,0,0.8); max-height: 300px; overflow-y: auto; z-index: 120; padding: 0;">
+                                    <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid var(--border-color); z-index: 130;">
+                                        <input type="text" id="player-search-input" oninput="filterPlayerList()" placeholder="Søg efter spiller..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none; transition: border-color 0.2s;" onclick="event.stopPropagation();">
+                                    </div>
+                                    <div id="custom-player-items-container"></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Custom Dropdown 2: Vælg Position -->
-                    <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; width: 230px; position: relative;">
-                        <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Compare against</label>
-                        <div class="custom-select-wrapper" id="custom-pos-wrapper" style="position: relative;">
-                            <div class="custom-select-trigger" onclick="toggleCustomDropdown('pos')" style="position: relative; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(8px); transition: border-color 0.2s;">
-                                <span id="custom-pos-selected-text">Indlæser...</span>
-                                <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
-                            </div>
-                            <div class="custom-options-list" id="custom-pos-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; box-shadow: 0 15px 30px rgba(0,0,0,0.8); max-height: 300px; overflow-y: auto; z-index: 120; padding: 4px 0;">
-                                <!-- Positionsliste indsættes via JS -->
+                        <!-- Custom Dropdown 2: Vælg Position -->
+                        <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; width: 230px; position: relative;">
+                            <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Compare against</label>
+                            <div class="custom-select-wrapper" id="custom-pos-wrapper" style="position: relative;">
+                                <div class="custom-select-trigger" onclick="toggleCustomDropdown('pos')" style="position: relative; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(8px); transition: border-color 0.2s;">
+                                    <span id="custom-pos-selected-text">Indlæser...</span>
+                                    <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
+                                </div>
+                                <div class="custom-options-list" id="custom-pos-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; box-shadow: 0 15px 30px rgba(0,0,0,0.8); max-height: 300px; overflow-y: auto; z-index: 120; padding: 4px 0;"></div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Custom Dropdown 3: Vælg Metrikker (Kategoriseret) -->
-                    <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; width: 260px; position: relative;">
-                        <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Select Metrics</label>
-                        <div class="multiselect" style="position: relative;">
-                            <div class="selectBox" onclick="toggleCheckboxDropdown()" style="position: relative; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(8px);">
-                                <span id="metrics-select-text">Vælg parametre...</span>
-                                <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
-                            </div>
-                            <div id="checkboxes-container" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; flex-direction: column; gap: 12px; box-shadow: 0 15px 30px rgba(0,0,0,0.7); max-height: 400px; overflow-y: auto; z-index: 120;">
-                                <!-- Flueben genereres via pizza.js -->
+                        <!-- Custom Dropdown 3: Vælg Metrikker -->
+                        <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; width: 260px; position: relative;">
+                            <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Select Metrics</label>
+                            <div class="multiselect" style="position: relative;">
+                                <div class="selectBox" onclick="toggleCheckboxDropdown()" style="position: relative; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 500; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(8px);">
+                                    <span id="metrics-select-text">Vælg parametre...</span>
+                                    <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
+                                </div>
+                                <div id="checkboxes-container" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; flex-direction: column; gap: 12px; box-shadow: 0 15px 30px rgba(0,0,0,0.7); max-height: 400px; overflow-y: auto; z-index: 120;"></div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <!-- Rent HTML Canvas Rapport-kort (Klar til 4x html2canvas download) -->
+                </div> <!-- Lukker .filter-drawer -->
+                <!-- Selve Pizzadiagrammet -->
                 <div class="chart-container-wrapper c-ronaldinho" id="chart-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
-                    <!-- Advarsels-overlay hvis der er valgt under 3 metrikker -->
                     <div id="pizza-warning-overlay" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 6, 18, 0.9); border-radius: 12px; justify-content: center; align-items: center; z-index: 150; padding: 20px;">
                         <div style="color: #ff007f; font-weight: 700; text-align: center; font-family: monospace;">
                             <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; margin-bottom: 10px;"></i><br>
@@ -168,21 +153,18 @@
                         </div>
                     </div>
                     
-                    <!-- Dynamisk Spillertekst -->
-                    <div style="text-align: center; margin-bottom: 25px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+                    <div style="text-align: center; margin-bottom: 25px;">
                         <h2 class="p-nm" id="canvas-player-title" style="font-size: 28px; font-weight: 900; color: #ffffff; margin: 0 0 4px 0; letter-spacing: -0.5px;">Indlæser...</h2>
                         <div id="canvas-player-subtitle" style="font-size: 14px; color: #948aa3; font-weight: 500;">Søg efter en spiller for at generere profil</div>
                     </div>
 
-                    <!-- Selve dit rå HTML5 Canvas element -->
                     <div class="chart-box" style="width: 100%; max-width: 500px; height: 440px; display: flex; justify-content: center; align-items: center;">
                         <canvas id="pizza-chart-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
                     </div>
                 </div>
 
-                <!-- Download-knap -->
                 <div class="download" style="display: flex; justify-content: center; margin-top: 24px;">
-                    <button onclick="downloadPNG()" style="background: var(--accent-purple); color: #ffffff; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.2s, background 0.2s; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);">
+                    <button onclick="downloadPNG()" style="background: var(--accent-purple); color: #ffffff; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);">
                         <i class="fa-solid fa-download"></i> Download as PNG
                     </button>
                 </div>
@@ -215,6 +197,37 @@
             </section>
         </main>
     </div>
+
+    <!-- SCRIPT TIL AT STYRE OPEN/CLOSE AF BUND-SKUFFEN (BOTTOM SHEET) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const openBtn = document.querySelector(".open-drawer-btn");
+            const closeBtn = document.querySelector(".close-drawer-btn");
+            const overlay = document.querySelector(".filter-drawer-overlay");
+            const drawer = document.querySelector(".filter-drawer");
+
+            if(openBtn) {
+                openBtn.addEventListener("click", function() {
+                    drawer.classList.add("active");
+                    overlay.classList.add("active");
+                });
+            }
+
+            if(closeBtn) {
+                closeBtn.addEventListener("click", function() {
+                    drawer.classList.remove("active");
+                    overlay.classList.remove("active");
+                });
+            }
+
+            if(overlay) {
+                overlay.addEventListener("click", function() {
+                    drawer.classList.remove("active");
+                    overlay.classList.remove("active");
+                });
+            }
+        });
+    </script>
 
     <!-- Scripts -->
     <script src="global.js"></script>
