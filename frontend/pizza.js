@@ -100,36 +100,83 @@ document.addEventListener("DOMContentLoaded", () => {
         /* ==========================================================================
            NYT: MOBIL-OPTIMERING SÅ HEADER/CONTAINER OG FOOTER PASSER PÅ EN MOBIL
            ========================================================================== */
-        @media (max-width: 480px) {
+                @media (max-width: 480px) {
+            /* CONTAINER: Gør containeren markant smallere og meget mindre høj */
             .header-card {
-                padding: 12px 16px !important;
-                margin: 5px auto 15px !important;
-                max-width: 90% !important;
+                padding: 10px 14px !important;    
+                margin: 0px auto 10px !important; 
+                max-width: 80% !important;        
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;   /* Centrerer indholdet horisontalt */
+                text-align: center !important;    /* Centrerer teksten */
             }
+
+            .h-cnt, .p-meta-right {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                width: 100% !important;
+            }
+
+            /* SPILLERNAVN: Nulstiller bund-margin, så vi kan centrere stregen */
             .p-nm {
-                font-size: 18px !important;
-                margin: 0 0 6px !important;
+                font-size: 16px !important;       
+                margin: 0 0 6px !important;       
+                text-align: center !important;
+                width: 100% !important;
             }
+
+            /* FIX 2: CENTRERING AF CYAN-STREG (TACTIC-LINE) */
+            .tactic-line {
+                width: 60% !important;            /* Gør stregen lidt kortere på mobil for et renere look */
+                margin: 0 auto 10px auto !important; /* Centrerer stregen horisontalt og giver 10px luft ned til ikonerne */
+                display: block !important;
+            }
+
+            /* POSITIONS-LINJEN: Centrerer ikonerne under stregen */
             .p-sub-bar {
-                gap: 8px !important;
-                font-size: 11px !important;
+                gap: 8px !important;              
+                font-size: 10px !important;       
+                justify-content: center !important; /* Centrerer elementerne på linjen */
+                width: 100% !important;
+                margin-top: 0px !important;
             }
+
+            .meta-item {
+                justify-content: center !important;
+            }
+
             .meta-item svg {
-                width: 13px !important;
-                height: 13px !important;
+                width: 12px !important;
+                height: 12px !important;
             }
             .logo-shape {
-                width: 18px !important;
-                height: 18px !important;
+                width: 16px !important;
+                height: 16px !important;
             }
+
+            /* FIX 1: MOBIL DROPDOWN-FIX (Søgefelt og liste) */
+            #custom-player-options, #custom-pos-options, #checkboxes-container {
+                position: absolute !important;
+                left: 5% !important;
+                right: 5% !important;
+                width: 90% !important;           /* Tvinger dropdownen til at fylde skærmen ud i bredden */
+                max-width: none !important;
+                z-index: 9999 !important;        /* Sikrer, at den lægger sig OVENPÅ alt andet */
+                box-shadow: 0 10px 25px rgba(0,0,0,0.8) !important;
+            }
+
             .chart-footer, .chart-footer-source {
-                font-size: 5px !important;
+                font-size: 8px !important;        
                 padding: 0 20px !important;
             }
             .chart-footer { margin-top: 5px !important; }
             .chart-footer-source { margin-top: 3px !important; }
         }
+
     `;
+
     document.head.appendChild(style);
     buildCategorizedMetrics();
     initCustomPizzaSelectors();
