@@ -20,24 +20,38 @@
                 <span class="logo-main">PER</span><span class="logo-sub">90</span>
             </div>
             <nav class="nav-menu">
-                <button class="nav-item active" onclick="switchView('landing')">
-                    <i class="fa-solid fa-house"></i> <span>Dashboard</span>
-                </button>
-                <div class="nav-section">Analyseværktøjer</div>
-                <button class="nav-item" onclick="switchView('pizza')">
-                    <i class="fa-solid fa-chart-pie"></i> <span>Pizza Chart</span>
-                </button>
-                <button class="nav-item" onclick="switchView('radar')">
-                    <i class="fa-solid fa-circle-nodes"></i> <span>Radar Chart</span>
-                </button>
-                <button class="nav-item" onclick="switchView('scatter')">
-                    <i class="fa-solid fa-chart-line"></i> <span>Scatter Plot</span>
-                </button>
+                <!-- PC-MENU: Vises kun på computeren -->
+                <div class="desktop-nav-links">
+                    <button class="nav-item active" onclick="switchView('landing')">
+                        <i class="fa-solid fa-house"></i> <span>Dashboard</span>
+                    </button>
+                    <div class="nav-section">Analyseværktøjer</div>
+                    <button class="nav-item" onclick="switchView('pizza')">
+                        <i class="fa-solid fa-chart-pie"></i> <span>Pizza Chart</span>
+                    </button>
+                    <button class="nav-item" onclick="switchView('radar')">
+                        <i class="fa-solid fa-circle-nodes"></i> <span>Radar Chart</span>
+                    </button>
+                    <button class="nav-item" onclick="switchView('scatter')">
+                        <i class="fa-solid fa-chart-line"></i> <span>Scatter Plot</span>
+                    </button>
+                </div>
+            
+                <!-- MOBIL CUSTOM DROPDOWN MENU: Vises kun på mobilen og kan kollapse -->
+                <div class="mobile-nav-custom-dropdown" id="custom-menu-wrapper">
+                    <div class="custom-menu-trigger" onclick="toggleMobileMenuDropdown()" id="custom-menu-trigger-text">
+                        <span>🏠 Dashboard</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="custom-menu-options" id="custom-menu-options-list">
+                        <div class="custom-menu-item" onclick="selectMobileView('landing', '🏠 Dashboard')">🏠 Dashboard</div>
+                        <div class="custom-menu-item" onclick="selectMobileView('pizza', '🍕 Pizza Chart')">🍕 Pizza Chart</div>
+                        <div class="custom-menu-item" onclick="selectMobileView('radar', '🕸️ Radar Chart')">🕸️ Radar Chart</div>
+                        <div class="custom-menu-item" onclick="selectMobileView('scatter', '📈 Scatter Plot')">📈 Scatter Plot</div>
+                    </div>
+                </div>
             </nav>
-            <div class="sidebar-footer">
-                <i class="fa-solid fa-bolt"></i> RETRO v1.0
-            </div>
-        </aside>
+
 
         <!-- Hovedvindue med farverige pop-art baggrunde -->
         <main class="main-content">
