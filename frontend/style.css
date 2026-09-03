@@ -491,25 +491,27 @@ body {
     .stat-card { padding: 16px; }
     .stats-grid .stat-value { font-size: 24px; }
 
-    /* Swipable filter-bjælke container */
+    #
+    /* Swipable filter-bjælke container - SCROLL ER TILBAGE 🚀 */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"] {
         flex-direction: row !important;
         justify-content: flex-start !important;
         align-items: flex-end !important;
         gap: 10px !important;
         width: 100% !important;
-        /* FJERNET: overflow-x: auto og padding-bottom flyttes til et indre lag hvis nødvendigt, 
-           eller vi tvinger visible her: */
-        overflow: visible !important; 
+        overflow-x: auto !important; /* Tvinger vandret scroll tilbage på mobilen */
+        padding-bottom: 12px !important; 
+        -webkit-overflow-scrolling: touch; 
         position: relative;
-        z-index: 110; /* Sikrer at hele bjælken ligger højt */
+        z-index: 110; 
     }
-
     
+    /* Skjuler den grimme scrollbar-linje på mobile enheder */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar {
         display: none !important;
     }
 
+    /* Tonet overlay i højre side, der indikerer at man kan swipe */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::after {
         content: "";
         position: fixed;
@@ -522,12 +524,12 @@ body {
         z-index: 115;
     }
 
+    /* ENKELTE FILTERKNAPPER - LØSRIVET SÅ DROPDOWNS KAN SEES */
     .filter-group { 
         width: 145px !important; 
         flex-shrink: 0 !important; 
         max-width: none !important; 
-        position: relative !important; /* Giver dropdown et fikspunkt at folde sig ud fra */
-        overflow: visible !important;  /* Tillader indholdet at stikke ud */
+        position: static !important; /* Tvinger dropdown til at kigge på hele skærmen i stedet for scrollbaren */
     }
     
     .multiselect { 
@@ -535,8 +537,7 @@ body {
         flex-shrink: 0 !important; 
         max-width: none !important; 
         padding-right: 15px; 
-        position: relative !important; /* Giver dropdown et fikspunkt at folde sig ud fra */
-        overflow: visible !important;  /* Tillader indholdet at stikke ud */
+        position: static !important; /* Tvinger dropdown til at kigge på hele skærmen i stedet for scrollbaren */
     }
     
     .custom-select-trigger, .selectBox { 
@@ -544,17 +545,18 @@ body {
         font-size: 11px !important; 
     }
     
-    /* DET REELLE DROPDOWN-OVERLAY (Søgeresultater og tjekbokse) */
+    /* DET REELLE DROPDOWN-OVERLAY (Søgeresultater og tjekbokse) - HELT FRIGJORT */
     .custom-options-list, #checkboxes-container { 
-        width: 240px !important; 
+        width: calc(100% - 32px) !important; /* Tilpasser sig skærmens fulde bredde minus padding */
+        max-width: 340px !important;        /* Forhindrer den i at blive for bred på tablets */
         max-height: 280px !important; 
-        position: absolute !important;  /* River menuen ud af det klippede layout */
-        top: 100% !important;           /* Placerer den præcist under inputfeltet */
-        left: 0 !important;
-        z-index: 9999 !important;       /* Tvinger den helt frem foran diagrammet */
-        background: #07030c !important; /* Solid, mørk baggrund så tekst ikke overlapper */
+        position: absolute !important;       /* River menuen helt ud af den klippede scrollbar */
+        left: 16px !important;               /* Sætter den perfekt ind på skærmen */
+        margin-top: 45px !important;         /* Skubber listen præcis ned under filter-bjælken */
+        z-index: 9999 !important;            /* Lægger sig helt forrest */
+        background: #07030c !important; 
         border: 1px solid var(--accent-purple) !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9) !important;
     }
     
     /* DIAGRAM OG DIAGRAM-CONTAINERE */
@@ -576,19 +578,15 @@ body {
     /* DESIGN OG TYPOGRAFI TIL PIZZADIAGRAM */
     .p-nm { 
         font-size: 30px !important; 
-        
-        /* JUSTER LINJEN HER (Hvis linjen er en border på navnet): */
-        padding-bottom: 6px !important;  /* Mindre tal rykker linjen OP mod navnet - større tal rykker den NED */
-        margin-bottom: 2px !important;  /* Større tal skubber subtitlerne længere NED under linjen */
+        padding-bottom: 6px !important;  
+        margin-bottom: 2px !important;  
     }
     
     .p-sub-bar { 
         gap: 4px !important; 
         font-size: 8px !important; 
-        
-        /* JUSTER LINJEN HER (Hvis linjen er en border på subtitlerne): */
-        margin-top: 0px !important;   /* Større tal rykker linjen LÆNGERE NED fra spillernavnet */
-        padding-top: 0px !important;    /* Større tal skubber underteksten LÆNGERE NED fra linjen */
+        margin-top: 0px !important;   
+        padding-top: 0px !important;    
     }
 
     .header-card { 
