@@ -503,30 +503,30 @@ body {
         display: flex !important;
         flex-direction: row !important;
         justify-content: flex-start !important;
-        align-items: center !important;
+        align-items: flex-start !important; /* Gået tilbage til start */
         gap: 12px !important;
-        width: calc(100% - 32px) !important; /* Justeret så den passer ind i det nye layout-flow */
+        width: calc(100% - 32px) !important; 
         margin-left: 16px !important;
         margin-right: 16px !important;
         
-        /* AKTIVERER DET SIDELÆNS SCROLL OG SIKRER DRIFT PÅ IPHONE */
+        /* AKTIVERER DET SIDELÆNS SCROLL */
         overflow-x: scroll !important;     
-        overflow-y: visible !important;  
-        padding-bottom: 20px !important; /* Giver masser af luft til scrolleren under knapperne */
+        overflow-y: visible !important; /* VIGTIGT: Tillader dropdowns at falde ud af bunden */
+        padding-bottom: 20px !important; 
         -webkit-overflow-scrolling: touch !important; 
         position: relative;
         z-index: 110; 
     }
     
-    /* SYNLIG SCROLLER DIREKTE UNDER ELEMENTERNE - OPTIMERET TIL MOBIL */
+    /* SYNLIG SCROLLER DIREKTE UNDER ELEMENTERNE */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar {
         display: block !important;
-        -webkit-appearance: none !important; /* Tvinger iOS Safari til at tegne scrollbaren */
-        height: 6px !important; /* Gør scroller-linjen tydelig og nem at se */
+        -webkit-appearance: none !important; 
+        height: 6px !important; 
     }
     
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar-thumb {
-        background-color: var(--accent-purple) !important; /* Neon-gul scroller */
+        background-color: var(--accent-purple) !important; 
         border-radius: 10px !important;
         border: 1px solid var(--bg-dark) !important;
     }
@@ -536,17 +536,16 @@ body {
         border-radius: 10px !important;
     }
 
-    /* Fjern overlay-skyggen fra tidligere forsøg */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::after {
         content: none !important;
     }
 
-    /* FILTER-ELEMENTERNE (Gør at de beholder deres fulde bredde under scroll) */
+    /* FILTER-ELEMENTERNE (Relativ positionering bringer klik-events tilbage 🎯) */
     .filter-group, .multiselect { 
         width: 155px !important; 
-        flex-shrink: 0 !important; /* Livsvigtigt: Forhindrer at knapperne mases sammen eller cuttes internt */
+        flex-shrink: 0 !important; 
         max-width: none !important; 
-        position: static !important; /* MEGET VIGTIGT: Løsriver dropdown fra den vandrette scroll */
+        position: relative !important; /* RETTET: Gør elementerne modtagelige overfor klik igen */
     }
     
     .multiselect { 
@@ -559,20 +558,18 @@ body {
         font-size: 12px !important; 
     }
     
-    /* DROPDOWN-LISTERNE SOM ET INTEGRERET MOBIL-OVERLAY I BUNDEN */
+    /* DROPDOWN-LISTERNE - DE ÅBNER IGEN NU, DIREKTE UNDER KNAPPEN */
     .custom-options-list, #checkboxes-container { 
-        position: fixed !important;         /* Låser listen til skærmen i stedet for den rullende bjælke */
-        top: auto !important;
-        bottom: 24px !important;            /* Lægger sig i bunden af skærmen (ligesom en rigtig mobil-menu) */
-        left: 5% !important;
-        width: 90% !important;              /* Centreret og næsten fuld bredde på mobilen */
-        max-width: 400px !important;
-        max-height: 260px !important; 
-        z-index: 99999 !important;          /* Flyver over ALT andet, intet kan cutte den af */
-        background: #0b1f13 !important;     /* Solid mørkegrøn baggrund for god kontrast */
-        border: 2px solid var(--accent-purple) !important; /* Neon kant */
-        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.9) !important;
-        border-radius: 14px !important;
+        position: absolute !important;  /* RETTET FRA FIXED TIL ABSOLUTE: Nu virker klikket! */
+        top: 100% !important;           /* Lægger sig præcis under boksen */
+        left: 0 !important;
+        width: 240px !important;        /* Fast bredde så listen er nem at navigere i ved scroll */
+        max-height: 250px !important; 
+        z-index: 99999 !important;      /* Ligger forrest */
+        background: #0b1f13 !important; 
+        border: 1px solid var(--accent-purple) !important; 
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9) !important;
+        border-radius: 8px !important;
         overflow-y: auto !important;
     }
     
@@ -591,6 +588,7 @@ body {
         max-height: 400px; 
         margin-top: 0 !important; 
     }
+
     
     /* DESIGN OG TYPOGRAFI TIL PIZZADIAGRAM */
     .p-nm { 
@@ -617,4 +615,3 @@ body {
         grid-template-columns: 1fr; 
     }
 }
-
