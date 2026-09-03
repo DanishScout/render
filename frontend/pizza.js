@@ -101,35 +101,80 @@ document.addEventListener("DOMContentLoaded", () => {
            NYT: MOBIL-OPTIMERING SÅ HEADER/CONTAINER OG FOOTER PASSER PÅ EN MOBIL
            ========================================================================== */
         @media (max-width: 480px) {
-            /* RETTET: Gør containeren markant smallere og meget mindre høj */
+            /* CONTAINER: Gør containeren markant smallere og meget mindre høj */
             .header-card {
-                padding: 6px 14px !important;    /* 6px top/bund minimerer højden voldsomt */
-                margin: 0px auto 10px !important; /* Mindre luft over og under boksen */
-                max-width: 80% !important;        /* Skåret ind fra 90% til 80% for at gøre den smallere */
+                padding: 10px 14px !important;    
+                margin: 0px auto 10px !important; 
+                max-width: 80% !important;        
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;   /* Centrerer indholdet horisontalt */
+                text-align: center !important;    /* Centrerer teksten */
             }
+
+            .h-cnt, .p-meta-right {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                width: 100% !important;
+            }
+
+            /* SPILLERNAVN: Nulstiller bund-margin, så vi kan centrere stregen */
             .p-nm {
-                font-size: 10px !important;       /* spillernavn */
-                margin: 0 0 4px !important;       /* Mindre afstand ned til den lysende streg */
+                font-size: 16px !important;       
+                margin: 0 0 6px !important;       
+                text-align: center !important;
+                width: 100% !important;
             }
+
+            /* FIX 2: CENTRERING AF CYAN-STREG (TACTIC-LINE) */
+            .tactic-line {
+                width: 60% !important;            /* Gør stregen lidt kortere på mobil for et renere look */
+                margin: 0 auto 10px auto !important; /* Centrerer stregen horisontalt og giver 10px luft ned til ikonerne */
+                display: block !important;
+            }
+
+            /* POSITIONS-LINJEN: Centrerer ikonerne under stregen */
             .p-sub-bar {
-                gap: 6px !important;              /* Trækker ikonerne og teksterne tættere sammen */
-                font-size: 8px !important;       /* liga postion osv */
+                gap: 8px !important;              
+                font-size: 10px !important;       
+                justify-content: center !important; /* Centrerer elementerne på linjen */
+                width: 100% !important;
+                margin-top: 0px !important;
             }
+
+            .meta-item {
+                justify-content: center !important;
+            }
+
             .meta-item svg {
-                width: 9px !important;
-                height: 9px !important;
-            }
-            .logo-shape {
                 width: 12px !important;
                 height: 12px !important;
             }
+            .logo-shape {
+                width: 16px !important;
+                height: 16px !important;
+            }
+
+            /* FIX 1: MOBIL DROPDOWN-FIX (Søgefelt og liste) */
+            #custom-player-options, #custom-pos-options, #checkboxes-container {
+                position: absolute !important;
+                left: 5% !important;
+                right: 5% !important;
+                width: 90% !important;           /* Tvinger dropdownen til at fylde skærmen ud i bredden */
+                max-width: none !important;
+                z-index: 9999 !important;        /* Sikrer, at den lægger sig OVENPÅ alt andet */
+                box-shadow: 0 10px 25px rgba(0,0,0,0.8) !important;
+            }
+
             .chart-footer, .chart-footer-source {
-                font-size: 8px !important;        /* Hævet en anelse fra 5px til 8px, så det reelt kan læses på en telefon */
+                font-size: 8px !important;        
                 padding: 0 20px !important;
             }
             .chart-footer { margin-top: 5px !important; }
             .chart-footer-source { margin-top: 3px !important; }
         }
+
     `;
 
     document.head.appendChild(style);
