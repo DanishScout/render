@@ -299,10 +299,9 @@ body {
         top: 0;
         background-color: var(--bg-sidebar);
         z-index: 1000;
-        overflow: visible; /* Vigtigt: Skal være visible så dropdown kan falde ned uden for bjælken */
+        overflow: visible; /* Gør det muligt for dropdownen at falde ned over indholdet */
     }
 
-    /* Fjern den gamle horisontale skygge-indikator da vi ikke swiper mere */
     .sidebar::after {
         content: none;
     }
@@ -313,10 +312,17 @@ body {
         flex-shrink: 0;
     }
 
-    /* 
-       CSS DROPDOWN MENU-CONTAINER
-       Vi omdanner menuen til en lukket boks, der folder sig ud ved tryk (:hover/:active)
-    */
+    /* 1. SKJUL "ANALYSEVÆRKTØJER" TEKST-OVERSKRIFTEN PÅ MOBIL */
+    .nav-section {
+        display: none !important;
+    }
+
+    /* 2. SKJUL "RETRO V1.0" / SIDEBAR FOOTER PÅ MOBIL */
+    .sidebar-footer {
+        display: none !important;
+    }
+
+    /* CSS DROPDOWN MENU-CONTAINER */
     .nav-menu {
         flex-direction: column;
         gap: 0;
@@ -325,62 +331,77 @@ body {
         background: rgba(20, 13, 33, 0.95);
         border: 1px solid var(--accent-purple);
         border-radius: 6px;
-        width: 120px; /* Kompakt bredde til "MENU" knappen */
-        height: 36px; /* Højden på den lukkede knap */
-        overflow: hidden;
-        transition: height 0.25s ease, background-color 0.2s;
+        width: 130px; /* Lidt ekstra bredde så teksten står flot */
+        height: 36px;
+        overflow: visible; /* Tillader absolut indhold at falde ud */
         cursor: pointer;
     }
 
-    /* Visuel indikator: Vi indsætter teksten "MENU ▼" i toppen af containeren */
+    /* MENU-knappens synlige overflade */
     .nav-menu::before {
         content: "MENU ▾";
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 36px;
+        height: 34px; /* Matcher indersiden af rammen */
         width: 100%;
         font-size: 11px;
         font-weight: 800;
         color: var(--text-primary);
         letter-spacing: 1px;
         text-transform: uppercase;
-        border-bottom: 1px solid transparent;
     }
 
-    /* Når brugeren trykker/holder på menuen på mobil, folder den sig ud */
+    /* 3. SKJUL ALLE MENUPUNKTER SOM STANDARD */
+    .nav-menu .nav-item {
+        display: none !important;
+    }
+
+    /* 4. VIS MENUPUNKTERNE SOM EN DROPDOWN-LISTE, NÅR DER KLIKKES/HOVERES */
     .nav-menu:hover,
     .nav-menu:focus-within,
     .nav-menu:active {
-        height: auto; /* Folder ud så alle nav-items bliver synlige */
         background: #07030c;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
-        overflow: visible;
     }
 
-    /* Skift pilen til at pege op, når menuen er åben */
     .nav-menu:hover::before,
     .nav-menu:focus-within::before {
         content: "MENU ▴";
         color: var(--accent-purple);
-        border-bottom: 1px solid var(--border-color);
     }
 
-    /* De enkelte menupunkter inde i dropdown-listen */
-    .nav-item {
+    /* Når menuen er aktiv, tvinger vi de indre links frem som en flydende liste under knappen */
+    .nav-menu:hover .nav-item,
+    .nav-menu:focus-within .nav-item,
+    .nav-menu:active .nav-item {
+        display: flex !important; /* Gør dem synlige igen */
+        position: relative;
         width: 100%;
+        background: #07030c;
+        border-left: 1px solid var(--accent-purple);
+        border-right: 1px solid var(--accent-purple);
+        z-index: 1100;
+    }
+
+    /* Sæt en flot bund-afrunding på det alleraktiveste/sidste element i dropdownen */
+    .nav-menu:hover .nav-item:last-child,
+    .nav-menu:focus-within .nav-item:last-child {
+        border-bottom: 1px solid var(--accent-purple);
+        border-radius: 0 0 6px 6px;
+    }
+
+    /* Styling af de enkelte elementer i dropdownen */
+    .nav-item {
         padding: 12px 14px;
         font-size: 11px; 
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        display: flex !important;
         align-items: center;
         gap: 8px;
-        border-radius: 0;
-        background: transparent;
-        border: none;
         color: var(--text-muted);
+        border: none;
     }
 
     .nav-item i {
@@ -394,21 +415,18 @@ body {
         display: inline !important;
     }
 
-    /* Hover-effekt på elementerne inde i listen */
     .nav-item:hover {
-        background-color: rgba(255, 255, 255, 0.05);
+        background-color: rgba(168, 85, 247, 0.15) !important;
         color: var(--text-primary);
     }
 
-    /* Det aktive menupunkt markeres inde i listen */
     .nav-item.active {
-        border-left: 3px solid var(--accent-purple);
-        border-bottom: none; 
-        background-color: var(--accent-purple-dim);
+        border-left: 4px solid var(--accent-purple) !important;
+        background-color: var(--accent-purple-dim) !important;
         color: var(--text-primary);
     }
 
-    /* Resten af dine eksisterende mobil-styles bevares herunder */
+    /* Resten af dit mobil-layout forbliver uændret */
     .main-content {
         padding: 24px 16px; 
         width: 100%;
@@ -522,6 +540,7 @@ body {
         margin-bottom: 12px !important;
     }
 }
+
 
 
 @media screen and (max-width: 400px) {
