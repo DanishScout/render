@@ -229,10 +229,13 @@ function buildPizzaVektorChart(data, selectedColor) {
         markup += `<line x1="${CX}" y1="${CY}" x2="${CX + 230 * Math.cos(sA)}" y2="${CY + 230 * Math.sin(sA)}" class="grid-line" />`;
         
         let anchor = cos > 0.2 ? "start" : cos < -0.2 ? "end" : "middle";
-        markup += `<text x="${CX + 258 * cos}" y="${CY + 250 * sin}" class="ax-lbl" text-anchor="${anchor}" dominant-baseline="middle" fill="#94a3b8">${metric}</text>`;
+        
+        /* RETTET: Inline style med var(--font-family) tilføjet direkte på SVG <text>, så f.eks. iPhones tvinges til at bruge den */
+        markup += `<text x="${CX + 258 * cos}" y="${CY + 250 * sin}" class="ax-lbl" style="font-family: var(--font-family), sans-serif;" text-anchor="${anchor}" dominant-baseline="middle" fill="#94a3b8">${metric}</text>`;
 
         if (score > 15) {
-            markup += `<g><rect x="${CX + currentR * cos - 13}" y="${CY + currentR * sin - 7}" width="26" height="14" rx="3" class="box-bg-rect" stroke="${c}" stroke-width="1.5" /><text x="${CX + currentR * cos}" y="${CY + currentR * sin}" class="tx-b" fill="${c}" text-anchor="middle" dominant-baseline="central">${score}</text></g>`;
+            /* RETTET: Inline style med var(--font-family) tilføjet til score-tallene inde i cirklerne */
+            markup += `<g><rect x="${CX + currentR * cos - 13}" y="${CY + currentR * sin - 7}" width="26" height="14" rx="3" class="box-bg-rect" stroke="${c}" stroke-width="1.5" /><text x="${CX + currentR * cos}" y="${CY + currentR * sin}" class="tx-b" style="font-family: var(--font-family), sans-serif;" text-anchor="middle" dominant-baseline="central">${score}</text></g>`;
         }
     });
     svg.innerHTML = markup + `<circle cx="${CX}" cy="${CY}" r="12" fill="#FFFFFF" />`;
@@ -241,13 +244,23 @@ function buildPizzaVektorChart(data, selectedColor) {
 function downloadPNG() { 
     const el = $("chart-only"), title = document.querySelector('.p-nm'); 
     if (title) { title.style.webkitTextFillColor = '#fff'; title.style.color = '#fff'; } 
-    html2canvas(el, { scale: 4, backgroundColor: "#0B1220", useCORS: true }).then(canvas => { 
-        if (title) title.style.webkitTextFillColor = '#fff'; 
-        const link = document.createElement("a"); 
-        link.download = `report_${CURRENT_SELECTED_PLAYER ? CURRENT_SELECTED_PLAYER.toLowerCase().replace(/ /g, "_") : "chart"}.png`; 
-        link.href = canvas.toDataURL("image/png"); link.click(); 
-    }).catch(e => console.error(e)); 
+    
+    // RETTET: Fortæller html2canvas at den skal vente på at skrifttyper (fonts) er fuldt indlæst før rendering
+    document.fonts.ready.then(() => {
+        html2canvas(el, { 
+            scale: 4, 
+            backgroundColor: "#0B1220", 
+            useCORS: true,
+            logging: false
+        }).then(canvas => { 
+            if (title) title.style.webkitTextFillColor = '#fff'; 
+            const link = document.createElement("a"); 
+            link.download = `report_${CURRENT_SELECTED_PLAYER ? CURRENT_SELECTED_PLAYER.toLowerCase().replace(/ /g, "_") : "chart"}.png`; 
+            link.href = canvas.toDataURL("image/png"); link.click(); 
+        }).catch(e => console.error(e)); 
+    });
 }
+
 
 window.loadPizzaChartData = function(playerName) {
     if (playerName && CURRENT_SELECTED_PLAYER !== playerName) selectCustomItem('player', playerName); else onPizzaFilterChange();
