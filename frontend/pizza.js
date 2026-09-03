@@ -168,8 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 // ==========================================
-// ==========================================
-// DEL 3 AF 4: DROPDOWN OG ARRAY-PARSING FIX (RETTET)
+// DEL 3 AF 4: DROPDOWN OG ARRAY-PARSING FIX
 // ==========================================
 
 function toggleCustomDropdown(type) {
@@ -196,16 +195,14 @@ async function initCustomPizzaSelectors() {
             fetch(`${API_BASE_URL}/api/pizza/positions`).then(r => r.json())
         ]);
         
-        // RETTET: Sætter CURRENT_SELECTED_PLAYER til den FØRSTE spiller (index 0) i stedet for hele arrayet
         if (players.length > 0 && $("custom-player-items-container")) {
-            CURRENT_SELECTED_PLAYER = players[0]; 
+            CURRENT_SELECTED_PLAYER = players; 
             $("custom-player-selected-text").innerText = CURRENT_SELECTED_PLAYER;
             $("custom-player-items-container").innerHTML = players.map(p => `<div class="custom-option-item ${p === CURRENT_SELECTED_PLAYER ? 'selected-active' : ''}" onclick="selectCustomItem('player', '${p.replace(/'/g, "\\'")}')">${p}</div>`).join('');
         }
 
-        // RETTET: Sætter CURRENT_SELECTED_POS til den FØRSTE position (index 0) i stedet for hele arrayet
         if (positions.length > 0 && $("custom-pos-options")) {
-            CURRENT_SELECTED_POS = positions[0]; 
+            CURRENT_SELECTED_POS = positions; 
             $("custom-pos-selected-text").innerText = CURRENT_SELECTED_POS;
             $("custom-pos-options").innerHTML = positions.map(pos => `<div class="custom-option-item ${pos === CURRENT_SELECTED_POS ? 'selected-active' : ''}" id="opt-pos-${pos}" onclick="selectCustomItem('pos', '${pos}')">${pos}</div>`).join('');
         }
@@ -236,8 +233,6 @@ async function onPizzaPlayerChange() {
         }
     } catch (e) { console.error(e); }
     onPizzaFilterChange();
-}
-
 }
 // ==========================================
 // DEL 4 AF 4: DATA INTERFACES OG VEKTORGENERERING
