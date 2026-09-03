@@ -105,7 +105,7 @@ def get_pizza_data(
         "team": target_player_data.get('Team', 'Ukendt Klub'),
         
         # Din pizza.js renderer ud fra apiResponse.league, så vi mapper klubnavnet ('Team') hertil:
-        "league": target_player_data.get('Team', 'Ukendt Klub'), 
+        "league": target_player_data.get('League', 'Ukendt Klub'), 
         
         "player_pos": target_player_data.get(pos_column, 'Ukendt'),
         
