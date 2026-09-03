@@ -492,44 +492,47 @@ body {
     .stats-grid .stat-value { font-size: 24px; }
 
     #
-    /* Swipable filter-bjælke container - SCROLL ER TILBAGE 🚀 */
+        /* Swipable filter-bjælke container - SCROLLBAR ER SYNLIG NU 🚀 */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"] {
         flex-direction: row !important;
         justify-content: flex-start !important;
         align-items: flex-end !important;
         gap: 10px !important;
         width: 100% !important;
-        overflow-x: auto !important; /* Tvinger vandret scroll tilbage på mobilen */
-        padding-bottom: 12px !important; 
+        overflow-x: auto !important;     /* Tvinger vandret scroll */
+        overflow-y: visible !important;  /* Prøver at tvinge browseren til at vise dropdowns */
+        padding-bottom: 14px !important; /* Giver plads til den synlige scroller under knapperne */
         -webkit-overflow-scrolling: touch; 
         position: relative;
         z-index: 110; 
     }
     
-    /* Skjuler den grimme scrollbar-linje på mobile enheder */
+    /* RETTET: Vi fjerner 'display: none', så scrolleren under knapperne rent faktisk dukker op */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar {
-        display: none !important;
+        display: block !important;
+        height: 4px !important; /* En tynd, elegant scrollbar-linje */
+    }
+    
+    div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar-thumb {
+        background-color: var(--accent-purple) !important; /* Gør scrolleren neon-gul så den matcher appen */
+        border-radius: 4px !important;
     }
 
-    /* Tonet overlay i højre side, der indikerer at man kan swipe */
+    div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05) !important;
+    }
+
+    /* Tonet overlay fjernes, da vi nu har en rigtig scroller */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::after {
-        content: "";
-        position: fixed;
-        right: 16px;
-        bottom: 32px;
-        width: 45px;
-        height: 62px;
-        background: linear-gradient(to left, var(--bg-dark) 25%, transparent);
-        pointer-events: none;
-        z-index: 115;
+        content: none !important;
     }
 
-    /* ENKELTE FILTERKNAPPER - LØSRIVET SÅ DROPDOWNS KAN SEES */
+    /* FILTERKNAPPER - TILBAGE TIL ORIGINALT FIKSPUNKT */
     .filter-group { 
         width: 145px !important; 
         flex-shrink: 0 !important; 
         max-width: none !important; 
-        position: static !important; /* Tvinger dropdown til at kigge på hele skærmen i stedet for scrollbaren */
+        position: relative !important; /* Gået tilbage til relative, så de følger knappen ved scroll */
     }
     
     .multiselect { 
@@ -537,7 +540,7 @@ body {
         flex-shrink: 0 !important; 
         max-width: none !important; 
         padding-right: 15px; 
-        position: static !important; /* Tvinger dropdown til at kigge på hele skærmen i stedet for scrollbaren */
+        position: relative !important; 
     }
     
     .custom-select-trigger, .selectBox { 
@@ -545,18 +548,17 @@ body {
         font-size: 11px !important; 
     }
     
-    /* DET REELLE DROPDOWN-OVERLAY (Søgeresultater og tjekbokse) - HELT FRIGJORT */
+    /* DROPDOWN-LISTERNE - PLACERET DIREKTE UNDER KNAPPEN IGEN */
     .custom-options-list, #checkboxes-container { 
-        width: calc(100% - 32px) !important; /* Tilpasser sig skærmens fulde bredde minus padding */
-        max-width: 340px !important;        /* Forhindrer den i at blive for bred på tablets */
-        max-height: 280px !important; 
-        position: absolute !important;       /* River menuen helt ud af den klippede scrollbar */
-        left: 16px !important;               /* Sætter den perfekt ind på skærmen */
-        margin-top: 45px !important;         /* Skubber listen præcis ned under filter-bjælken */
-        z-index: 9999 !important;            /* Lægger sig helt forrest */
+        width: 200px !important; /* Lidt smallere så de passer bedre ind i scroll-flowet */
+        max-height: 240px !important; 
+        position: absolute !important;  
+        top: 100% !important;           
+        left: 0 !important;
+        z-index: 9999 !important;       
         background: #07030c !important; 
         border: 1px solid var(--accent-purple) !important;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
     }
     
     /* DIAGRAM OG DIAGRAM-CONTAINERE */
