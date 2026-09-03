@@ -114,5 +114,5 @@ def get_pizza_data(
         
         "metrics": labels,
         "percentiles": percentiles,
-        "team_id": str(target_player_data.get('team_id', 'nan'))
+        "team_id": str(target_player_data.get('contestantId', 'nan'))
     }
