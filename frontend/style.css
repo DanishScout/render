@@ -578,7 +578,7 @@ body {
         font-size: 12px !important; 
         
         /* JUSTER LINJEN HER (Hvis linjen er en border på navnet): */
-        padding-bottom: 2px !important;  /* Mindre tal rykker linjen OP mod navnet - større tal rykker den NED */
+        padding-bottom: 4px !important;  /* Mindre tal rykker linjen OP mod navnet - større tal rykker den NED */
         margin-bottom: 2px !important;  /* Større tal skubber subtitlerne længere NED under linjen */
     }
     
@@ -587,7 +587,7 @@ body {
         font-size: 8px !important; 
         
         /* JUSTER LINJEN HER (Hvis linjen er en border på subtitlerne): */
-        margin-top: 2px !important;   /* Større tal rykker linjen LÆNGERE NED fra spillernavnet */
+        margin-top: 0px !important;   /* Større tal rykker linjen LÆNGERE NED fra spillernavnet */
         padding-top: 2px !important;    /* Større tal skubber underteksten LÆNGERE NED fra linjen */
     }
 
