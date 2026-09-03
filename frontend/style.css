@@ -109,22 +109,24 @@ body {
         radial-gradient(circle at 85% 25%, rgba(204, 255, 0, 0.08) 0%, transparent 50%),
         
         /* ==================================================================
-           OPDATERET: DISKRETE KRIDTLINJER I BEGGE SIDER
+           DINE DISKRETE KRIDTLINJER I BEGGE SIDER
            ================================================================== */
         /* A. VENSTRE SIDELINJE (Løber lodret 15px inde fra venstre kant) */
         linear-gradient(90deg, transparent 15px, rgba(255, 255, 255, 0.35) 15px, rgba(255, 255, 255, 0.35) 18px, transparent 18px),
         /* B. HØJRE SIDELINJE (Løber lodret 15px inde fra højre kant) */
         linear-gradient(270deg, transparent 15px, rgba(255, 255, 255, 0.35) 15px, rgba(255, 255, 255, 0.35) 18px, transparent 18px),
         
-        /* 4. DE FRISKE, VERTIKALE STADIONSTRIBER */
-        linear-gradient(90deg, 
+        /* 4. RETTET: DE HORISONTALE STADIONSTRIBER (Nu vendt rigtigt til 'to bottom') */
+        linear-gradient(to bottom, 
             #4b8b4b 0%, #4b8b4b 50%, 
             #2d6136 50%, #2d6136 100%
         );
-    /* Justerede lagstørrelser, så alt spiller perfekt sammen */
-    background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 80px 100%;
-    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat-x;
+    /* RETTET: De første 5 lag fylder hele skærmen, det sidste græslag har en højde på 80px */
+    background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 80px;
+    /* RETTET: Det sidste lag gentager sig nu vertikalt nedad (repeat-y) i stedet for mod højre */
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat-y;
 }
+
 
 
 
