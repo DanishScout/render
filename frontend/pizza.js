@@ -70,12 +70,30 @@ document.addEventListener("DOMContentLoaded", () => {
         #pizza-svg-element { display: block; margin: -15px auto 0; overflow: visible; max-width: 100%; height: auto; position: relative; z-index: 1; }
         .grid-circle { fill: none; stroke: rgba(255,255,255,.08); }
         .grid-line { stroke: rgba(255,255,255,.06); }
-        .ax-lbl { font-size: 13px; fill: #94a3b8; font-weight: 700; letter-spacing: .5px; }
+
+        .ax-lbl { 
+            font-size: 13px; 
+            fill: #94a3b8; 
+            font-weight: 700; 
+            letter-spacing: .5px; 
+            /* NYT: Tvinger browseren til at skalere teksten lineært med diagrammet */
+            text-shadow: none;
+            -webkit-text-size-adjust: none !important;
+            text-size-adjust: none !important;
+        }
         .slice-b { stroke-width: 1.75; stroke-linejoin: round; }
         .box-bg-rect { fill: #0B1220 !important; }
         
         /* HER SIKRER VI, AT STRUKTUREN ARVER RIGTIG FILL-FARVE FRA JS */
-        .tx-b { font-size: 11px; font-weight: 900; fill: inherit !important; }
+        .tx-b { 
+            font-size: 11px; 
+            font-weight: 900; 
+            fill: inherit !important;
+            /* NYT: Forhindrer mobilen i at puste tallene op */
+            -webkit-text-size-adjust: none !important;
+            text-size-adjust: none !important;
+        }
+
         
         .chart-footer, .chart-footer-source { text-align: center; width: 100%; font-size: 11px; font-weight: 300; color: #e5e7eb; letter-spacing: .4px; padding: 0 40px; box-sizing: border-box; position: relative; z-index: 2; }
         .chart-footer { margin-top: 1px; opacity: 0.75; }
