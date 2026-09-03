@@ -291,7 +291,7 @@ body {
         height: auto;
         border-right: none;
         border-bottom: 1px solid var(--border-color);
-        padding: 16px 12px 16px 16px;
+        padding: 16px 12px 12px 16px; /* Tilpasset padding */
         flex-direction: row; 
         justify-content: space-between;
         align-items: center;
@@ -299,10 +299,9 @@ body {
         top: 0;
         background-color: var(--bg-sidebar);
         z-index: 1000;
-        overflow: hidden; /* Holder skygge-indikatoren på plads */
+        overflow: hidden; 
     }
 
-    /* En svag, lilla skygge i højre side, der indikerer at menuen kan swipes mod højre */
     .sidebar::after {
         content: "";
         position: absolute;
@@ -322,22 +321,34 @@ body {
         margin-right: 12px;
     }
 
-    /* GØR MENU-BJÆLKEN SWIPABLE OG STRØMLINET */
+    /* TOP-MENU MED SYNLIG RETRO RULLEBJÆLKE */
     .nav-menu {
         flex-direction: row;
         gap: 6px;
         flex-grow: 1;
-        overflow-x: auto;
-        padding-right: 30px; /* Ekstra plads så teksten ikke klemmes under skyggen */
+        overflow-x: auto !important; /* Tvinger vandret scroll */
+        padding-right: 30px; 
+        padding-bottom: 8px; /* Giver plads til rullebjælken i bunden */
         -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
+        scrollbar-width: thin; /* Sikrer tynd bjælke i Firefox */
+        scrollbar-color: var(--accent-purple) transparent;
     }
     
+    /* 🛠️ VI VISER OG STYLER MOBIL-RULLEBJÆLKEN FOR TOP-MENU */
     .nav-menu::-webkit-scrollbar {
-        display: none !important;
+        display: block !important; /* LØSNING: Vis den nu! */
+        height: 3px !important;    /* Ultratynd og elegant */
+    }
+    .nav-menu::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.02) !important;
+        border-radius: 10px !important;
+    }
+    .nav-menu::-webkit-scrollbar-thumb {
+        background: var(--accent-purple) !important; /* Din lilla signaturfarve */
+        border-radius: 10px !important;
+        box-shadow: 0 0 8px var(--accent-purple); /* Svagt neonglow */
     }
 
-    /* Ikoner er tilbage ved siden af titlerne! */
     .nav-item {
         padding: 8px 12px;
         font-size: 11px; 
@@ -346,13 +357,13 @@ body {
         letter-spacing: 0.5px;
         display: flex !important;
         align-items: center;
-        gap: 6px; /* Mellemrum mellem ikon og tekst */
+        gap: 6px; 
         border-radius: 4px;
-        flex-shrink: 0; /* Forhindrer knappen i at blive mast */
+        flex-shrink: 0; 
     }
 
     .nav-item i {
-        display: inline-block !important; /* Tvinger ikonerne tilbage på skærmen */
+        display: inline-block !important; 
         font-size: 12px;
         color: inherit;
     }
@@ -396,38 +407,47 @@ body {
         font-size: 24px;
     }
 
-    /* SWIPABLE FILTER-BJÆLKE MED VISUEL SKYGGE-INDIKATOR */
+    /* FILTER-BJÆLKE MED SYNLIG RETRO RULLEBJÆLKE */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"] {
         flex-direction: row !important;
         justify-content: flex-start !important;
         align-items: flex-end !important;
         gap: 10px !important;
         width: 100% !important;
-        overflow-x: auto !important;
-        padding-bottom: 12px; 
+        overflow-x: auto !important; /* Tvinger vandret scroll */
+        padding-bottom: 14px; /* Plads til rullebjælken under boksene */
         -webkit-overflow-scrolling: touch; 
-        scrollbar-width: none; 
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent-purple) transparent;
         position: relative;
     }
     
+    /* 🛠️ VI VISER AND STYLER MOBIL-RULLEBJÆLKEN FOR FILTER-GRUPPEN */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar {
-        display: none !important;
+        display: block !important; /* LØSNING: Vis den nu! */
+        height: 3px !important;    /* Matcher topbaren */
+    }
+    div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.02) !important;
+        border-radius: 10px !important;
+    }
+    div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar-thumb {
+        background: var(--accent-purple) !important;
+        border-radius: 10px !important;
     }
 
-    /* Vi bygger en kunstig skygge i højre side af filter-området */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::after {
         content: "";
-        position: fixed; /* Fastlåst i forhold til containerens højre kant */
+        position: fixed; 
         right: 16px;
-        bottom: 32px; /* Flugter med bunden af dine dropdowns */
+        bottom: 32px; 
         width: 45px;
-        height: 62px; /* Matcher højden på dine dropdowns */
+        height: 62px; 
         background: linear-gradient(to left, var(--bg-dark) 25%, transparent);
         pointer-events: none;
         z-index: 115;
     }
 
-    /* Faste, køreklare mobilbredder */
     .filter-group {
         width: 145px !important; 
         flex-shrink: 0 !important; 
@@ -438,16 +458,15 @@ body {
         width: 155px !important; 
         flex-shrink: 0 !important;
         max-width: none !important;
-        padding-right: 15px; /* Giver plads før skygge-kanten */
+        padding-right: 15px; 
     }
 
     .custom-select-trigger, 
     .selectBox {
         padding: 10px 8px !important;
-        font-size: 11px !important; /* En tand mindre tekst så intet klipper */
+        font-size: 11px !important; 
     }
 
-    /* Sikrer at dropdown-listerne falder ned i fuld læsbar bredde */
     .custom-options-list, 
     #checkboxes-container {
         width: 240px !important; 
