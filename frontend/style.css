@@ -578,8 +578,8 @@ body {
         font-size: 12px !important; 
         
         /* JUSTER LINJEN HER (Hvis linjen er en border på navnet): */
-        padding-bottom: 10px !important;  /* Mindre tal rykker linjen OP mod navnet - større tal rykker den NED */
-        margin-bottom: 10px !important;  /* Større tal skubber subtitlerne længere NED under linjen */
+        padding-bottom: 2px !important;  /* Mindre tal rykker linjen OP mod navnet - større tal rykker den NED */
+        margin-bottom: 2px !important;  /* Større tal skubber subtitlerne længere NED under linjen */
     }
     
     .p-sub-bar { 
@@ -587,8 +587,8 @@ body {
         font-size: 8px !important; 
         
         /* JUSTER LINJEN HER (Hvis linjen er en border på subtitlerne): */
-        margin-top: 10px !important;   /* Større tal rykker linjen LÆNGERE NED fra spillernavnet */
-        padding-top: 6px !important;    /* Større tal skubber underteksten LÆNGERE NED fra linjen */
+        margin-top: 2px !important;   /* Større tal rykker linjen LÆNGERE NED fra spillernavnet */
+        padding-top: 2px !important;    /* Større tal skubber underteksten LÆNGERE NED fra linjen */
     }
 
     .header-card { 
