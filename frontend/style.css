@@ -1,5 +1,5 @@
 /* ==========================================================================
-   PER 90 - CORE STYLES (OPDATERET MED GABARITO FONT)
+   PER 90 - CORE STYLES (OPDATERET MED GABARITO FONT) - DEL 1 AF 3
    ========================================================================== */
 
 :root {
@@ -11,8 +11,6 @@
     --accent-purple: #ccff00;        
     --accent-purple-dim: rgba(204, 255, 0, 0.15); 
     --border-color: #1e3a27;         
-    
-    /* 1. OPDATER FONT-VARIABLEN HER */
     --font-family: "Gabarito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -20,11 +18,10 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    /* 2. TVINGER GABARITO PÅ ABSOLUT ALT (Også knapper og dropdowns) */
     font-family: var(--font-family) !important; 
 }
 
-/* RETTET HER: Vi laver en undtagelse for FontAwesome, som trumfer reglen ovenfor */
+/* Undtagelse for FontAwesome ikoner */
 .fa, .fas, .far, .fab, [class^="fa-"], [class*=" fa-"], .nav-item i {
     font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", sans-serif !important;
     font-weight: 900 !important;
@@ -33,12 +30,10 @@
 body {
     background-color: var(--bg-dark);
     color: var(--text-primary);
-    font-family: var(--font-family); /* 3. Sikrer at body også har den */
+    font-family: var(--font-family); 
     overflow: hidden;
     height: 100vh;
 }
-
-
 
 .app-container {
     display: flex;
@@ -46,10 +41,10 @@ body {
     width: 100vw;
 }
 
-/* Sidebar layout og dimensioner */
+/* Sidebar layout og dimensioner til PC */
 .sidebar {
     width: 200px;
-    background-color: var(--bg-sidebar); /* Bruger den nye dybe grønne farve */
+    background-color: var(--bg-sidebar); 
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
@@ -65,7 +60,7 @@ body {
 }
 
 .logo-main { color: var(--text-primary); }
-.logo-sub { color: var(--accent-purple); } /* Logoet lyser nu op i neon-gul */
+.logo-sub { color: var(--accent-purple); } 
 
 .nav-menu {
     display: flex;
@@ -102,6 +97,9 @@ body {
 .nav-item:hover { color: var(--text-primary); background-color: rgba(255, 255, 255, 0.03); }
 .nav-item.active { color: var(--text-primary); background-color: var(--accent-purple-dim); border-left: 3px solid var(--accent-purple); }
 .sidebar-footer { color: var(--text-muted); font-size: 12px; display: flex; align-items: center; gap: 8px; }
+/* ==========================================================================
+   PER 90 - CORE STYLES (STADIONGRÆS & PC-LAYOUTS) - DEL 2 AF 3
+   ========================================================================== */
 
 .main-content {
     flex-grow: 1;
@@ -110,508 +108,196 @@ body {
     overflow-y: auto;
     position: relative;
     background-image: 
-        /* 1. STADIONLYS OVERLAY: Den bløde lysglød på midten */
         radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 70%),
-        /* 2. Dæmpende lag, så alt tekst står knivskarpt ovenpå græsset */
         linear-gradient(rgba(6, 20, 12, 0.1), rgba(6, 20, 12, 0.1)),
-        /* 3. Et svagt neon-gult lysglimt oppe i øverste højre hjørne */
         radial-gradient(circle at 85% 25%, rgba(204, 255, 0, 0.08) 0%, transparent 50%),
-        
-        /* ==================================================================
-           DINE DISKRETE KRIDTLINJER I BEGGE SIDER
-           ================================================================== */
-        /* A. VENSTRE SIDELINJE (Løber lodret 15px inde fra venstre kant) */
         linear-gradient(90deg, transparent 15px, rgba(255, 255, 255, 0.35) 15px, rgba(255, 255, 255, 0.35) 18px, transparent 18px),
-        /* B. HØJRE SIDELINJE (Løber lodret 15px inde fra højre kant) */
         linear-gradient(270deg, transparent 15px, rgba(255, 255, 255, 0.35) 15px, rgba(255, 255, 255, 0.35) 18px, transparent 18px),
-        
-        /* 4. RETTET: DE HORISONTALE STADIONSTRIBER (Nu vendt rigtigt til 'to bottom') */
-        linear-gradient(to bottom, 
-            #4b8b4b 0%, #4b8b4b 50%, 
-            #2d6136 50%, #2d6136 100%
-        );
-    /* RETTET: De første 5 lag fylder hele skærmen, det sidste græslag har en højde på 80px */
+        linear-gradient(to bottom, #4b8b4b 0%, #4b8b4b 50%, #2d6136 50%, #2d6136 100%);
     background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 80px;
-    /* RETTET: Det sidste lag gentager sig nu vertikalt nedad (repeat-y) i stedet for mod højre */
     background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat-y;
 }
 
-
-
-
-
-
-
-
 .pitch-watermark {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
 }
-
-.pitch-watermark::before,
-.pitch-watermark::after {
-    content: none !important;
-    display: none !important;
+.pitch-watermark::before, .pitch-watermark::after {
+    content: none !important; display: none !important;
 }
 
 .content-view {
-    display: none;
-    position: relative;
-    z-index: 1;
+    display: none; position: relative; z-index: 1;
     animation: fadeIn 0.4s ease;
 }
-
-.content-view.active {
-    display: block;
-}
+.content-view.active { display: block; }
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Hero Sektion */
-/* EFTER - ERSTAT DIN .HERO-CONTAINER MED DENNE BLOK: */
+/* Hero Sektion (PC-kort) */
 .hero-container {
-    max-width: 650px; /* Giver en anelse mere plads i bredden */
-    margin-top: 40px;
-    margin-bottom: 60px;
-    
-    /* DET NYE RAPPORT-KORT DESIGN TIL TEKSTEN: */
-    background-color: var(--bg-card); /* Semi-transparent mørkelilla */
-    backdrop-filter: blur(12px); /* Lækker, sløret glaseffekt mod græsset */
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border-color); /* Tynd, elegant kantlinje */
-    border-radius: 12px;
-    padding: 32px; /* Giver masser af luft omkring teksten */
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4); /* Flot skygge, der løfter kortet fra banen */
+    max-width: 650px; margin-top: 40px; margin-bottom: 60px;
+    background-color: var(--bg-card); backdrop-filter: blur(12px); 
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border-color); 
+    border-radius: 12px; padding: 32px; box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4); 
 }
 
-
 .dashboard-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--accent-purple);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    margin-bottom: 16px;
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--accent-purple); font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; margin-bottom: 16px;
 }
 
 .hero-title {
-    font-size: 44px;
-    font-weight: 900;
-    line-height: 1.15;
-    letter-spacing: -0.5px;
-    margin-bottom: 20px;
+    font-size: 44px; font-weight: 900; line-height: 1.15;
+    letter-spacing: -0.5px; margin-bottom: 20px;
 }
-
 .hero-title .highlight {
-    color: var(--accent-purple);
-    text-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+    color: var(--accent-purple); text-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
 }
-
-.hero-subtitle {
-    font-size: 16px;
-    color: var(--text-muted);
-    line-height: 1.6;
-}
+.hero-subtitle { font-size: 16px; color: var(--text-muted); line-height: 1.6; }
 
 /* Stats Grid */
 .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 24px;
-    border-top: 1px solid var(--border-color);
-    padding-top: 48px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px; border-top: 1px solid var(--border-color); padding-top: 48px;
 }
-
 .stat-card {
-    background-color: var(--bg-card);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 24px;
-    transition: border-color 0.2s ease, transform 0.2s ease;
+    background-color: var(--bg-card); backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px); border: 1px solid var(--border-color);
+    border-radius: 8px; padding: 24px; transition: border-color 0.2s ease, transform 0.2s ease;
 }
+.stat-card:hover { border-color: rgba(168, 85, 247, 0.4); transform: translateY(-2px); }
+.stats-grid .stat-value { font-size: 36px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; letter-spacing: -0.5px; }
+.stats-grid .stat-label { font-size: 12px; color: var(--text-primary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.stats-grid .stat-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
 
-.stat-card:hover {
-    border-color: rgba(168, 85, 247, 0.4);
-    transform: translateY(-2px);
-}
-
-.stats-grid .stat-value {
-    font-size: 36px;
-    font-weight: 800;
-    color: var(--text-primary);
-    margin-bottom: 6px;
-    letter-spacing: -0.5px;
-}
-
-.stats-grid .stat-label {
-    font-size: 12px;
-    color: var(--text-primary);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-}
-
-.stats-grid .stat-desc {
-    font-size: 12px;
-    color: var(--text-muted);
-    line-height: 1.4;
-}
-
-/* Graf beholdere */
-.view-header {
-    margin-bottom: 32px;
-}
-
-.view-header h2 {
-    font-size: 28px;
-    font-weight: 800;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-}
-
-.view-header p {
-    color: var(--text-muted);
-}
+/* Graf beholdere PC */
+.view-header { margin-bottom: 32px; }
+.view-header h2 { font-size: 28px; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; }
+.view-header p { color: var(--text-muted); }
 
 .chart-container-wrapper {
-    background-color: var(--bg-card);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 32px;
-    min-height: 520px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background-color: var(--bg-card); backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px); border: 1px solid var(--border-color);
+    border-radius: 12px; padding: 32px; min-height: 520px;
+    display: flex; justify-content: center; align-items: center;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
-.chart-box {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.chart-image-render {
-    max-width: 100%;
-    max-height: 550px;
-    object-fit: contain;
-}
-
-
+.chart-box { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+.chart-image-render { max-width: 100%; max-height: 550px; object-fit: contain; }
 /* ==========================================================================
-   RESPONSIVE DESIGN (IPAD & MOBILOPTIMERING) - NYT TILFØJET
+   RESPONSIVE DESIGN (IPAD & MOBILOPTIMERING) - STRATEGI A - DEL 3 AF 3
    ========================================================================== */
 
 @media screen and (max-width: 900px) {
-    body {
-        overflow-y: auto; 
-        height: auto;
-    }
-
-    .app-container {
-        flex-direction: column; 
-        height: auto;
-        width: 100vw;
-    }
+    body { overflow-y: auto; height: auto; }
+    .app-container { flex-direction: column; height: auto; width: 100vw; }
 
     /* Sticky topbar på mobil */
     .sidebar {
-        width: 100%;
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
-        padding: 14px 16px;
-        flex-direction: row; 
-        justify-content: space-between;
-        align-items: center;
-        position: sticky;
-        top: 0;
-        background-color: var(--bg-sidebar);
-        z-index: 1000;
-        overflow: visible; /* Vigtigt for overlay */
+        width: 100%; height: auto; border-right: none;
+        border-bottom: 1px solid var(--border-color); padding: 14px 16px;
+        flex-direction: row; justify-content: space-between; align-items: center;
+        position: sticky; top: 0; background-color: var(--bg-sidebar); z-index: 1000; overflow: visible;
     }
+    .sidebar::after { content: none; }
+    .logo { margin-bottom: 0; font-size: 18px; flex-shrink: 0; }
+    .nav-section, .sidebar-footer { display: none !important; }
 
-    .sidebar::after {
-        content: none;
-    }
-
-    .logo {
-        margin-bottom: 0; 
-        font-size: 18px;
-        flex-shrink: 0;
-    }
-
-    /* SKJUL UØNSKET TEKST PÅ MOBIL */
-    .nav-section, .sidebar-footer {
-        display: none !important;
-    }
-
-    /* CSS DROPDOWN MENU-CONTAINER */
+    /* Mobil top-menu dropdown */
     .nav-menu {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-        flex-grow: 0;
-        position: relative;
-        background: #07030c;
-        border: 1px solid var(--accent-purple);
-        border-radius: 6px;
-        width: 140px;
-        height: 36px;
-        overflow: visible;
-        cursor: pointer;
-        -webkit-tap-highlight-color: transparent; /* Fjerner grim blå mobil-ramme ved tryk */
+        display: flex; flex-direction: column; gap: 0; flex-grow: 0; position: relative;
+        background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; width: 140px; height: 36px; overflow: visible; cursor: pointer;
     }
-
-    /* MENU-knappens tekst */
     .nav-menu::before {
-        content: "MENU ▾";
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 34px;
-        width: 100%;
-        font-size: 11px;
-        font-weight: 800;
-        color: var(--text-primary);
-        letter-spacing: 1px;
-        text-transform: uppercase;
+        content: "MENU ▾"; display: flex; align-items: center; justify-content: center; height: 34px; width: 100%;
+        font-size: 11px; font-weight: 800; color: var(--text-primary); letter-spacing: 1px; text-transform: uppercase;
     }
+    .nav-menu .nav-item { display: none !important; }
+    .nav-menu:hover, .nav-menu:active, .nav-menu:focus-within { background: #07030c; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9); border-radius: 6px 6px 0 0; }
+    .nav-menu:hover::before, .nav-menu:active::before, .nav-menu:focus-within::before { content: "MENU ▴"; color: var(--accent-purple); }
 
-    /* Skjul menupunkter som standard */
-    .nav-menu .nav-item {
-        display: none !important;
+    .nav-menu:hover .nav-item, .nav-menu:active .nav-item, .nav-menu:focus-within .nav-item {
+        display: flex !important; position: absolute; left: -1px; right: -1px; width: calc(100% + 2px);
+        background: #07030c !important; border-left: 1px solid var(--accent-purple); border-right: 1px solid var(--accent-purple); z-index: 2000;
     }
+    .nav-menu:hover .nav-item:nth-of-type(1), .nav-menu:active .nav-item:nth-of-type(1) { top: 35px; border-top: 1px solid var(--border-color); }
+    .nav-menu:hover .nav-item:nth-of-type(2), .nav-menu:active .nav-item:nth-of-type(2) { top: 76px; }
+    .nav-menu:hover .nav-item:nth-of-type(3), .nav-menu:active .nav-item:nth-of-type(3) { top: 117px; }
+    .nav-menu:hover .nav-item:nth-of-type(4), .nav-menu:active .nav-item:nth-of-type(4) { top: 158px; }
+    .nav-menu:hover .nav-item:last-child, .nav-menu:active .nav-item:last-child { border-bottom: 1px solid var(--accent-purple); border-radius: 0 0 6px 6px; }
 
-    /* ÅBNING AF MENU: Vi lytter både på hover (desktop/simulering) og active/focus-within */
-    .nav-menu:hover,
-    .nav-menu:active,
-    .nav-menu:focus-within {
-        background: #07030c;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9);
-        border-radius: 6px 6px 0 0;
-    }
+    .nav-item { padding: 12px 14px; height: 42px; font-size: 11px; font-weight: 700; text-transform: uppercase; align-items: center; gap: 8px; color: var(--text-muted); border: none; }
+    .nav-item i { display: inline-block !important; font-size: 12px; color: inherit; width: 14px; }
+    .nav-item span { display: inline !important; }
+    .nav-item:hover, .nav-item:active { background-color: rgba(168, 85, 247, 0.2) !important; color: var(--text-primary); }
+    .nav-item.active { border-left: 4px solid var(--accent-purple) !important; background-color: var(--accent-purple-dim) !important; color: var(--text-primary); }
 
-    .nav-menu:hover::before,
-    .nav-menu:active::before,
-    .nav-menu:focus-within::before {
-        content: "MENU ▴";
-        color: var(--accent-purple);
-    }
-
-    /* VIS LISTEN SOM ET SOLID OVERLAY */
-    .nav-menu:hover .nav-item,
-    .nav-menu:active .nav-item,
-    .nav-menu:focus-within .nav-item {
-        display: flex !important;
-        position: absolute;
-        left: -1px;
-        right: -1px;
-        width: calc(100% + 2px);
-        background: #07030c !important;
-        border-left: 1px solid var(--accent-purple);
-        border-right: 1px solid var(--accent-purple);
-        z-index: 2000;
-    }
-
-    /* Præcis placering så de ikke clasher */
-    .nav-menu:hover .nav-item:nth-of-type(1), .nav-menu:active .nav-item:nth-of-type(1), .nav-menu:focus-within .nav-item:nth-of-type(1) { top: 35px; border-top: 1px solid var(--border-color); }
-    .nav-menu:hover .nav-item:nth-of-type(2), .nav-menu:active .nav-item:nth-of-type(2), .nav-menu:focus-within .nav-item:nth-of-type(2) { top: 76px; }
-    .nav-menu:hover .nav-item:nth-of-type(3), .nav-menu:active .nav-item:nth-of-type(3), .nav-menu:focus-within .nav-item:nth-of-type(3) { top: 117px; }
-    .nav-menu:hover .nav-item:nth-of-type(4), .nav-menu:active .nav-item:nth-of-type(4), .nav-menu:focus-within .nav-item:nth-of-type(4) { top: 158px; }
-
-    .nav-menu:hover .nav-item:last-child, .nav-menu:active .nav-item:last-child, .nav-menu:focus-within .nav-item:last-child {
-        border-bottom: 1px solid var(--accent-purple);
-        border-radius: 0 0 6px 6px;
-    }
-
-    /* Enkelte elementer i listen */
-    .nav-item {
-        padding: 12px 14px;
-        height: 42px;
-        font-size: 11px; 
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        align-items: center;
-        gap: 8px;
-        color: var(--text-muted);
-        border: none;
-    }
-
-    .nav-item i {
-        display: inline-block !important;
-        font-size: 12px;
-        color: inherit;
-        width: 14px;
-    }
-    
-    .nav-item span {
-        display: inline !important;
-    }
-
-    .nav-item:hover, .nav-item:active {
-        background-color: rgba(168, 85, 247, 0.2) !important;
-        color: var(--text-primary);
-    }
-
-    .nav-item.active {
-        border-left: 4px solid var(--accent-purple) !important;
-        background-color: var(--accent-purple-dim) !important;
-        color: var(--text-primary);
-    }
-
-    /* Resten af dit mobil-indhold */
-    .main-content {
-        padding: 24px 0px !important; /* Fjernet padding i siderne, så filtrene kan rulle helt ud til kanten */
-        width: 100%;
-        overflow-x: clip !important;  /* Tillader indre scrollbars at fungere uden at ødelægge hele sidens layout */
-    }
-
-    /* Vi flytter skærm-paddingen ned på indholdskortene, så dit design og pizzadiagram stadig har luft til kanten */
-    .hero-container, .chart-container-wrapper, .header-card, .stats-grid, .view-header {
-        margin-left: 16px !important;
-        margin-right: 16px !important;
-    }
-
-    .hero-title { font-size: 28px; }
-    .view-header h2 { font-size: 22px; }
+    .main-content { padding: 24px 16px !important; width: 100%; overflow-x: hidden; }
+    .hero-container, .chart-container-wrapper, .header-card, .stats-grid, .view-header { margin-left: 0 !important; margin-right: 0 !important; }
+    .hero-title { font-size: 28px; } .view-header h2 { font-size: 22px; }
     .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; padding-top: 24px; }
-    .stat-card { padding: 16px; }
-    .stats-grid .stat-value { font-size: 24px; }
+    .stat-card { padding: 16px; } .stats-grid .stat-value { font-size: 24px; }
 
-
-    /* DETTE OMRÅDE KAN NU SCROLLES SIDELÆNS (Spiller, Position, Metrics) */
+    /* SKUFFENS TRIGGERSÆTNING (Gammelt flex-række design skjules til fordel for én stor knap) */
     div[style*="display: flex; gap: 16px; margin-bottom: 32px;"] {
-        display: flex !important;
-        flex-direction: row !important;
-        justify-content: flex-start !important;
-        align-items: flex-start !important; /* Gået tilbage til start */
-        gap: 12px !important;
-        width: calc(100% - 32px) !important; 
-        margin-left: 16px !important;
-        margin-right: 16px !important;
-        
-        /* AKTIVERER DET SIDELÆNS SCROLL */
-        overflow-x: scroll !important;     
-        overflow-y: visible !important; /* VIGTIGT: Tillader dropdowns at falde ud af bunden */
-        padding-bottom: 20px !important; 
-        -webkit-overflow-scrolling: touch !important; 
-        position: relative;
-        z-index: 110; 
-    }
-    
-    /* SYNLIG SCROLLER DIREKTE UNDER ELEMENTERNE */
-    div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar {
-        display: block !important;
-        -webkit-appearance: none !important; 
-        height: 6px !important; 
-    }
-    
-    div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar-thumb {
-        background-color: var(--accent-purple) !important; 
-        border-radius: 10px !important;
-        border: 1px solid var(--bg-dark) !important;
+        display: block !important; width: 100% !important; overflow: visible !important; margin-bottom: 24px !important;
     }
 
-    div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.1) !important;
-        border-radius: 10px !important;
+    /* Den universelle "Customize Chart"-knap */
+    .open-drawer-btn {
+        display: flex !important; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 48px;
+        background-color: var(--bg-sidebar); border: 1px solid var(--accent-purple); color: var(--text-primary);
+        font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-radius: 8px; cursor: pointer;
     }
+    .open-drawer-btn:active { background-color: var(--accent-purple-dim); }
 
-    div[style*="display: flex; gap: 16px; margin-bottom: 32px;"]::after {
-        content: none !important;
+    /* OVERLAY OG BUND-SKUFFE DESIGN 📱 */
+    .filter-drawer-overlay {
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); z-index: 9999; display: none;
     }
+    .filter-drawer-overlay.active { display: block; }
 
-    /* FILTER-ELEMENTERNE (Relativ positionering bringer klik-events tilbage 🎯) */
+    .filter-drawer {
+        position: fixed; bottom: 0; left: 0; width: 100vw; max-height: 75vh; background-color: #0b1f13; border-top: 2px solid var(--accent-purple);
+        border-radius: 20px 20px 0 0; z-index: 10000; padding: 24px 20px; display: flex; flex-direction: column; gap: 20px;
+        transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); overflow-y: auto !important;
+    }
+    .filter-drawer.active { transform: translateY(0); }
+
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 4px; }
+    .drawer-title { font-size: 16px; font-weight: 800; text-transform: uppercase; color: var(--accent-purple); }
+    .close-drawer-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
+
+    /* FILTRE LODRET INDENI SKUFFEN (Fremtidssikret til 3 eller 12+ filtre) */
     .filter-group, .multiselect { 
-        width: 155px !important; 
-        flex-shrink: 0 !important; 
-        max-width: none !important; 
-        position: relative !important; /* RETTET: Gør elementerne modtagelige overfor klik igen */
+        width: 100% !important; flex-shrink: 0 !important; max-width: none !important; position: relative !important; display: flex !important; flex-direction: column !important; gap: 6px;
     }
-    
-    .multiselect { 
-        width: 175px !important; 
-        padding-right: 0px !important; 
-    }
-    
+    .multiselect { padding-right: 0px !important; }
     .custom-select-trigger, .selectBox { 
-        padding: 12px 10px !important; 
-        font-size: 12px !important; 
+        padding: 14px 12px !important; font-size: 13px !important; background-color: var(--bg-dark) !important; border: 1px solid var(--border-color) !important; border-radius: 6px;
     }
     
-    /* DROPDOWN-LISTERNE - DE ÅBNER IGEN NU, DIREKTE UNDER KNAPPEN */
+    /* DROPDOWNS INDENI SKUFFEN */
     .custom-options-list, #checkboxes-container { 
-        position: absolute !important;  /* RETTET FRA FIXED TIL ABSOLUTE: Nu virker klikket! */
-        top: 100% !important;           /* Lægger sig præcis under boksen */
-        left: 0 !important;
-        width: 240px !important;        /* Fast bredde så listen er nem at navigere i ved scroll */
-        max-height: 250px !important; 
-        z-index: 99999 !important;      /* Ligger forrest */
-        background: #0b1f13 !important; 
-        border: 1px solid var(--accent-purple) !important; 
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9) !important;
-        border-radius: 8px !important;
-        overflow-y: auto !important;
+        position: absolute !important; top: 100% !important; left: 0 !important; width: 100% !important; max-height: 200px !important; 
+        z-index: 10001 !important; background: #06140c !important; border: 1px solid var(--accent-purple) !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important; border-radius: 6px !important; overflow-y: auto !important;
     }
     
-    /* DIAGRAM OG DIAGRAM-CONTAINERE */
-    .chart-container-wrapper, #chart-only { 
-        padding: 16px 12px !important; 
-        min-height: auto !important; 
-        width: 100% !important; 
-        max-width: 100% !important; 
-        margin: 0 auto !important; 
-    }
+    .chart-container-wrapper, #chart-only { padding: 16px 12px !important; min-height: auto !important; width: 100% !important; max-width: 100% !important; margin: 0 auto !important; }
+    #pizza-svg-element { width: 100% !important; height: auto !important; max-height: 400px; margin-top: 0 !important; }
     
-    #pizza-svg-element { 
-        width: 100% !important; 
-        height: auto !important; 
-        max-height: 400px; 
-        margin-top: 0 !important; 
-    }
-
-    
-    /* DESIGN OG TYPOGRAFI TIL PIZZADIAGRAM */
-    .p-nm { 
-        font-size: 30px !important; 
-        padding-bottom: 6px !important;  
-        margin-bottom: 2px !important;  
-    }
-    
-    .p-sub-bar { 
-        gap: 4px !important; 
-        font-size: 8px !important; 
-        margin-top: 0px !important;   
-        padding-top: 0px !important;    
-    }
-
-    .header-card { 
-        padding: 12px 16px !important; 
-        margin-bottom: 12px !important; 
-    }
+    .p-nm { font-size: 30px !important; padding-bottom: 6px !important; margin-bottom: 2px !important; }
+    .p-sub-bar { gap: 4px !important; font-size: 8px !important; margin-top: 0px !important; padding-top: 0px !important; }
+    .header-card { padding: 12px 16px !important; margin-bottom: 12px !important; }
 }
 
 @media screen and (max-width: 400px) {
-    .stats-grid {
-        grid-template-columns: 1fr; 
-    }
+    .stats-grid { grid-template-columns: 1fr; }
 }
