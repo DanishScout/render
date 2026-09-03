@@ -101,35 +101,37 @@ document.addEventListener("DOMContentLoaded", () => {
            NYT: MOBIL-OPTIMERING SÅ HEADER/CONTAINER OG FOOTER PASSER PÅ EN MOBIL
            ========================================================================== */
         @media (max-width: 480px) {
+            /* RETTET: Gør containeren markant smallere og meget mindre høj */
             .header-card {
-                padding: 12px 16px !important;
-                margin: 5px auto 15px !important;
-                max-width: 90% !important;
+                padding: 6px 14px !important;    /* 6px top/bund minimerer højden voldsomt */
+                margin: 0px auto 10px !important; /* Mindre luft over og under boksen */
+                max-width: 80% !important;        /* Skåret ind fra 90% til 80% for at gøre den smallere */
             }
             .p-nm {
-                font-size: 18px !important;
-                margin: 0 0 6px !important;
+                font-size: 10px !important;       /* spillernavn */
+                margin: 0 0 4px !important;       /* Mindre afstand ned til den lysende streg */
             }
             .p-sub-bar {
-                gap: 8px !important;
-                font-size: 11px !important;
+                gap: 6px !important;              /* Trækker ikonerne og teksterne tættere sammen */
+                font-size: 8px !important;       /* liga postion osv */
             }
             .meta-item svg {
-                width: 13px !important;
-                height: 13px !important;
+                width: 9px !important;
+                height: 9px !important;
             }
             .logo-shape {
-                width: 18px !important;
-                height: 18px !important;
+                width: 12px !important;
+                height: 12px !important;
             }
             .chart-footer, .chart-footer-source {
-                font-size: 9px !important;
+                font-size: 8px !important;        /* Hævet en anelse fra 5px til 8px, så det reelt kan læses på en telefon */
                 padding: 0 20px !important;
             }
             .chart-footer { margin-top: 5px !important; }
             .chart-footer-source { margin-top: 3px !important; }
         }
     `;
+
     document.head.appendChild(style);
     buildCategorizedMetrics();
     initCustomPizzaSelectors();
