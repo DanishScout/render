@@ -299,7 +299,7 @@ body {
         top: 0;
         background-color: var(--bg-sidebar);
         z-index: 1000;
-        overflow: visible; /* Gør det muligt for dropdownen at falde ned over indholdet */
+        overflow: visible; /* Vigtigt: Tillader listen at falde ud som et overlay */
     }
 
     .sidebar::after {
@@ -312,28 +312,29 @@ body {
         flex-shrink: 0;
     }
 
-    /* 1. SKJUL "ANALYSEVÆRKTØJER" TEKST-OVERSKRIFTEN PÅ MOBIL */
+    /* SKJUL "ANALYSEVÆRKTØJER" TEKST-OVERSKRIFTEN PÅ MOBIL */
     .nav-section {
         display: none !important;
     }
 
-    /* 2. SKJUL "RETRO V1.0" / SIDEBAR FOOTER PÅ MOBIL */
+    /* SKJUL "RETRO V1.0" / SIDEBAR FOOTER PÅ MOBIL */
     .sidebar-footer {
         display: none !important;
     }
 
     /* CSS DROPDOWN MENU-CONTAINER */
     .nav-menu {
+        display: flex;
         flex-direction: column;
         gap: 0;
         flex-grow: 0;
-        position: relative;
-        background: rgba(20, 13, 33, 0.95);
+        position: relative; /* Reference for det absolutte indhold */
+        background: #07030c; /* Helt solid mørk baggrund */
         border: 1px solid var(--accent-purple);
         border-radius: 6px;
-        width: 130px; /* Lidt ekstra bredde så teksten står flot */
+        width: 140px; /* Bredde så ikoner og tekst står flot */
         height: 36px;
-        overflow: visible; /* Tillader absolut indhold at falde ud */
+        overflow: visible; /* Tillader listen at falde ud som et overlay */
         cursor: pointer;
     }
 
@@ -343,7 +344,7 @@ body {
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 34px; /* Matcher indersiden af rammen */
+        height: 34px;
         width: 100%;
         font-size: 11px;
         font-weight: 800;
@@ -352,17 +353,18 @@ body {
         text-transform: uppercase;
     }
 
-    /* 3. SKJUL ALLE MENUPUNKTER SOM STANDARD */
+    /* SKJUL ALLE MENUPUNKTER SOM STANDARD */
     .nav-menu .nav-item {
         display: none !important;
     }
 
-    /* 4. VIS MENUPUNKTERNE SOM EN DROPDOWN-LISTE, NÅR DER KLIKKES/HOVERES */
+    /* NÅR MENUERNE ÅBNES / HOVERES / AKTIVERES */
     .nav-menu:hover,
     .nav-menu:focus-within,
     .nav-menu:active {
         background: #07030c;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9);
+        border-radius: 6px 6px 0 0; /* Flad bund når åben */
     }
 
     .nav-menu:hover::before,
@@ -371,29 +373,42 @@ body {
         color: var(--accent-purple);
     }
 
-    /* Når menuen er aktiv, tvinger vi de indre links frem som en flydende liste under knappen */
+    /* FULDSTÆNDIG SOLID DROPDOWN-LISTE SOM OVERLAY */
     .nav-menu:hover .nav-item,
     .nav-menu:focus-within .nav-item,
     .nav-menu:active .nav-item {
-        display: flex !important; /* Gør dem synlige igen */
-        position: relative;
-        width: 100%;
-        background: #07030c;
+        display: flex !important;
+        position: absolute; /* Gør det til et ægte overlay */
+        left: -1px; /* Flugter præcist med yderramme */
+        right: -1px;
+        width: calc(100% + 2px);
+        background: #07030c !important; /* Tvinger en 100% solid baggrund */
         border-left: 1px solid var(--accent-purple);
         border-right: 1px solid var(--accent-purple);
-        z-index: 1100;
+        z-index: 2000; /* Lægger sig helt øverst */
     }
 
-    /* Sæt en flot bund-afrunding på det alleraktiveste/sidste element i dropdownen */
+    /* Dynamisk placering nedad for hvert element, så de ikke overlapper hinanden */
+    .nav-menu:hover .nav-item:nth-of-type(1),
+    .nav-menu:focus-within .nav-item:nth-of-type(1) { top: 35px; border-top: 1px solid var(--border-color); }
+    .nav-menu:hover .nav-item:nth-of-type(2),
+    .nav-menu:focus-within .nav-item:nth-of-type(2) { top: 76px; }
+    .nav-menu:hover .nav-item:nth-of-type(3),
+    .nav-menu:focus-within .nav-item:nth-of-type(3) { top: 117px; }
+    .nav-menu:hover .nav-item:nth-of-type(4),
+    .nav-menu:focus-within .nav-item:nth-of-type(4) { top: 158px; }
+
+    /* Luk bunden af listen af med den lilla ramme */
     .nav-menu:hover .nav-item:last-child,
     .nav-menu:focus-within .nav-item:last-child {
         border-bottom: 1px solid var(--accent-purple);
         border-radius: 0 0 6px 6px;
     }
 
-    /* Styling af de enkelte elementer i dropdownen */
+    /* Styling af de enkelte elementer i listen */
     .nav-item {
         padding: 12px 14px;
+        height: 42px; /* Fast højde */
         font-size: 11px; 
         font-weight: 700;
         text-transform: uppercase;
@@ -415,18 +430,20 @@ body {
         display: inline !important;
     }
 
+    /* Hover-markering inde i listen */
     .nav-item:hover {
-        background-color: rgba(168, 85, 247, 0.15) !important;
+        background-color: rgba(168, 85, 247, 0.2) !important;
         color: var(--text-primary);
     }
 
+    /* Det valgte/aktive menupunkt markeres */
     .nav-item.active {
         border-left: 4px solid var(--accent-purple) !important;
         background-color: var(--accent-purple-dim) !important;
         color: var(--text-primary);
     }
 
-    /* Resten af dit mobil-layout forbliver uændret */
+    /* Resten af mobil-indholdet */
     .main-content {
         padding: 24px 16px; 
         width: 100%;
@@ -540,8 +557,6 @@ body {
         margin-bottom: 12px !important;
     }
 }
-
-
 
 @media screen and (max-width: 400px) {
     .stats-grid {
