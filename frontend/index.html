@@ -20,36 +20,24 @@
                 <span class="logo-main">PER</span><span class="logo-sub">90</span>
             </div>
             <nav class="nav-menu">
-                <!-- PC-MENU: Vises kun på store skærme -->
-                <div class="desktop-nav-links">
-                    <button class="nav-item active" onclick="switchView('landing')">
-                        <i class="fa-solid fa-house"></i> <span>Dashboard</span>
-                    </button>
-                    <div class="nav-section">Analyseværktøjer</div>
-                    <button class="nav-item" onclick="switchView('pizza')">
-                        <i class="fa-solid fa-chart-pie"></i> <span>Pizza Chart</span>
-                    </button>
-                    <button class="nav-item" onclick="switchView('radar')">
-                        <i class="fa-solid fa-circle-nodes"></i> <span>Radar Chart</span>
-                    </button>
-                    <button class="nav-item" onclick="switchView('scatter')">
-                        <i class="fa-solid fa-chart-line"></i> <span>Scatter Plot</span>
-                    </button>
-                </div>
-            
-                <!-- MOBIL-MENU: Vises kun på mobilen (Altid låst til teksten "Menu") -->
-                <div class="mobile-nav-custom-dropdown" id="custom-menu-wrapper">
-                    <select id="mobile-view-selector" onchange="switchView(this.value); this.value='default';">
-                        <option value="default" disabled selected hidden>Menu</option>
-                        <option value="landing">Dashboard</option>
-                        <option value="pizza">Pizza Chart</option>
-                        <option value="radar">Radar Chart</option>
-                        <option value="scatter">Scatter Plot</option>
-                    </select>
-                    <i class="fa-solid fa-chevron-down"></i>
-                </div>
+                <button class="nav-item active" onclick="switchView('landing')">
+                    <i class="fa-solid fa-house"></i> <span>Dashboard</span>
+                </button>
+                <div class="nav-section">Analyseværktøjer</div>
+                <button class="nav-item" onclick="switchView('pizza')">
+                    <i class="fa-solid fa-chart-pie"></i> <span>Pizza Chart</span>
+                </button>
+                <button class="nav-item" onclick="switchView('radar')">
+                    <i class="fa-solid fa-circle-nodes"></i> <span>Radar Chart</span>
+                </button>
+                <button class="nav-item" onclick="switchView('scatter')">
+                    <i class="fa-solid fa-chart-line"></i> <span>Scatter Plot</span>
+                </button>
             </nav>
-
+            <div class="sidebar-footer">
+                <i class="fa-solid fa-bolt"></i> RETRO v1.0
+            </div>
+        </aside>
 
         <!-- Hovedvindue med farverige pop-art baggrunde -->
         <main class="main-content">
