@@ -50,10 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
         @import url('https://googleapis.com');
-        .custom-option-item { padding: 10px 14px; color: #f3f1f6; cursor: pointer; font-size: 14px; transition: all 0.15s ease; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        .custom-option-item { padding: 10px 14px; color: #f3f1f6; cursor: pointer; font-size: 14px; transition: all 0.15s ease; font-family: var(--font-family), sans-serif; }
         .custom-option-item:hover { background-color: rgba(168, 85, 247, 0.25) !important; color: #ffffff !important; padding-left: 18px; }
         .custom-option-item.selected-active { background-color: var(--accent-purple) !important; color: #ffffff !important; }
-        #chart-only { position: relative; padding: 15px 15px 35px; border-radius: 24px; width: 100%; max-width: 710px; border: 1px solid rgba(0,240,255,.08); box-shadow: 0 30px 60px -15px #000, inset 0 1px 0 rgba(255,255,255,.05); box-sizing: border-box; opacity: .85; overflow: hidden; background: #0B1220; display: flex; flex-direction: column; align-items: center; margin: 20px auto !important; font-family: 'Gabarito', sans-serif; color: #e5e7eb; }
+        #chart-only { position: relative; padding: 15px 15px 35px; border-radius: 24px; width: 100%; max-width: 710px; border: 1px solid rgba(0,240,255,.08); box-shadow: 0 30px 60px -15px #000, inset 0 1px 0 rgba(255,255,255,.05); box-sizing: border-box; opacity: .85; overflow: hidden; background: #0B1220; display: flex; flex-direction: column; align-items: center; margin: 20px auto !important; font-family: var(--font-family), sans-serif; color: #e5e7eb; }
         #chart-only::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(#0f172a, #020617); z-index: 0; border-radius: 24px; }
         .header-card { position: relative; z-index: 2; width: 100%; max-width: 575px; margin: 15px auto 25px; padding: 20px 25px; background: transparent; border: 1px solid rgba(0, 240, 255, 0.08); border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4); box-sizing: border-box; }
         .h-cnt { display: flex; gap: 20px; width: 100%; box-sizing: border-box; }
@@ -73,7 +73,10 @@ document.addEventListener("DOMContentLoaded", () => {
         .ax-lbl { font-size: 13px; fill: #94a3b8; font-weight: 700; letter-spacing: .5px; }
         .slice-b { stroke-width: 1.75; stroke-linejoin: round; }
         .box-bg-rect { fill: #0B1220 !important; }
-        .tx-b { font-size: 11px; font-weight: 900; }
+        
+        /* HER SIKRER VI, AT STRUKTUREN ARVER RIGTIG FILL-FARVE FRA JS */
+        .tx-b { font-size: 11px; font-weight: 900; fill: inherit !important; }
+        
         .chart-footer, .chart-footer-source { text-align: center; width: 100%; font-size: 11px; font-weight: 300; color: #e5e7eb; letter-spacing: .4px; padding: 0 40px; box-sizing: border-box; position: relative; z-index: 2; }
         .chart-footer { margin-top: 1px; opacity: 0.75; }
         .chart-footer-source { margin-top: 6px; opacity: 0.5; }
@@ -201,8 +204,8 @@ async function loadPizzaChartDataWithFilters(playerName, comparePos, metricsList
                 </div>
             </div>
             <svg width="710" height="570" viewBox="0 0 710 570" id="pizza-svg-element"></svg>
-            <div class="chart-footer">${apiResponse.player_name}'s percentile rank vs. ${leagueVal} ${CURRENT_SELECTED_POS}s</div>
-            <div class="chart-footer-source">Generated via per-90.streamlit.app</div>
+            <div class="chart-footer" style="font-family: var(--font-family), sans-serif;">${apiResponse.player_name}'s percentile rank vs. ${leagueVal} ${CURRENT_SELECTED_POS}s</div>
+            <div class="chart-footer-source" style="font-family: var(--font-family), sans-serif;">Generated via per-90.streamlit.app</div>
         `;
         buildPizzaVektorChart(apiResponse, sColor);
     } catch (e) { console.error("Interface fejl:", e); }
@@ -229,13 +232,11 @@ function buildPizzaVektorChart(data, selectedColor) {
         markup += `<line x1="${CX}" y1="${CY}" x2="${CX + 230 * Math.cos(sA)}" y2="${CY + 230 * Math.sin(sA)}" class="grid-line" />`;
         
         let anchor = cos > 0.2 ? "start" : cos < -0.2 ? "end" : "middle";
-        
-        /* RETTET: Inline style med var(--font-family) tilføjet direkte på SVG <text>, så f.eks. iPhones tvinges til at bruge den */
         markup += `<text x="${CX + 258 * cos}" y="${CY + 250 * sin}" class="ax-lbl" style="font-family: var(--font-family), sans-serif;" text-anchor="${anchor}" dominant-baseline="middle" fill="#94a3b8">${metric}</text>`;
 
         if (score > 15) {
-            /* RETTET: Inline style med var(--font-family) tilføjet til score-tallene inde i cirklerne */
-            markup += `<g><rect x="${CX + currentR * cos - 13}" y="${CY + currentR * sin - 7}" width="26" height="14" rx="3" class="box-bg-rect" stroke="${c}" stroke-width="1.5" /><text x="${CX + currentR * cos}" y="${CY + currentR * sin}" class="tx-b" style="font-family: var(--font-family), sans-serif;" text-anchor="middle" dominant-baseline="central">${score}</text></g>`;
+            /* HER GENNEMTVINGER VI NEON/KATEGORIFARVEN MED EN INLINE FILL STYLE-REGEL */
+            markup += `<g><rect x="${CX + currentR * cos - 13}" y="${CY + currentR * sin - 7}" width="26" height="14" rx="3" class="box-bg-rect" stroke="${c}" stroke-width="1.5" /><text x="${CX + currentR * cos}" y="${CY + currentR * sin}" class="tx-b" style="font-family: var(--font-family), sans-serif; fill: ${c} !important;" text-anchor="middle" dominant-baseline="central">${score}</text></g>`;
         }
     });
     svg.innerHTML = markup + `<circle cx="${CX}" cy="${CY}" r="12" fill="#FFFFFF" />`;
@@ -245,7 +246,6 @@ function downloadPNG() {
     const el = $("chart-only"), title = document.querySelector('.p-nm'); 
     if (title) { title.style.webkitTextFillColor = '#fff'; title.style.color = '#fff'; } 
     
-    // RETTET: Fortæller html2canvas at den skal vente på at skrifttyper (fonts) er fuldt indlæst før rendering
     document.fonts.ready.then(() => {
         html2canvas(el, { 
             scale: 4, 
@@ -260,7 +260,6 @@ function downloadPNG() {
         }).catch(e => console.error(e)); 
     });
 }
-
 
 window.loadPizzaChartData = function(playerName) {
     if (playerName && CURRENT_SELECTED_PLAYER !== playerName) selectCustomItem('player', playerName); else onPizzaFilterChange();
