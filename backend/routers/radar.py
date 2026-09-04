@@ -1,5 +1,5 @@
 # ==========================================================================
-# PER 90 - RADAR.PY - DEL 1 AF 2
+# PER 90 - RADAR.PY (RETTET PERCENTILE-UDTRÆK VIA _p90PR)
 # ==========================================================================
 from fastapi import APIRouter, HTTPException, Query
 import pandas as pd
@@ -7,8 +7,8 @@ from typing import List
 
 router = APIRouter(prefix="/api", tags=["radar"])
 
-# Vi bruger de samme metrics, men de mapper til kolonnenavne med _p90PR i din CSV
-AVAILABLE_METRICS_MAP = {
+# Vi bruger præcis samme struktur som i pizza, men tilføjer _p90PR til CSV-kolonnerne
+AVAILABLE_RADAR_METRICS = {
     "Shooting": {
         "total goals_p90PR": "Goals", "xG_p90PR": "npxG",
         "total ontarget attempt_p90PR": "Shots On Target", "attempt_success_pct_p90PR": "On Target %"
@@ -27,29 +27,13 @@ AVAILABLE_METRICS_MAP = {
     }
 }
 
-FLAT_METRICS = {k: v for cat in AVAILABLE_METRICS_MAP.values() for k, v in cat.items()}
-
-@router.get("/radar/players")
-def get_all_radar_players():
-    from app import GLOBAL_DATASET
-    if GLOBAL_DATASET is None or GLOBAL_DATASET.empty: return []
-    return sorted(GLOBAL_DATASET['Player Name'].dropna().unique().tolist())
-
-@router.get("/radar/positions")
-def get_all_radar_positions():
-    from app import GLOBAL_DATASET
-    if GLOBAL_DATASET is None or GLOBAL_DATASET.empty: return []
-    pos_column = 'Pos.' if 'Pos.' in GLOBAL_DATASET.columns else ('Position' if 'Position' in GLOBAL_DATASET.columns else None)
-    if not pos_column: return []
-    return sorted(GLOBAL_DATASET[pos_column].dropna().unique().tolist())
-# ==========================================================================
-# PER 90 - RADAR.PY - DEL 2 AF 2
-# ==========================================================================
+# Flader mappet ud, så det er nemt at slå op i under filtrering
+FLAT_RADAR_METRICS = {k: v for cat in AVAILABLE_RADAR_METRICS.values() for k, v in cat.items()}
 
 @router.get("/radar")
 def get_radar_data(
-    player1: str = Query(..., description="Navnet på spiller 1"),
-    player2: str = Query(..., description="Navnet på spiller 2"),
+    player: str = Query(..., description="Navnet på målspilleren"),
+    compare_pos: str = Query(..., description="Positionen der skal sammenlignes imod"),
     metrics: List[str] = Query(None, description="De valgte visningsnavne fra tjekboksene")
 ):
     from app import GLOBAL_DATASET
@@ -60,61 +44,44 @@ def get_radar_data(
     if not pos_column:
         raise HTTPException(status_code=500, detail="Positionskolonne mangler i CSV.")
 
-    # 1. HENT SPILLER 1 DATA
-    row1 = GLOBAL_DATASET[GLOBAL_DATASET['Player Name'].str.lower() == player1.lower()]
-    if row1.empty:
-        raise HTTPException(status_code=404, detail=f"Spiller 1 '{player1}' blev ikke fundet.")
-    p1_data = row1.iloc[0]
-
-    # 2. HENT SPILLER 2 DATA
-    row2 = GLOBAL_DATASET[GLOBAL_DATASET['Player Name'].str.lower() == player2.lower()]
-    if row2.empty:
-        raise HTTPException(status_code=404, detail=f"Spiller 2 '{player2}' blev ikke fundet.")
-    p2_data = row2.iloc[0]
+    player_row = GLOBAL_DATASET[GLOBAL_DATASET['Player Name'].str.lower() == player.lower()]
+    if player_row.empty:
+        raise HTTPException(status_code=404, detail=f"Spilleren '{player}' blev ikke fundet.")
+    
+    target_player_data = player_row.iloc[0]
 
     labels = []
-    p1_percentiles = []
-    p2_percentiles = []
+    percentiles = []
 
-    # Træk værdierne direkte ud af de præ-beregnede _p90PR kolonner (Ingen .rank() påkrævet!) 🎯
-    for csv_column, display_name in FLAT_METRICS.items():
+    # Vi looper igennem vores metrics og trækker de præ-udregnede _p90PR værdier direkte ud 🎯
+    for csv_column, display_name in FLAT_RADAR_METRICS.items():
         if metrics is not None and display_name not in metrics:
             continue
 
-        labels.append(display_name)
-
-        # Spiller 1 værdi
         if csv_column in GLOBAL_DATASET.columns:
-            v1 = p1_data.get(csv_column, 0.0)
-            if pd.isna(v1): v1 = 0.0
-            p1_percentiles.append(round(max(0.0, min(float(v1), 100.0)), 1))
+            # Værdien er allerede en percentile rank (PR), så vi hiver den bare ud og runder let
+            val = target_player_data.get(csv_column, 0.0)
+            if pd.isna(val): 
+                val = 0.0
+            labels.append(display_name)
+            percentiles.append(round(max(0.0, min(float(val), 100.0)), 1))
         else:
-            p1_percentiles.append(0.0)
+            labels.append(f"{display_name} (Mangler)")
+            percentiles.append(0.0)
 
-        # Spiller 2 værdi
-        if csv_column in GLOBAL_DATASET.columns:
-            v2 = p2_data.get(csv_column, 0.0)
-            if pd.isna(v2): v2 = 0.0
-            p2_percentiles.append(round(max(0.0, min(float(v2), 100.0)), 1))
-        else:
-            p2_percentiles.append(0.0)
+    extracted_mins = target_player_data.get('total mins played', target_player_data.get('Mins', 0))
+    if pd.isna(extracted_mins): 
+        extracted_mins = 0
+    else:
+        extracted_mins = int(extracted_mins)
 
     return {
-        "player1": {
-            "player_name": p1_data['Player Name'],
-            "team": p1_data.get('Team', 'Ukendt Klub'),
-            "league": p1_data.get('League', 'Ukendt'),
-            "player_pos": p1_data.get(pos_column, 'Ukendt'),
-            "mins_played": int(p1_data.get('total mins played', p1_data.get('Mins', 0))) if not pd.isna(p1_data.get('total mins played', p1_data.get('Mins', 0))) else 0,
-            "percentiles": p1_percentiles
-        },
-        "player2": {
-            "player_name": p2_data['Player Name'],
-            "team": p2_data.get('Team', 'Ukendt Klub'),
-            "league": p2_data.get('League', 'Ukendt'),
-            "player_pos": p2_data.get(pos_column, 'Ukendt'),
-            "mins_played": int(p2_data.get('total mins played', p2_data.get('Mins', 0))) if not pd.isna(p2_data.get('total mins played', p2_data.get('Mins', 0))) else 0,
-            "percentiles": p2_percentiles
-        },
-        "metrics": labels
+        "player_name": target_player_data['Player Name'],
+        "team": target_player_data.get('Team', 'Ukendt Klub'),
+        "league": target_player_data.get('League', 'Ukendt Liga'), 
+        "player_pos": target_player_data.get(pos_column, 'Ukendt'),
+        "mins_played": extracted_mins, 
+        "metrics": labels,
+        "percentiles": percentiles,
+        "team_id": str(target_player_data.get('contestantId', 'nan'))
     }

@@ -1,12 +1,11 @@
 // ==========================================================================
-// PER 90 - RADAR.JS - DEL 1 AF 4
+// PER 90 - RADAR.JS - DEL 1 AF 4 (PRODUKTIONSKLAR ENGINE)
 // ==========================================================================
 
 const AVAILABLE_RADAR_METRICS = [
-    "Goals", "npxG", "Shots On Target", "On Target %", 
-    "Assists", "xA", "Key Passes", "xT via Live Passes", 
-    "Successful Dribbles", "Dribble Attempts", "Dribble Success %", 
-    "Tackles Won %", "Aerials Won %", "Duels Won %", "Tackles Won"
+    "Goals", "npxG", "Shots On Target", "On Target %", "Assists", "xA", 
+    "Key Passes", "xT via Live Passes", "Successful Dribbles", "Dribble Attempts", 
+    "Dribble Success %", "Tackles Won %", "Aerials Won %", "Duels Won %", "Tackles Won"
 ];
 
 const RADAR_CATEGORIES = {
@@ -14,86 +13,184 @@ const RADAR_CATEGORIES = {
     "Passing": { "Assists": "Assists", "xA": "xA", "Key Passes": "Key Passes", "xT via Live Passes": "xT via Live Passes" },
     "Possession": { "Successful Dribbles": "Successful Dribbles", "Dribble Attempts": "Dribble Attempts", "Dribble Success %": "Dribble Success %" },
     "Defending": { "Tackles Won %": "Tackles Won %", "Aerials Won %": "Aerials Won %", "Duels Won %": "Duels Won %", "Tackles Won": "Tackles Won" }
-};// ==========================================================================
-// PER 90 - RADAR.JS - DEL 2 AF 4
+};
+
+let RADAR_PLAYER_1 = "", RADAR_PLAYER_2 = "";
+let RADAR_COLOR_1 = "#00ffd5", RADAR_COLOR_2 = "#ff007f";
+
+const $r = id => document.getElementById(id);
+
+async function initRadarView(container) {
+    container.innerHTML = `
+        <section id="view-radar" class="content-view active">
+            <div class="chart-header-container"><i class="fa-solid fa-circle-nodes"></i><span>Radar Chart</span></div>
+            <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
+                <button class="open-drawer-btn" onclick="openGlobalDrawer()">Customize Radar <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
+            </div>
+            <div class="chart-container-wrapper" id="radar-chart-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
+                <div id="radar-warning-overlay" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 6, 18, 0.9); border-radius: 12px; justify-content: center; align-items: center; z-index: 150;">
+                    <div style="color: #ff007f; font-weight: 700; text-align: center;">CHOOSE AT LEAST 3 METRICS FOR SPIDERWEB</div>
+                </div>
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <h2 class="p-nm" id="radar-player-title" style="font-size: 24px; font-weight: 900; color: #ffffff; margin: 0 0 4px 0;">Radar Sammenligning</h2>
+                    <div id="radar-player-subtitle" style="font-size: 13px; color: #948aa3;">Vælg to spillere for at tegne edderkoppespind...</div>
+                </div>
+                <div class="chart-box" style="width: 100%; max-width: 500px; height: 440px; display: flex; justify-content: center; align-items: center;">
+                    <canvas id="radar-chart-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
+                </div>
+            </div>
+            <div class="download" style="display: flex; justify-content: center; margin-top: 24px;">
+                <button onclick="downloadRadarPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button>
+            </div>
+        </section>
+    `;
+
+    const gammelRadarDrawer = document.querySelector('.radar-filter-drawer');
+    if (gammelRadarDrawer) gammelRadarDrawer.remove();
+
+    buildAndAppendRadarDrawer();
+}
+// ==========================================================================
+// PER 90 - RADAR.JS - DEL 2 AF 4 (FILTER PANEL GENERATOR)
+// ==========================================================================
+
+function buildAndAppendRadarDrawer() {
+    const drawerDiv = document.createElement('div');
+    drawerDiv.className = 'filter-drawer radar-filter-drawer';
+    drawerDiv.innerHTML = `
+        <div class="drawer-header"><span class="drawer-title">Radar Settings</span><button class="close-drawer-btn" onclick="closeGlobalDrawer()">✕</button></div>
+        <div class="filter-panel" style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
+            
+            <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; position: relative;">
+                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Player 1 (Target)</label>
+                <div style="display: flex; gap: 10px; width: 100%;">
+                    <div class="custom-select-wrapper" id="radar-player1-wrapper" style="position: relative; flex-grow: 1;">
+                        <div class="custom-select-trigger" onclick="toggleRadarDropdown('player1')" style="background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                            <span id="radar-p1-selected-text">Vælg Spiller 1</span><i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
+                        </div>
+                        <div class="custom-options-list" id="radar-player1-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; max-height: 200px; overflow-y: auto; z-index: 120;">
+                            <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid var(--border-color); z-index: 130;"><input type="text" id="radar-p1-search" oninput="filterRadarPlayerList('p1')" placeholder="Søg spiller 1..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none;" onclick="event.stopPropagation();"></div>
+                            <div id="radar-p1-items-container"></div>
+                        </div>
+                    </div>
+                    <input type="color" id="radar-color1-input" value="${RADAR_COLOR_1}" onchange="updateRadarColors(1)" style="width: 44px; height: 44px; background: none; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; padding: 2px;">
+                </div>
+            </div>
+
+            <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; position: relative;">
+                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Player 2 (Comparison)</label>
+                <div style="display: flex; gap: 10px; width: 100%;">
+                    <div class="custom-select-wrapper" id="radar-player2-wrapper" style="position: relative; flex-grow: 1;">
+                        <div class="custom-select-trigger" onclick="toggleRadarDropdown('player2')" style="background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                            <span id="radar-p2-selected-text">Vælg Spiller 2</span><i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
+                        </div>
+                        <div class="custom-options-list" id="radar-player2-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; max-height: 200px; overflow-y: auto; z-index: 120;">
+                            <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid var(--border-color); z-index: 130;"><input type="text" id="radar-p2-search" oninput="filterRadarPlayerList('p2')" placeholder="Søg spiller 2..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none;" onclick="event.stopPropagation();"></div>
+                            <div id="radar-p2-items-container"></div>
+                        </div>
+                    </div>
+                    <input type="color" id="radar-color2-input" value="${RADAR_COLOR_2}" onchange="updateRadarColors(2)" style="width: 44px; height: 44px; background: none; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; padding: 2px;">
+                </div>
+            </div>
+
+            <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; position: relative;">
+                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Select Metrics</label>
+                <div class="multiselect" style="position: relative; width: 100%;">
+                    <div class="selectBox" onclick="toggleRadarCheckboxDropdown()" style="background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                        <span id="radar-metrics-select-text">Vælg parametre...</span><i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
+                    </div>
+                    <div id="radar-checkboxes-container" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; flex-direction: column; gap: 12px; max-height: 220px; overflow-y: auto; z-index: 120;"></div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(drawerDiv);
+    buildCategorizedRadarMetrics();
+    initCustomRadarSelectors();
+}
+
+function updateRadarColors(playerNum) {
+    if (playerNum === 1) RADAR_COLOR_1 = $r("radar-color1-input").value;
+    if (playerNum === 2) RADAR_COLOR_2 = $r("radar-color2-input").value;
+    onRadarFilterChange();
+}
+// ==========================================================================
+// PER 90 - RADAR.JS - DEL 3 AF 4 (LOGIK OG EVENT HANDLERS)
 // ==========================================================================
 
 async function onRadarFilterChange() {
-    if (!CURRENT_RADAR_P1 || !CURRENT_RADAR_P2) return;
-    
-    // Vi henter metrikkerne fra den specifikke radar-metrik-container, du har i skuffen
+    if (!RADAR_PLAYER_1) return;
     const checkboxes = document.querySelectorAll('#radar-checkboxes-container input[type="checkbox"]');
     const selected = [...checkboxes].filter(cb => cb.checked).map(cb => cb.value);
-    
-    const selectText = $("radar-metrics-select-text");
+    const selectText = $r("radar-metrics-select-text");
     if (selectText) {
         selectText.innerText = selected.length === checkboxes.length ? "Alle metrikker valgt" :
                                selected.length === 0 ? "Ingen metrikker valgt" : `${selected.length} af ${checkboxes.length} valgt`;
     }
-
     const lowMetrics = selected.length < 3;
-    if ($("radar-warning-overlay")) $("radar-warning-overlay").style.display = lowMetrics ? "flex" : "none";
-    
-    if (!lowMetrics) {
-        await loadRadarChartDataWithFilters(CURRENT_RADAR_P1, CURRENT_RADAR_P2, selected);
+    if ($r("radar-warning-overlay")) $r("radar-warning-overlay").style.display = lowMetrics ? "flex" : "none";
+    if (!lowMetrics) await loadRadarChartDataWithFilters(RADAR_PLAYER_1, RADAR_PLAYER_2, selected);
+}
+
+function filterRadarPlayerList(type) {
+    const filter = $r(`radar-${type}-search`)?.value.toLowerCase();
+    if (filter === undefined) return;
+    document.querySelectorAll(`#radar-${type}-items-container .custom-option-item`).forEach(item => {
+        item.style.display = item.innerText.toLowerCase().includes(filter) ? "block" : "none";
+    });
+}
+
+function resetRadarPlayerSearch(type) {
+    if ($r(`radar-${type}-search`)) { $r(`radar-${type}-search`).value = ""; filterRadarPlayerList(type); }
+}
+
+function toggleRadarDropdown(type) {
+    const p1Opt = $r("radar-player1-options"), p2Opt = $r("radar-player2-options");
+    if (p1Opt && type !== 'player1') p1Opt.style.display = "none";
+    if (p2Opt && type !== 'player2') p2Opt.style.display = "none";
+
+    if (type === 'player1' && p1Opt) {
+        p1Opt.style.display = p1Opt.style.display === "none" ? "block" : "none";
+        if (p1Opt.style.display === "block") { resetRadarPlayerSearch('p1'); setTimeout(() => $r("radar-p1-search")?.focus(), 50); }
+    } else if (type === 'player2' && p2Opt) {
+        p2Opt.style.display = p2Opt.style.display === "none" ? "block" : "none";
+        if (p2Opt.style.display === "block") { resetRadarPlayerSearch('p2'); setTimeout(() => $r("radar-p2-search")?.focus(), 50); }
     }
 }
 
-function filterP1List() {
-    const filter = $("p1-search-input")?.value.toLowerCase();
-    if (filter === undefined) return;
-    document.querySelectorAll("#custom-p1-items-container .custom-option-item").forEach(item => {
-        item.style.display = item.innerText.toLowerCase().includes(filter) ? "block" : "none";
-    });
+function toggleRadarCheckboxDropdown() {
+    const cb = $r("radar-checkboxes-container");
+    if (cb) cb.style.display = ["none", ""].includes(cb.style.display) ? "flex" : "none";
+    const p1 = $r("radar-player1-options"), p2 = $r("radar-player2-options");
+    if (p1) p1.style.display = "none"; if (p2) p2.style.display = "none";
 }
-
-function filterP2List() {
-    const filter = $("p2-search-input")?.value.toLowerCase();
-    if (filter === undefined) return;
-    document.querySelectorAll("#custom-p2-items-container .custom-option-item").forEach(item => {
-        item.style.display = item.innerText.toLowerCase().includes(filter) ? "block" : "none";
-    });
-}
-
-function resetRadarSearches() {
-    if ($("p1-search-input")) { $("p1-search-input").value = ""; filterP1List(); }
-    if ($("p2-search-input")) { $("p2-search-input").value = ""; filterP2List(); }
-}
-
-function onRadarColorChange(playerNum, colorValue) {
-    if (playerNum === 1) CURRENT_P1_COLOR = colorValue;
-    if (playerNum === 2) CURRENT_P2_COLOR = colorValue;
-    onRadarFilterChange();
-}
-// ==========================================================================
-// PER 90 - RADAR.JS - DEL 3 AF 4
-// ==========================================================================
 
 async function initCustomRadarSelectors() {
     try {
-        const [players] = await Promise.all([
-            fetch(`${API_BASE_URL}/api/radar/players`).then(r => r.json())
-        ]);
+        const players = await fetch(`${API_BASE_URL}/api/pizza/players`).then(r => r.json());
         
-        if (players.length > 0) {
-            if ($("custom-p1-items-container")) {
-                CURRENT_RADAR_P1 = players[0];
-                $("custom-p1-selected-text").innerText = CURRENT_RADAR_P1;
-                $("custom-p1-items-container").innerHTML = players.map(p => `<div class="custom-option-item ${p === CURRENT_RADAR_P1 ? 'selected-active' : ''}" onclick="selectCustomItem('p1', '${p.replace(/'/g, "\\'")}')">${p}</div>`).join('');
-            }
-            if ($("custom-p2-items-container")) {
-                CURRENT_RADAR_P2 = players[1] || players[0];
-                $("custom-p2-selected-text").innerText = CURRENT_RADAR_P2;
-                $("custom-p2-items-container").innerHTML = players.map(p => `<div class="custom-option-item ${p === CURRENT_RADAR_P2 ? 'selected-active' : ''}" onclick="selectCustomItem('p2', '${p.replace(/'/g, "\\'")}')">${p}</div>`).join('');
-            }
+        if (players.length > 1 && $r("radar-p1-items-container") && $r("radar-p2-items-container")) {
+            RADAR_PLAYER_1 = players[0]; RADAR_PLAYER_2 = players[1]; 
+            $r("radar-p1-selected-text").innerText = RADAR_PLAYER_1;
+            $r("radar-p2-selected-text").innerText = RADAR_PLAYER_2;
+            
+            // 🎯 RETTET: De to knivskarpe og fejlsikrede linjer til din editor!
+            $r("radar-p1-items-container").innerHTML = players.map(p => `<div class="custom-option-item ${p === RADAR_PLAYER_1 ? 'selected-active' : ''}" onclick="selectRadarItem('player1', '${p.replace(/'/g, "\\\\'")}')">${p}</div>`).join('');
+            $r("radar-p2-items-container").innerHTML = players.map(p => `<div class="custom-option-item ${p === RADAR_PLAYER_2 ? 'selected-active' : ''}" onclick="selectRadarItem('player2', '${p.replace(/'/g, "\\\\'")}')">${p}</div>`).join('');
         }
-        buildCategorizedRadarMetrics();
         await onRadarFilterChange();
-    } catch (e) { console.error("Fejl under indlæsning af radar-dropdowns:", e); }
+    } catch (e) { console.error("Fejl under indlæsning:", e); }
+}
+
+async function selectRadarItem(type, value) {
+    if (type === 'player1') { RADAR_PLAYER_1 = value; $r("radar-p1-selected-text").innerText = value; }
+    else if (type === 'player2') { RADAR_PLAYER_2 = value; $r("radar-p2-selected-text").innerText = value; }
+    const optEl = $r(`radar-${type}-options`); if (optEl) optEl.style.display = "none";
+    await onRadarFilterChange();
 }
 
 function buildCategorizedRadarMetrics() {
-    const container = $("radar-checkboxes-container"); if (!container) return;
+    const container = $r("radar-checkboxes-container"); if (!container) return;
     const colors = { "Shooting": "#ff007f", "Passing": "#00ffd5", "Possession": "#ffb700", "Defending": "#00ff66" };
     const defaults = ["Goals", "Assists", "Successful Dribbles", "Tackles Won %"];
     
@@ -106,117 +203,91 @@ function buildCategorizedRadarMetrics() {
         return `<div style="margin-bottom: 12px;"><div style="font-size: 11px; color: ${c}; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid ${c}44; padding-bottom: 4px; margin-bottom: 6px;">${cat}</div><div style="display: flex; flex-direction: column; gap: 6px; padding-left: 4px;">${body}</div></div>`;
     }).join('');
 }
-
-// Initialisering af radar ved fane-start (kan kaldes fra din global.js switchView)
-window.loadRadarChartData = function(p1, p2) {
-    if (p1) selectCustomItem('p1', p1);
-    if (p2) selectCustomItem('p2', p2);
-    if (!p1 && !p2) onRadarFilterChange();
-};
 // ==========================================================================
-// PER 90 - RADAR.JS - DEL 4 AF 4
+// PER 90 - RADAR.JS - DEL 4 AF 4 (MATEMATISK TEGNING OG FILL)
 // ==========================================================================
 
-async function loadMarketChartDataWithFilters(player1, player2, metricsList) { // Omdøbt internt match-kald
-    await loadRadarChartDataWithFilters(player1, player2, metricsList);
-}
-
-async function loadRadarChartDataWithFilters(player1, player2, metricsList) {
+async function loadRadarChartDataWithFilters(p1, p2, metricsList) {
     try {
-        let url = `${API_BASE_URL}/api/radar?player1=${encodeURIComponent(player1)}&player2=${encodeURIComponent(player2)}`;
-        metricsList.forEach(m => url += `&metrics=${encodeURIComponent(m)}`);
+        let p1Url = `${API_BASE_URL}/api/radar?player=${encodeURIComponent(p1)}&compare_pos=`;
+        let p2Url = `${API_BASE_URL}/api/radar?player=${encodeURIComponent(p2)}&compare_pos=`;
+        metricsList.forEach(m => { p1Url += `&metrics=${encodeURIComponent(m)}`; p2Url += `&metrics=${encodeURIComponent(m)}`; });
         
-        const apiResponse = await fetch(url).then(r => { if (!r.ok) throw new Error(); return r.json(); });
-        const chartContainer = $("radar-only"); if (!chartContainer) return;
+        const [d1, d2] = await Promise.all([
+            fetch(p1Url).then(r => r.json()),
+            fetch(p2Url).then(r => r.json()).catch(() => null)
+        ]);
 
-        const leagueVal = apiResponse.player1.league || "N/A";
-
-        chartContainer.innerHTML = `
-            <div class="header-card" style="max-width: 100%;">
-                <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px; width: 100%;">
-                    <div style="text-align: left; flex: 1;">
-                        <h2 class="p-nm" style="color: ${CURRENT_P1_COLOR};">${apiResponse.player1.player_name}</h2>
-                        <div style="font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">
-                            ${apiResponse.player1.team} | ${apiResponse.player1.player_pos} | ${apiResponse.player1.mins_played} MIN.
-                        </div>
-                    </div>
-                    <div style="font-size: 14px; font-weight: 900; color: rgba(255,255,255,0.2);">VS</div>
-                    <div style="text-align: right; flex: 1;">
-                        <h2 class="p-nm" style="color: ${CURRENT_P2_COLOR};">${apiResponse.player2.player_name}</h2>
-                        <div style="font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">
-                            ${apiResponse.player2.team} | ${apiResponse.player2.player_pos} | ${apiResponse.player2.mins_played} MIN.
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <svg viewBox="0 0 710 570" id="radar-svg-element"></svg>
-            <div class="chart-footer" style="font-family: var(--font-family), sans-serif; margin-top: 15px;">Percentile Rank Sammenligning | Base: ${leagueVal}</div>
-            <div class="chart-footer-source" style="font-family: var(--font-family), sans-serif;">Generated via per-90.streamlit.app</div>
-        `;
-        
-        buildRadarVektorChart(apiResponse);
-    } catch (e) { console.error("Radar interface fejl:", e); }
+        $r("radar-player-title").innerText = d2 && d2.player_name ? `${d1.player_name} vs. ${d2.player_name}` : d1.player_name;
+        $r("radar-player-subtitle").innerText = "Percentile Spiderweb Comparison";
+        drawSpiderweb(d1, d2);
+    } catch (e) { console.error("Radar motorfejl:", e); }
 }
 
-function buildRadarVektorChart(data) {
-    const svg = $("radar-svg-element"); if (!svg) return;
-    const CX = 355, CY = 285, MAX_R = 230, total = data.metrics.length, angle = (2 * Math.PI) / total;
-    
-    let markup = [57.5, 115, 172.5, 230].map(r => `<circle cx="${CX}" cy="${CY}" r="${r}" class="grid-circle" style="stroke:rgba(255,255,255,.07); fill:none;" />`).join('');
+function drawSpiderweb(d1, d2) {
+    const canvas = $r("radar-chart-canvas"); if (!canvas) return;
+    const ctx = canvas.getContext("2d"); ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const CX = canvas.width / 2, CY = canvas.height / 2 + 10, MAX_R = 140, total = d1.metrics.length, angle = (2 * Math.PI) / total;
 
-    let p1Points = [], p2Points = [];
-
-    data.metrics.forEach((metric, i) => {
-        const a = (i * angle) - Math.PI / 2;
-        const cos = Math.cos(a), sin = Math.sin(a);
-
-        markup += `<line x1="${CX}" y1="${CY}" x2="${CX + MAX_R * cos}" y2="${CY + MAX_R * sin}" class="grid-line" style="stroke:rgba(255,255,255,.05);" />`;
-
-        const p1Score = data.player1.percentiles[i] || 0;
-        const p1R = (p1Score / 100) * MAX_R;
-        p1Points.push(`${CX + p1R * cos},${CY + p1R * sin}`);
-
-        const p2Score = data.player2.percentiles[i] || 0;
-        const p2R = (p2Score / 100) * MAX_R;
-        p2Points.push(`${CX + p2R * cos},${CY + p2R * sin}`);
-
-        let anchor = cos > 0.2 ? "start" : cos < -0.2 ? "end" : "middle";
-        markup += `<text x="${CX + 258 * cos}" y="${CY + 250 * sin}" class="ax-lbl" style="font-family: var(--font-family), sans-serif;" text-anchor="${anchor}" dominant-baseline="middle" fill="#94a3b8">${metric}</text>`;
+    // 1. BAGGRUNDS-NET (Ringe ved 25, 50, 75, 100) — FAST SAT OP UDEN SYNTEXFEJL
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.08)"; ctx.lineWidth = 1;
+    [35, 70, 105, 140].forEach(r => {
+        ctx.beginPath();
+        for (let i = 0; i < total; i++) {
+            const x = CX + r * Math.cos(i * angle - Math.PI/2), y = CY + r * Math.sin(i * angle - Math.PI/2);
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.closePath(); ctx.stroke();
     });
 
-    // Tegn polygoner med dine valgte, dynamiske farver fra skuffen
-    markup += `<polygon points="${p1Points.join(' ')}" fill="${CURRENT_P1_COLOR}1F" stroke="${CURRENT_P1_COLOR}" stroke-width="2.5" style="stroke-linejoin:round;" filter="drop-shadow(0 0 8px ${CURRENT_P1_COLOR}33)" />`;
-    markup += `<polygon points="${p2Points.join(' ')}" fill="${CURRENT_P2_COLOR}1F" stroke="${CURRENT_P2_COLOR}" stroke-width="2.5" style="stroke-linejoin:round;" filter="drop-shadow(0 0 8px ${CURRENT_P2_COLOR}33)" />`;
+    d1.metrics.forEach((metric, i) => {
+        const a = i * angle - Math.PI / 2, cos = Math.cos(a), sin = Math.sin(a);
+        ctx.beginPath(); ctx.moveTo(CX, CY); ctx.lineTo(CX + MAX_R * cos, CY + MAX_R * sin); ctx.stroke();
+        ctx.fillStyle = "#94a3b8"; ctx.font = "bold 10px Gabarito, sans-serif";
+        ctx.textAlign = cos > 0.2 ? "start" : cos < -0.2 ? "end" : "center";
+        ctx.fillText(metric, CX + (MAX_R + 15) * cos, CY + (MAX_R + 8) * sin + 4);
+    });
 
-    svg.innerHTML = markup + `<circle cx="${CX}" cy="${CY}" r="8" fill="#FFFFFF" />`;
+    // 2. RENDERING AF SPILLER-LINJER + INTEGRERET FARVEFYLD (FILL) 🎯
+    const drawPlayerPath = (data, color) => {
+        if (!data || !data.metrics) return;
+        ctx.beginPath();
+        data.metrics.forEach((_, i) => {
+            const r = ((data.percentiles[i] || 0) / 100) * MAX_R, a = i * angle - Math.PI / 2;
+            const x = CX + r * Math.cos(a), y = CY + r * Math.sin(a);
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.closePath(); 
+        
+        ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke(); 
+        ctx.fillStyle = color + "18"; ctx.fill(); // 🎯 FARVEFYLD AKTIVERET PERFEKT HER!
+
+        // Noder/prikker
+        data.metrics.forEach((_, i) => {
+            const r = ((data.percentiles[i] || 0) / 100) * MAX_R, a = i * angle - Math.PI / 2;
+            ctx.beginPath(); ctx.arc(CX + r * Math.cos(a), CY + r * Math.sin(a), 3.5, 0, 2*Math.PI);
+            ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.strokeStyle = color; ctx.stroke();
+        });
+    };
+
+    if (d2 && d2.metrics) drawPlayerPath(d2, RADAR_COLOR_2);
+    drawPlayerPath(d1, RADAR_COLOR_1);
 }
 
-function downloadRadarPNG() { 
-    const el = $("radar-only"); if (!el) return;
-    document.fonts.ready.then(() => {
-        html2canvas(el, { 
-            scale: 4, 
-            backgroundColor: "#0B1220", 
-            useCORS: true,
-            logging: false
-        }).then(canvas => { 
-            const link = document.createElement("a"); 
-            link.download = `radar_${CURRENT_RADAR_P1.toLowerCase().replace(/ /g, "_")}_vs_${CURRENT_RADAR_P2.toLowerCase().replace(/ /g, "_")}.png`; 
-            link.href = canvas.toDataURL("image/png"); link.click(); 
-        }).catch(e => console.error(e)); 
+function downloadRadarPNG() {
+    const el = $r("radar-chart-only");
+    html2canvas(el, { scale: 4, backgroundColor: "#0B1220", useCORS: true, logging: false }).then(canvas => {
+        const link = document.createElement("a"); link.download = `radar_comparison.png`;
+        link.href = canvas.toDataURL("image/png"); link.click();
     });
 }
 
-// Kald initialiseringen af tjekbokse og API, når DOM'en er helt på plads
-document.addEventListener("DOMContentLoaded", () => {
-    initCustomRadarSelectors();
+window.loadRadarChartData = function(playerName) {
+    if (playerName) selectRadarItem('player1', playerName); else onRadarFilterChange();
+};
+
+document.addEventListener("click", e => {
+    if (!e.target.closest('#radar-player1-wrapper')) { const p = $r("radar-player1-options"); if(p) p.style.display = "none"; }
+    if (!e.target.closest('#radar-player2-wrapper')) { const p = $r("radar-player2-options"); if(p) p.style.display = "none"; }
+    if (!e.target.closest('.multiselect')) { const cb = $r("radar-checkboxes-container"); if(cb) cb.style.display = "none"; }
 });
-
-
-// Globale variabler til styring af data og farvevalg
-let CURRENT_RADAR_P1 = "", CURRENT_RADAR_P2 = "";
-let CURRENT_P1_COLOR = "#ff007f"; // Standard Pink
-let CURRENT_P2_COLOR = "#00ffd5"; // Standard Cyan
-
-if (typeof $ !== 'function') { var $ = id => document.getElementById(id); }
-if (typeof toggleDisplay !== 'function') { var toggleDisplay = (el, show) => el && (el.style.display = show ? "block" : "none"); }
