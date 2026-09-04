@@ -1,72 +1,108 @@
 // --- INTERFACE STYRESYSTEM FOR PER 90 ---
 
-// Dynamisk URL: Finder automatisk ud af om du tester lokalt (port 8000) eller kører live på Render!
+// Finder automatisk ud af om du tester lokalt eller kører live på Render
 const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' ? 'http://127.0.0.1:8000' : window.location.origin;
 
-// Global reference til dit pizza-chart objekt så vi kan nulstille det uden memory leaks
+// Global reference til dit pizza-chart objekt
 let pizzaChartInstance = null;
 
 /**
- * Funktion der skifter fane i din sidebar og aktiverer de rigtige HTML-sektioner.
- * @param {string} viewId - Id'et på den fane du vil skifte til
+ * Central router der styrer alt indhold på skærmen baseret på den valgte fane
  */
 function switchView(viewId) {
     console.log("LOG: Skifter visning til -> " + viewId);
     
-    // 1. Find og deaktiver alle nuværende visninger
-    const allViews = document.querySelectorAll('.content-view');
-    allViews.forEach(view => view.classList.remove('active'));
-    
-    // 2. Fjern active-klassen fra alle knapper i sidebaren
+    // 1. NAVIGATION: Opdater aktive klasser på knapperne
     const allNavItems = document.querySelectorAll('.nav-item');
     allNavItems.forEach(item => item.classList.remove('active'));
     
-    // 3. Aktiver den valgte sektion i HTML'en
-    const targetView = document.getElementById('view-' + viewId);
-    if (targetView) {
-        targetView.classList.add('active');
-    } else {
-        console.error("FEJL: Sektionen 'view-" + viewId + "' findes ikke i HTML.");
-        return;
-    }
-    
-    // 4. Gør den klikkede knap aktiv i sidebaren
     allNavItems.forEach(item => {
         if (item.getAttribute('onclick') && item.getAttribute('onclick').includes("'" + viewId + "'")) {
             item.classList.add('active');
         }
     });
 
-    // Finder den nuværende valgte spiller (hvis defineret), så vi kan føre spilleren automatisk med over i næste fane!
+    // Luk mobilmenuen hvis den er åben
+    const navMenu = document.querySelector('.nav-menu');
+    if (navMenu) navMenu.classList.remove('mobile-open');
+
+    // 2. CONTAINER-TJEK: Find det centrale område i index.html
+    const contentArea = document.getElementById('dynamic-content-area');
+    if (!contentArea) {
+        console.error("FEJL: Kunne ikke finde #dynamic-content-area i HTML'en.");
+        return;
+    }
+
+    // Gem den nuværende valgte spiller som fallback til næste fane
     const fallbackPlayer = (typeof CURRENT_SELECTED_PLAYER !== 'undefined' && CURRENT_SELECTED_PLAYER) ? CURRENT_SELECTED_PLAYER : "";
 
-    // 5. DYNAMISK DATA-TRIGGER FOR SAMTLIGE 10 FANER (SIKRET MOD MANGLENDE JS FILER) 🎯
-    if (viewId === 'pizza') {
-        if (fallbackPlayer && typeof onPizzaFilterChange === 'function') onPizzaFilterChange();
-    } else if (viewId === 'player_stats') {
-        if (typeof loadPlayerStatsData === 'function') loadPlayerStatsData(fallbackPlayer);
-    } else if (viewId === 'radar') {
-        const radarMetrics = ["Goals", "xG", "Successful Dribbles", "Tackles", "Assists"];
-        if (typeof loadRadarChartData === 'function') loadRadarChartData(fallbackPlayer, fallbackPlayer, radarMetrics);
-    } else if (viewId === 'scatter') {
-        if (typeof loadScatterPlotData === 'function') loadScatterPlotData(fallbackPlayer);
-    } else if (viewId === 'table') {
-        if (typeof loadTableDatabase === 'function') loadTableDatabase();
-    } else if (viewId === 'stat_filters') {
-        if (typeof applyStatFiltersEngine === 'function') applyStatFiltersEngine();
-    } else if (viewId === 'similarity') {
-        if (typeof loadPlayerSimilarity === 'function') loadPlayerSimilarity(fallbackPlayer);
-    } else if (viewId === 'role_ranks') {
-        if (typeof calculateRoleRanks === 'function') calculateRoleRanks();
-    } else if (viewId === 'event_data') {
-        if (typeof renderEventFieldMap === 'function') renderEventFieldMap(fallbackPlayer);
-    } else if (viewId === 'match_report') {
-        if (typeof generateAutomatedReport === 'function') generateAutomatedReport(fallbackPlayer);
+    // 3. ROUTING LOGIK 🎯
+    
+    // Visning: HOME / LANDING PAGE
+    if (viewId === 'landing' || viewId === 'home') {
+        contentArea.innerHTML = `
+            <section id="view-landing" class="content-view active">
+                <div class="hero-container">
+                    <div class="dashboard-tag">JOGA BONITO EDITION</div>
+                    <h1 class="hero-title">ALL YOU NEED<br><span class="highlight">PER 90.</span></h1>
+                    <p class="hero-subtitle">Avanceret performance-filtrering på tværs af historiske og moderne topdivisioner.</p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card c-rooney">
+                        <div class="stat-value">4.440</div>
+                        <div class="stat-label">Minutter</div>
+                        <div class="stat-desc">Højeste spilletid</div>
+                    </div>
+                    <div class="stat-card c-ronaldinho">
+                        <div class="stat-value">684</div>
+                        <div class="stat-label">Spillere</div>
+                        <div class="stat-desc">Liga-database</div>
+                    </div>
+                    <div class="stat-card c-davids">
+                        <div class="stat-value">47</div>
+                        <div class="stat-label">Metrikker</div>
+                        <div class="stat-desc">Parametre målt pr. kamp</div>
+                    </div>
+                    <div class="stat-card c-henry">
+                        <div class="stat-value">73</div>
+                        <div class="stat-label">Modeller</div>
+                        <div class="stat-desc">Taktiske spillestile</div>
+                    </div>
+                </div>
+            </section>
+        `;
+    } 
+    // Visning: PIZZA CHART (Den eneste rigtige funktionelle fane lige nu)
+    else if (viewId === 'pizza') {
+        if (typeof initPizzaView === 'function') {
+            // Vi beder pizza.js om selv at bygge og tegne sit layout ind i containeren
+            initPizzaView(contentArea);
+            if (fallbackPlayer && typeof onPizzaFilterChange === 'function') {
+                onPizzaFilterChange();
+            }
+        } else {
+            console.error("FEJL: initPizzaView() blev ikke fundet i pizza.js");
+        }
+    } 
+    // Visning: PLACEHOLDERS (Alle de andre 9 faner indtil du bygger dem)
+    else {
+        // Formaterer viewId til et pænere navn (f.eks. "player_stats" -> "PLAYER STATS")
+        const faneNavn = viewId.replace('_', ' ').toUpperCase();
+        
+        contentArea.innerHTML = `
+            <section class="content-view active" style="text-align: center; padding: 60px 20px;">
+                <div style="margin-bottom: 20px;">
+                    <i class="fa-solid fa-screwdriver-wrench" style="font-size: 60px; color: var(--text-muted); opacity: 0.5;"></i>
+                </div>
+                <h2 style="font-size: 24px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px;">${faneNavn}</h2>
+                <p style="color: var(--text-muted);">Denne fane er under opbygning. Logik og diagrammer tilføjes i din ${viewId}.js fil senere.</p>
+            </section>
+        `;
     }
 }
 
 /**
- * Global hjælpefunktion der kaldes når brugeren piller ved dropdown-menuerne i din pizza-sektion
+ * Global hjælpefunktion der kaldes, når brugeren ændrer noget i dine pizza-filtre
  */
 function triggerPizzaUpdate() {
     if (typeof onPizzaFilterChange === 'function') {
@@ -75,7 +111,7 @@ function triggerPizzaUpdate() {
 }
 
 /**
- * Henter rå data fra din FastAPI pizza-rute og sender det videre til render-motoren
+ * Henter valgte tjekbokse og opdaterer data
  */
 async function loadPizzaChartData(playerName) {
     if (typeof loadPizzaChartDataWithFilters === 'function' && typeof CURRENT_SELECTED_POS !== 'undefined') {

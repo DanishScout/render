@@ -13,332 +13,83 @@
 </head>
 <body>
     <div class="app-container">
+        
+        <!-- PC & MOBIL SIDEBAR NAVIGATION (Permanent menu på skærmen) -->
         <aside class="sidebar">
-            <div class="logo">
+            <div class="logo" style="cursor: pointer;" onclick="switchView('landing')">
                 <span class="logo-main">PER</span><span class="logo-sub">90</span>
             </div>
             <nav class="nav-menu" onclick="this.classList.toggle('mobile-open')">
                 <button class="nav-item active" onclick="event.stopPropagation(); switchView('landing'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
                     <i class="fa-solid fa-house"></i> <span>Home</span>
                 </button>
-                
-                <!-- 1. Pizza Chart -->
                 <button class="nav-item" onclick="event.stopPropagation(); switchView('pizza'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
                     <i class="fa-solid fa-chart-pie"></i> <span>Pizza Chart</span>
                 </button>
-                
-                <!-- 2. Player Stats (Opgraderet ikon) -->
                 <button class="nav-item" onclick="event.stopPropagation(); switchView('player_stats'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
                     <i class="fa-solid fa-id-card-clip"></i> <span>Player Stats</span>
                 </button>
-                
-                <!-- 3. Radar Chart -->
                 <button class="nav-item" onclick="event.stopPropagation(); switchView('radar'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
                     <i class="fa-solid fa-circle-nodes"></i> <span>Radar Chart</span>
                 </button>
-                
-                <!-- 4. Scatter Plot -->
                 <button class="nav-item" onclick="event.stopPropagation(); switchView('scatter'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
                     <i class="fa-solid fa-chart-line"></i> <span>Scatter Plot</span>
                 </button>
-                
-                <!-- 5. Table -->
                 <button class="nav-item" onclick="event.stopPropagation(); switchView('table'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
                     <i class="fa-solid fa-table-list"></i> <span>Table</span>
                 </button>
-                
-                <!-- 6. Stat Filters -->
                 <button class="nav-item" onclick="event.stopPropagation(); switchView('stat_filters'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
                     <i class="fa-solid fa-filter"></i> <span>Stat Filters</span>
                 </button>
-                
-                <!-- 7. Similarity (Opgraderet ikon) -->
                 <button class="nav-item" onclick="event.stopPropagation(); switchView('similarity'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
                     <i class="fa-solid fa-arrows-left-right-to-line"></i> <span>Similarity</span>
                 </button>
-                
-                <!-- 8. Role Ranks -->
                 <button class="nav-item" onclick="event.stopPropagation(); switchView('role_ranks'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
                     <i class="fa-solid fa-medal"></i> <span>Role Ranks</span>
                 </button>
-                
-                <!-- 9. Event Data -->
                 <button class="nav-item" onclick="event.stopPropagation(); switchView('event_data'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
                     <i class="fa-solid fa-location-crosshairs"></i> <span>Event Data</span>
                 </button>
-                
-                <!-- 10. Match Report -->
                 <button class="nav-item" onclick="event.stopPropagation(); switchView('match_report'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
                     <i class="fa-solid fa-file-invoice"></i> <span>Match Report</span>
                 </button>
             </nav>
         </aside>
-        <main class="main-content">
-            <!-- Landing Page View -->
-            <section id="view-landing" class="content-view active">
-                <div class="hero-container">
-                    <div class="dashboard-tag">JOGA BONITO EDITION</div>
-                    <h1 class="hero-title">ALL YOU NEED<br><span class="highlight">PER 90.</span></h1>
-                    <p class="hero-subtitle">Avanceret performance-filtrering på tværs af historiske og moderne topdivisioner.</p>
-                </div>
-                <div class="stats-grid">
-                    <div class="stat-card c-rooney">
-                        <div class="stat-value">4.440</div>
-                        <div class="stat-label">Minutter</div>
-                        <div class="stat-desc">Højeste spilletid</div>
-                    </div>
-                    <div class="stat-card c-ronaldinho">
-                        <div class="stat-value">684</div>
-                        <div class="stat-label">Spillere</div>
-                        <div class="stat-desc">Liga-database</div>
-                    </div>
-                    <div class="stat-card c-davids">
-                        <div class="stat-value">47</div>
-                        <div class="stat-label">Metrikker</div>
-                        <div class="stat-desc">Parametre målt pr. kamp</div>
-                    </div>
-                    <div class="stat-card c-henry">
-                        <div class="stat-value">73</div>
-                        <div class="stat-label">Modeller</div>
-                        <div class="stat-desc">Taktiske spillestile</div>
-                    </div>
-                </div>
-            </section>
 
-            <!-- Pizza Chart View -->
-            <section id="view-pizza" class="content-view">
-                
-                <!-- Skabelonen hentes automatisk via klassen. Du skal bare skrive teksten her! -->
-                <div class="chart-header-container">
-                    <i class="fa-solid fa-chart-pie"></i>
-                    <span>Pizza Chart</span>
-                </div>
+        <!-- DYNAMISK INDHOLDSOMRÅDE: Her sprøjter JavaScript alt indhold ind -->
+        <main class="main-content" id="dynamic-content-area">
+            <!-- Loader automatisk din Joga Bonito-forside ved opstart -->
+        </main>
 
-                <!-- UNIVERSELTRÆK-KNAP TIL BÅDE PC OG MOBIL -->
-                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
-                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
-                </div>
+    </div>
 
-                <!-- BUND-SKUFFE OVERLAY OG CONTAINER -->
-                <div class="filter-drawer-overlay"></div>
-                <div class="filter-drawer">
-                    <div class="drawer-header">
-                        <span class="drawer-title">Chart Settings</span>
-                        <button class="close-drawer-btn">✕</button>
-                    </div>
-                    <div class="filter-panel" style="display: flex; flex-direction: column; gap: 20px; width: 100%;">
-                        <!-- Dropdown 1: Spiller -->
-                        <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; width: 100%; position: relative;">
-                            <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Select player</label>
-                            <div class="custom-select-wrapper" id="custom-player-wrapper" style="position: relative; width: 100%;">
-                                <div class="custom-select-trigger" onclick="toggleCustomDropdown('player')" style="background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                                    <span id="custom-player-selected-text">Indlæser...</span>
-                                    <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
-                                </div>
-                                <div class="custom-options-list" id="custom-player-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; max-height: 250px; overflow-y: auto; z-index: 120;">
-                                    <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid var(--border-color); z-index: 130;">
-                                        <input type="text" id="player-search-input" oninput="filterPlayerList()" placeholder="Søg efter spiller..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none;" onclick="event.stopPropagation();">
-                                    </div>
-                                    <div id="custom-player-items-container"></div>
-                                </div>
-                            </div>
-                        </div>
+    <!-- Slørings-overlay til din bundskuffe (Drawer) -->
+    <div class="filter-drawer-overlay" id="global-drawer-overlay" onclick="closeGlobalDrawer()"></div>
 
-                        <!-- Dropdown 2: Position -->
-                        <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; width: 100%; position: relative;">
-                            <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Compare against</label>
-                            <div class="custom-select-wrapper" id="custom-pos-wrapper" style="position: relative; width: 100%;">
-                                <div class="custom-select-trigger" onclick="toggleCustomDropdown('pos')" style="background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                                    <span id="custom-pos-selected-text">Indlæser...</span>
-                                    <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
-                                </div>
-                                <div class="custom-options-list" id="custom-pos-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; max-height: 250px; overflow-y: auto; z-index: 120;"></div>
-                            </div>
-                        </div>
+    <!-- Core App Frontend Engines -->
+    <script src="global.js"></script>
+    <script src="pizza.js"></script>
 
-                        <!-- Dropdown 3: Metrikker -->
-                        <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; width: 100%; position: relative;">
-                            <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Select Metrics</label>
-                            <div class="multiselect" style="position: relative; width: 100%;">
-                                <div class="selectBox" onclick="toggleCheckboxDropdown()" style="background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                                    <span id="metrics-select-text">Vælg parametre...</span>
-                                    <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
-                                </div>
-                                <div id="checkboxes-container" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; flex-direction: column; gap: 12px; max-height: 300px; overflow-y: auto; z-index: 120;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div> <!-- Lukker .filter-drawer -->
-                <!-- Selve Pizzadiagram-beholderen -->
-                <div class="chart-container-wrapper c-ronaldinho" id="chart-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
-                    <div id="pizza-warning-overlay" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 6, 18, 0.9); border-radius: 12px; justify-content: center; align-items: center; z-index: 150;">
-                        <div style="color: #ff007f; font-weight: 700; text-align: center;">CHOOSE AT LEAST 3 METRICS</div>
-                    </div>
-                    <div style="text-align: center; margin-bottom: 25px;">
-                        <h2 class="p-nm" id="canvas-player-title" style="font-size: 28px; font-weight: 900; color: #ffffff; margin: 0 0 4px 0;">Indlæser...</h2>
-                        <div id="canvas-player-subtitle" style="font-size: 14px; color: #948aa3;">Søg efter en spiller for at generere profil</div>
-                    </div>
-                    <div class="chart-box" style="width: 100%; max-width: 500px; height: 440px; display: flex; justify-content: center; align-items: center;">
-                        <canvas id="pizza-chart-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
-                    </div>
-                </div>
-                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;">
-                    <button onclick="downloadPNG()" style="background: var(--accent-purple); border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button>
-                </div>
-            </section>
-
-
-            <!-- Radar Chart View -->
-                        <!-- 2. Player Stats View -->
-            <section id="view-player_stats" class="content-view">
-                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-id-card-clip" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
-                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Player Stats</span>
-                </div>
-                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
-                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
-                </div>
-                <div class="chart-container-wrapper" id="player-stats-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
-                    <canvas id="player-stats-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
-                </div>
-                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadPlayerStatsPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
-            </section>
-
-            <!-- 3. Radar Chart View -->
-            <section id="view-radar" class="content-view">
-                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-circle-nodes" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
-                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Radar Sammenligning</span>
-                </div>
-                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
-                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
-                </div>
-                <div class="chart-container-wrapper" id="radar-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
-                    <canvas id="radar-chart-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
-                </div>
-                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadRadarPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
-            </section>
-
-            <!-- 4. Scatter Plot View -->
-            <section id="view-scatter" class="content-view">
-                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-chart-line" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
-                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Scatter Plot</span>
-                </div>
-                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
-                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
-                </div>
-                <div class="chart-container-wrapper" id="scatter-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
-                    <canvas id="scatter-chart-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
-                </div>
-                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadScatterPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
-            </section>
-            <!-- 5. Table View -->
-            <section id="view-table" class="content-view">
-                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-table-list" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
-                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Data Database</span>
-                </div>
-                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
-                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
-                </div>
-                <div class="chart-container-wrapper" id="table-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
-                    <div style="width:100%; overflow-x:auto;" id="table-render-container"></div>
-                </div>
-                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadTablePNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
-            </section>
-
-            <!-- 6. Stat Filters View -->
-            <section id="view-stat_filters" class="content-view">
-                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-filter" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
-                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Avancerede Filtre</span>
-                </div>
-                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
-                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
-                </div>
-                <div class="chart-container-wrapper" id="stat-filters-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
-                    <canvas id="filters-chart-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
-                </div>
-                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadFiltersPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
-            </section>
-
-            <!-- 7. Similarity View -->
-            <section id="view-similarity" class="content-view">
-                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-arrows-left-right-to-line" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
-                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Spiller-lighed (Similarity)</span>
-                </div>
-                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
-                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
-                </div>
-                <div class="chart-container-wrapper" id="similarity-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
-                    <canvas id="similarity-chart-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
-                </div>
-                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadSimilarityPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
-            </section>
-            <!-- 8. Role Ranks View -->
-            <section id="view-role_ranks" class="content-view">
-                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-medal" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
-                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Taktiske Rollekår</span>
-                </div>
-                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
-                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
-                </div>
-                <div class="chart-container-wrapper" id="role-ranks-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
-                    <canvas id="role-ranks-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
-                </div>
-                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadRolePNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
-            </section>
-
-            <!-- 9. Event Data View -->
-            <section id="view-event_data" class="content-view">
-                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-location-crosshairs" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
-                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Event Kort & Banedata</span>
-                </div>
-                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
-                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
-                </div>
-                <div class="chart-container-wrapper" id="event-data-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
-                    <canvas id="event-map-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
-                </div>
-                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadEventsPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
-            </section>
-
-            <!-- 10. Match Report View -->
-            <section id="view-match_report" class="content-view">
-                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-file-invoice" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
-                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Automated Match Report</span>
-                </div>
-                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
-                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
-                </div>
-                <div class="chart-container-wrapper" id="match-report-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
-                    <div id="match-report-text-container" style="color: #fff; line-height: 1.6; font-size: 14px; width:100%;"></div>
-                </div>
-                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadReportPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
-            </section>
-
-
-    <!-- SCRIPT TIL UNIVERSEL ÅBEN/LUK AF BUND-SKUFFE (PC & MOBIL) -->
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const openBtn = document.querySelector(".open-drawer-btn");
-            const closeBtn = document.querySelector(".close-drawer-btn");
-            const overlay = document.querySelector(".filter-drawer-overlay");
-            const drawer = document.querySelector(".filter-drawer");
-            const toggle = (add) => {
-                drawer?.classList[add ? 'add' : 'remove']('active');
-                overlay?.classList[add ? 'add' : 'remove']('active');
-            };
-            openBtn?.addEventListener("click", () => toggle(true));
-            closeBtn?.addEventListener("click", () => toggle(false));
-            overlay?.addEventListener("click", () => toggle(false));
+        // Sørger for at starte appen op på 'Home'-visningen med det samme ved indlæsning
+        document.addEventListener("DOMContentLoaded", () => {
+            if (typeof switchView === 'function') switchView('landing');
         });
+
+        // Nemme globale funktioner til at åbne og lukke filterskuffen (Styres via din style.css)
+        function openGlobalDrawer() {
+            const overlay = document.getElementById('global-drawer-overlay');
+            const drawer = document.querySelector('.filter-drawer');
+            if (overlay) overlay.classList.add('active');
+            if (drawer) drawer.classList.add('active');
+        }
+        
+        function closeGlobalDrawer() {
+            const overlay = document.getElementById('global-drawer-overlay');
+            const drawer = document.querySelector('.filter-drawer');
+            if (overlay) overlay.classList.remove('active');
+            if (drawer) drawer.classList.remove('active');
+        }
     </script>
-    <script src="global.js"></script><script src="pizza.js?v=3"></script><script src="radar.js"></script><script src="scatter.js"></script>
 </body>
 </html>
