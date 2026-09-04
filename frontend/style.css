@@ -167,17 +167,74 @@ body { background-color: var(--bg-dark); color: var(--text-primary); font-family
     .nav-section, .sidebar-footer { display: none !important; }
 
     /* Mobil top-menu dropdown */
-    .nav-menu { display: flex; flex-direction: column; gap: 0; flex-grow: 0; position: relative; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; width: 140px; height: 36px; overflow: visible; cursor: pointer; }
-    .nav-menu::before { content: "MENU ▾"; display: flex; align-items: center; justify-content: center; height: 34px; width: 100%; font-size: 11px; font-weight: 800; color: var(--text-primary); letter-spacing: 1px; text-transform: uppercase; }
-    .nav-menu .nav-item { display: none !important; }
-    .nav-menu:hover, .nav-menu:active, .nav-menu:focus-within { background: #07030c; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9); border-radius: 6px 6px 0 0; }
-    .nav-menu:hover::before, .nav-menu:active::before { content: "MENU ▴"; color: var(--accent-purple); }
-    .nav-menu:hover .nav-item, .nav-menu:active .nav-item { display: flex !important; position: absolute; left: -1px; right: -1px; width: calc(100% + 2px); background: #07030c !important; border-left: 1px solid var(--accent-purple); border-right: 1px solid var(--accent-purple); z-index: 2000; }
-    .nav-menu:hover .nav-item:nth-of-type(1), .nav-menu:active .nav-item:nth-of-type(1) { top: 35px; border-top: 1px solid var(--border-color); }
-    .nav-menu:hover .nav-item:nth-of-type(2), .nav-menu:active .nav-item:nth-of-type(2) { top: 76px; }
-    .nav-menu:hover .nav-item:nth-of-type(3), .nav-menu:active .nav-item:nth-of-type(3) { top: 117px; }
-    .nav-menu:hover .nav-item:nth-of-type(4), .nav-menu:active .nav-item:nth-of-type(4) { top: 158px; }
-    .nav-menu:hover .nav-item:last-child, .nav-menu:active .nav-item:last-child { border-bottom: 1px solid var(--accent-purple); border-radius: 0 0 6px 6px; }
+    .nav-menu { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 0; 
+        flex-grow: 0; 
+        position: relative; 
+        background: #07030c; 
+        border: 1px solid var(--accent-purple); 
+        border-radius: 6px; 
+        width: 160px; /* Gjort en smule bredere så lange ord ikke knækker */
+        height: 36px; 
+        overflow: visible; 
+        cursor: pointer; 
+    }
+    .nav-menu::before { 
+        content: "MENU ▾"; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        height: 34px; 
+        width: 100%; 
+        font-size: 11px; 
+        font-weight: 800; 
+        color: var(--text-primary); 
+        letter-spacing: 1px; 
+        text-transform: uppercase; 
+    }
+    .nav-menu .nav-item { 
+        display: none !important; 
+    }
+    
+    /* Når menuen åbnes (enten via hover eller din mobile-open klasse) */
+    .nav-menu:hover, .nav-menu:active, .nav-menu:focus-within, .nav-menu.mobile-open { 
+        background: #07030c; 
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9); 
+        border-radius: 6px 6px 0 0; 
+        height: auto; /* SIKRER AT MENUEN IKKE KLIPPER BUNDEN AF */
+    }
+    .nav-menu:hover::before, .nav-menu.mobile-open::before { 
+        content: "MENU ▴"; 
+        color: var(--accent-purple); 
+    }
+    
+    /* FLEXBOX RIGTIG STABLING: Lader alle 10 knapper flyde naturligt under hinanden uden 'top' koordinater */
+    .nav-menu:hover .nav-item, .nav-menu.mobile-open .nav-item { 
+        display: flex !important; 
+        position: relative; /* Lavet om fra absolute til relative, så de stabler naturligt */
+        width: 100%;
+        background: #07030c !important; 
+        border-left: 1px solid var(--accent-purple); 
+        border-right: 1px solid var(--accent-purple); 
+        z-index: 2000; 
+    }
+
+    /* Rammer kun den allerførste knap i listen og laver en adskillelsesstreg til selve MENU-titlen */
+    .nav-menu:hover .nav-item:first-of-type, .nav-menu.mobile-open .nav-item:first-of-type {
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* Rammer automatisk den sidste knap i listen, uanset om du har 5 eller 10 faner */
+    .nav-menu:hover .nav-item:last-child, .nav-menu.mobile-open .nav-item:last-child { 
+        border-bottom: 1px solid var(--accent-purple); 
+        border-radius: 0 0 6px 6px; 
+    }
+
+    /* SLETHÆNDT: Du kan fuldstændig SLETTE de gamle linjer der hedder:
+       .nav-menu:hover .nav-item:nth-of-type(1) osv. De skal ikke bruges mere! */
+
 
     /* .nav-item her bevarer Fejlfrit navigations-ikoner på mobilen */
     .nav-item { padding: 12px 14px; height: 42px; font-size: 11px; font-weight: 700; text-transform: uppercase; align-items: center; gap: 8px; color: var(--text-muted); border: none; }
