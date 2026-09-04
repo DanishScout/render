@@ -1,59 +1,114 @@
+# ==========================================================================
+# PER 90 - RADAR.PY (RENT DATA-UDTRÆK UDEN BEREGNINGER) - DEL 1 AF 2
+# ==========================================================================
 from fastapi import APIRouter, HTTPException, Query
 import pandas as pd
-import os
 from typing import List
 
-router = APIRouter()
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
+router = APIRouter(prefix="/api", tags=["radar"])
 
-def load_combined_dataset():
-    files = ["den1.csv", "den2.csv", "ger.csv", "ger2.csv"]
-    combined_df = []
-    for f in files:
-        path = os.path.join(DATA_DIR, f)
-        if os.path.exists(path):
-            try:
-                combined_df.append(pd.read_csv(path))
-            except Exception:
-                continue
-    if not combined_df:
-        raise HTTPException(status_code=500, detail="Ingen datafiler fundet.")
-    return pd.concat(combined_df, ignore_index=True)
-
-@router.get("/api/radar-comparison")
-def get_radar_comparison(
-    player1: str,
-    player2: str,
-    metrics: List[str] = Query(..., description="Metrikker til sammenligning")
-):
-    df = load_combined_dataset()
-    p1_row = df[df["Player"].str.lower() == player1.lower().strip()]
-    p2_row = df[df["Player"].str.lower() == player2.lower().strip()]
-    
-    if p1_row.empty:
-        raise HTTPException(status_code=404, detail=f"'{player1}' ikke fundet.")
-    if p2_row.empty:
-        raise HTTPException(status_code=404, detail=f"'{player2}' ikke fundet.")
-        
-    missing = [m for m in metrics if m not in df.columns]
-    if missing:
-        raise HTTPException(status_code=400, detail=f"Mangler metrikker: {missing}")
-        
-    res = {
-        "metrics": metrics,
-        "player1": {"name": player1, "stats": []},
-        "player2": {"name": player2, "stats": []}
+# RETTET: Alle kolonnenavne slutter nu på _p90PR for at ramme de præ-beregnede percentiler
+AVAILABLE_METRICS_MAP = {
+    "Shooting": {
+        "total goals_p90PR": "Goals", 
+        "xG_p90PR": "npxG",
+        "total ontarget attempt_p90PR": "Shots On Target", 
+        "attempt_success_pct_p90PR": "On Target %"
+    },
+    "Passing": {
+        "total assists_p90PR": "Assists", 
+        "xA_p90PR": "xA",
+        "total att assist_p90PR": "Key Passes", 
+        "xT_pass_p90PR": "xT via Live Passes"
+    },
+    "Possession": {
+        "total won contest_p90PR": "Successful Dribbles", 
+        "total contest_p90PR": "Dribble Attempts",
+        "dribble_success_pct_p90PR": "Dribble Success %"
+    },
+    "Defending": {
+        "tackle_success_pct_p90PR": "Tackles Won %", 
+        "aerial_success_pct_p90PR": "Aerials Won %",
+        "duel_success_pct_p90PR": "Duels Won %", 
+        "total won tackle_p90PR": "Tackles Won"
     }
+}
+
+FLAT_METRICS = {k: v for cat in AVAILABLE_METRICS_MAP.values() for k, v in cat.items()}
+
+@router.get("/radar/players")
+def get_all_players():
+    from app import GLOBAL_DATASET
+    if GLOBAL_DATASET is None or GLOBAL_DATASET.empty: return []
+    return sorted(GLOBAL_DATASET['Player Name'].dropna().unique().tolist())
+# ==========================================================================
+# PER 90 - RADAR.PY (RENT DATA-UDTRÆK UDEN BEREGNINGER) - DEL 2 AF 2
+# ==========================================================================
+
+def extract_player_radar_profile(player_name: str, metrics_list: List[str]):
+    """Hjælpefunktion der trækker de rå percentiler direkte ud fra CSV-arket"""
+    from app import GLOBAL_DATASET
     
-    for m in metrics:
-        all_vals = pd.to_numeric(df[m], errors='coerce').dropna().sort_values()
-        v1 = pd.to_numeric(p1_row.iloc[0][m], errors='coerce')
-        v2 = pd.to_numeric(p2_row.iloc[0][m], errors='coerce')
+    row = GLOBAL_DATASET[GLOBAL_DATASET['Player Name'].str.lower() == player_name.lower()]
+    if row.empty:
+        return None
         
-        pct1 = (all_vals < v1).sum() / len(all_vals) * 100 if not pd.isna(v1) else 0
-        pct2 = (all_vals < v2).sum() / len(all_vals) * 100 if not pd.isna(v2) else 0
-        
-        res["player1"]["stats"].append(round(pct1, 1))
-        res["player2"]["stats"].append(round(pct2, 1))
-        
-    return res
+    player_data = row.iloc[0]
+    pos_column = 'Pos.' if 'Pos.' in GLOBAL_DATASET.columns else ('Position' if 'Position' in GLOBAL_DATASET.columns else 'Ukendt')
+    
+    labels = []
+    values = []
+
+    for csv_column, display_name in FLAT_METRICS.items():
+        if metrics_list is not None and display_name not in metrics_list:
+            continue
+
+        if csv_column in GLOBAL_DATASET.columns:
+            # Tallene ER allerede percentiler, så vi napper bare den rå værdi direkte! 🚀
+            val = player_data.get(csv_column, 0.0)
+            if pd.isna(val): val = 0.0
+            
+            labels.append(display_name)
+            values.append(round(max(0.0, min(float(val), 100.0)), 1))
+        else:
+            labels.append(f"{display_name} (Mangler)")
+            values.append(0.0)
+            
+    extracted_mins = player_data.get('total mins played', player_data.get('Mins', 0))
+    if pd.isna(extracted_mins): extracted_mins = 0
+
+    return {
+        "player_name": player_data['Player Name'],
+        "team": player_data.get('Team', 'Ukendt Klub'),
+        "league": player_data.get('League', 'Ukendt Liga'),
+        "player_pos": player_data.get(pos_column, 'Ukendt'),
+        "mins_played": int(extracted_mins),
+        "team_id": str(player_data.get('contestantId', 'nan')),
+        "metrics": labels,
+        "values": values
+    }
+
+@router.get("/radar")
+def get_radar_data(
+    player1: str = Query(..., description="Navnet på hovedspilleren"),
+    player2: str = Query(None, description="Navnet på spilleren der skal sammenlignes med (valgfri)"),
+    metrics: List[str] = Query(None, description="De valgte visningsnavne fra tjekboksene")
+):
+    from app import GLOBAL_DATASET
+    if GLOBAL_DATASET is None or GLOBAL_DATASET.empty:
+        raise HTTPException(status_code=500, detail="Datamotoren er tom.")
+
+    # Hent profil for spiller 1
+    p1_data = extract_player_radar_profile(player1, metrics)
+    if not p1_data:
+        raise HTTPException(status_code=404, detail=f"Spiller 1 '{player1}' blev ikke fundet.")
+
+    # Hent profil for spiller 2 hvis den er sendt med fra frontenden
+    p2_data = None
+    if player2:
+        p2_data = extract_player_radar_profile(player2, metrics)
+
+    return {
+        "player1": p1_data,
+        "player2": p2_data
+    }

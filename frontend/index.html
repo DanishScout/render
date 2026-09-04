@@ -68,10 +68,16 @@
 
             <!-- Pizza Chart View -->
             <section id="view-pizza" class="content-view">
-                <div class="view-header">
-                    <h2>Pizza Chart Indsigt</h2>
-                    <p>Percentil-profil for valgte spillere</p>
+                
+                <!-- Skabelonen hentes automatisk via klassen. Du skal bare skrive teksten her! -->
+                <div class="chart-header-container">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Pizza Profil</span>
                 </div>
+
+
+
+
 
                 <!-- UNIVERSELTRÆK-KNAP TIL BÅDE PC OG MOBIL -->
                 <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
@@ -142,9 +148,10 @@
                     </div>
                 </div>
                 <div class="download" style="display: flex; justify-content: center; margin-top: 24px;">
-                    <button onclick="downloadPNG()" style="background: var(--accent-purple); color: #ffffff; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button>
+                    <button onclick="downloadPNG()" style="background: var(--accent-purple); border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button>
                 </div>
             </section>
+
 
             <!-- Radar Chart View -->
             <section id="view-radar" class="content-view"><div class="view-header"><h2>Radar Chart</h2></div><div class="chart-container-wrapper c-davids"><div class="chart-box"><canvas id="radar-chart-canvas"></canvas></div></div></section>

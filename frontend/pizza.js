@@ -168,12 +168,16 @@ async function selectCustomItem(type, value) {
     toggleDisplay($(`custom-${type}-options`), false);
     document.querySelectorAll(`#custom-${type}-options .custom-option-item`).forEach(el => el.classList.toggle('selected-active', el.innerText === value));
     
-    // DE GAMLE LINJER DER LUKKEDE SKUFFEN ER FJERNET HERTIL ✕
-    // Nu lukker den KUN, når man trykker på X eller uden for skuffen.
+    // RETTET: Lukker skuffen og overlayet automatisk på mobil, når en spiller eller position vælges
+    const drawer = document.querySelector(".filter-drawer");
+    const overlay = document.querySelector(".filter-drawer-overlay");
+    if (drawer && overlay) {
+        drawer.classList.remove("active");
+        overlay.classList.remove("active");
+    }
 
     if (isPlayer) await onPizzaPlayerChange(); else onPizzaFilterChange();
 }
-
 
 async function onPizzaPlayerChange() {
     if (!CURRENT_SELECTED_PLAYER) return;

@@ -106,6 +106,52 @@ body { background-color: var(--bg-dark); color: var(--text-primary); font-family
     z-index: 10001 !important; background: #06140c !important; border: 1px solid var(--accent-purple) !important; 
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important; border-radius: 6px !important; overflow-y: auto !important;
 }
+
+/* ==========================================================================
+   PER 90 - DYNAMISK IKON-HEADER SKABELON
+   ========================================================================== */
+/* ==========================================================================
+   PER 90 - DYNAMISK IKON-HEADER SKABELON (MINIMALISTISK HVID/OPACITY)
+   ========================================================================== */
+.chart-header-container {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 auto 20px auto !important; /* Centrerer ikonet og giver luft til knappen */
+    text-align: center !important;
+    width: fit-content !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+/* Styrer det store, afdæmpede hvide ikon */
+.chart-header-container i {
+    font-size: 54px !important;         /* Stor, ren størrelse */
+    color: #ffffff !important;         /* 🎯 Skiftet fra neongrøn til helt ren hvid */
+    opacity: 0.4 !important;           /* 🎯 Lidt lavere opacity så det blender lækkert ind */
+    filter: none !important;           /* 🎯 Fuldstændig fjernet neonglow / skyggeeffekt */
+    width: auto !important;            /* Modvirker pc-sidebar-bredde-reglen */
+}
+
+/* Den helt korte, diskrete tekst under ikonet */
+.chart-header-container span {
+    font-size: 11px !important;
+    color: #ffffff !important;         /* Hvid skrift her også */
+    opacity: 0.3 !important;           /* Endnu lavere opacity på underteksten */
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 2px !important;
+}
+
+
+/* Tvinger download-teksten til at være sort på den neongrønne knap */
+.download button {
+    color: #06140c !important; /* Din mørke retro-baggrundsfarve */
+}
+
 /* ==========================================================================
    PER 90 - CORE STYLES (RESPONSIV MOBILOPTIMERING) - DEL 4 AF 4
    ========================================================================== */
@@ -154,4 +200,5 @@ body { background-color: var(--bg-dark); color: var(--text-primary); font-family
     .p-sub-bar { gap: 4px !important; font-size: 8px !important; margin-top: 0px !important; padding-top: 0px !important; }
     .header-card { padding: 12px 16px !important; margin-bottom: 12px !important; }
 }
+
 @media screen and (max-width: 400px) { .stats-grid { grid-template-columns: 1fr; } }
