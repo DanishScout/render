@@ -129,19 +129,19 @@ body { background-color: var(--bg-dark); color: var(--text-primary); font-family
 
 /* Styrer det store, afdæmpede hvide ikon */
 .chart-header-container i {
-    font-size: 54px !important;         /* Stor, ren størrelse */
+    font-size: 65px !important;         /* Stor, ren størrelse */
     color: #ffffff !important;         /* 🎯 Skiftet fra neongrøn til helt ren hvid */
-    opacity: 0.4 !important;           /* 🎯 Lidt lavere opacity så det blender lækkert ind */
+    opacity: 0.8 !important;           /* 🎯 Lidt lavere opacity så det blender lækkert ind */
     filter: none !important;           /* 🎯 Fuldstændig fjernet neonglow / skyggeeffekt */
     width: auto !important;            /* Modvirker pc-sidebar-bredde-reglen */
 }
 
 /* Den helt korte, diskrete tekst under ikonet */
 .chart-header-container span {
-    font-size: 11px !important;
+    font-size: 12px !important;
     color: #ffffff !important;         /* Hvid skrift her også */
-    opacity: 0.3 !important;           /* Endnu lavere opacity på underteksten */
-    font-weight: 700 !important;
+    opacity: 0.45 !important;           /* Endnu lavere opacity på underteksten */
+    font-weight: 600 !important;
     text-transform: uppercase !important;
     letter-spacing: 2px !important;
 }
