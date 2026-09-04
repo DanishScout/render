@@ -203,12 +203,15 @@ body { background-color: var(--bg-dark); color: var(--text-primary); font-family
         background: #07030c; 
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9); 
         border-radius: 6px 6px 0 0; 
-        height: auto; /* SIKRER AT MENUEN IKKE KLIPPER BUNDEN AF */
+        height: auto; 
+        max-height: 250px;    /* 🎯 Sætter en fast maks-højde så den ikke fylder hele skærmen */
+        overflow-y: auto;     /* 🎯 Tænder for lodret scroll indeni dropdown-menuen */
     }
-    .nav-menu:hover::before, .nav-menu.mobile-open::before { 
-        content: "MENU ▴"; 
-        color: var(--accent-purple); 
-    }
+    
+    /* VALGFRIT: Gør scrollbaren smal og lækker indeni menuen på mobilen */
+    .nav-menu::-webkit-scrollbar { width: 4px; }
+    .nav-menu::-webkit-scrollbar-thumb { background: var(--accent-purple); border-radius: 4px; }
+
     
     /* FLEXBOX RIGTIG STABLING: Lader alle 10 knapper flyde naturligt under hinanden uden 'top' koordinater */
     .nav-menu:hover .nav-item, .nav-menu.mobile-open .nav-item { 
