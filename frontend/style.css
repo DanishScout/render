@@ -204,9 +204,10 @@ body { background-color: var(--bg-dark); color: var(--text-primary); font-family
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9); 
         border-radius: 6px 6px 0 0; 
         height: auto; 
-        max-height: 250px;    /* 🎯 Sætter en fast maks-højde så den ikke fylder hele skærmen */
-        overflow-y: auto;     /* 🎯 Tænder for lodret scroll indeni dropdown-menuen */
+        max-height: 140px;    /* 🎯 Sat ned fra 250px til 140px for at gøre den markant mindre */
+        overflow-y: auto;     /* Holder scroll-funktionen tændt */
     }
+
     
     /* VALGFRIT: Gør scrollbaren smal og lækker indeni menuen på mobilen */
     .nav-menu::-webkit-scrollbar { width: 4px; }
