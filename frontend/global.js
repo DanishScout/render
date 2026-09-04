@@ -1,16 +1,14 @@
 // --- INTERFACE STYRESYSTEM FOR PER 90 ---
 
 // Dynamisk URL: Finder automatisk ud af om du tester lokalt (port 8000) eller kører live på Render!
-const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
-    ? 'http://127.0.0.1:8000'
-    : window.location.origin;
+const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' ? 'http://127.0.0.1:8000' : window.location.origin;
 
 // Global reference til dit pizza-chart objekt så vi kan nulstille det uden memory leaks
 let pizzaChartInstance = null;
 
 /**
  * Funktion der skifter fane i din sidebar og aktiverer de rigtige HTML-sektioner.
- * @param {string} viewId - Id'et på den fane du vil skifte til (landing, pizza, radar, scatter)
+ * @param {string} viewId - Id'et på den fane du vil skifte til
  */
 function switchView(viewId) {
     console.log("LOG: Skifter visning til -> " + viewId);
@@ -39,28 +37,31 @@ function switchView(viewId) {
         }
     });
 
-    // 5. DYNAMISK DATA-TRIGGER FOR HVER FANE (VÆK MED DELANEY)
+    // Finder den nuværende valgte spiller (hvis defineret), så vi kan føre spilleren automatisk med over i næste fane!
+    const fallbackPlayer = (typeof CURRENT_SELECTED_PLAYER !== 'undefined' && CURRENT_SELECTED_PLAYER) ? CURRENT_SELECTED_PLAYER : "";
+
+    // 5. DYNAMISK DATA-TRIGGER FOR SAMTLIGE 10 FANER (SIKRET MOD MANGLENDE JS FILER) 🎯
     if (viewId === 'pizza') {
-        // Hvis pizza-js har sat en global startspiller fra din CSV, bruger vi den med det samme!
-        const currentPlayer = (typeof CURRENT_SELECTED_PLAYER !== 'undefined' && CURRENT_SELECTED_PLAYER) 
-            ? CURRENT_SELECTED_PLAYER 
-            : "";
-            
-        if (currentPlayer && typeof onPizzaFilterChange === 'function') {
-            onPizzaFilterChange(); // Genberegn ud fra dine lilla dropdowns
-        }
+        if (fallbackPlayer && typeof onPizzaFilterChange === 'function') onPizzaFilterChange();
+    } else if (viewId === 'player_stats') {
+        if (typeof loadPlayerStatsData === 'function') loadPlayerStatsData(fallbackPlayer);
     } else if (viewId === 'radar') {
         const radarMetrics = ["Goals", "xG", "Successful Dribbles", "Tackles", "Assists"];
-        if (typeof loadRadarChartData === 'function') {
-            // Midlertidig fallback til første navn hvis muligt, ellers tom streng indtil radar.js opdateres
-            const fallbackPlayer = (typeof CURRENT_SELECTED_PLAYER !== 'undefined' && CURRENT_SELECTED_PLAYER) ? CURRENT_SELECTED_PLAYER : "";
-            loadRadarChartData(fallbackPlayer, fallbackPlayer, radarMetrics);
-        }
+        if (typeof loadRadarChartData === 'function') loadRadarChartData(fallbackPlayer, fallbackPlayer, radarMetrics);
     } else if (viewId === 'scatter') {
-        if (typeof loadScatterPlotData === 'function') {
-            const fallbackPlayer = (typeof CURRENT_SELECTED_PLAYER !== 'undefined' && CURRENT_SELECTED_PLAYER) ? CURRENT_SELECTED_PLAYER : "";
-            loadScatterPlotData(fallbackPlayer);
-        }
+        if (typeof loadScatterPlotData === 'function') loadScatterPlotData(fallbackPlayer);
+    } else if (viewId === 'table') {
+        if (typeof loadTableDatabase === 'function') loadTableDatabase();
+    } else if (viewId === 'stat_filters') {
+        if (typeof applyStatFiltersEngine === 'function') applyStatFiltersEngine();
+    } else if (viewId === 'similarity') {
+        if (typeof loadPlayerSimilarity === 'function') loadPlayerSimilarity(fallbackPlayer);
+    } else if (viewId === 'role_ranks') {
+        if (typeof calculateRoleRanks === 'function') calculateRoleRanks();
+    } else if (viewId === 'event_data') {
+        if (typeof renderEventFieldMap === 'function') renderEventFieldMap(fallbackPlayer);
+    } else if (viewId === 'match_report') {
+        if (typeof generateAutomatedReport === 'function') generateAutomatedReport(fallbackPlayer);
     }
 }
 
@@ -77,8 +78,6 @@ function triggerPizzaUpdate() {
  * Henter rå data fra din FastAPI pizza-rute og sender det videre til render-motoren
  */
 async function loadPizzaChartData(playerName) {
-    // Denne funktion overskrives og styres nu 100% internt af pizza.js (Del 3)
-    // Vi beholder den her som en tom sikkerhedsskal for bagudkompatibilitet
     if (typeof loadPizzaChartDataWithFilters === 'function' && typeof CURRENT_SELECTED_POS !== 'undefined') {
         const checkboxes = document.querySelectorAll('#checkboxes-container input[type="checkbox"]');
         const selectedMetrics = [];

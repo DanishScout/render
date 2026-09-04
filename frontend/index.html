@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PER 90 - Retro Football Analytics</title>
+    <title>PER 90</title>
     <link rel="preconnect" href="https://googleapis.com">
     <link rel="preconnect" href="https://gstatic.com" crossorigin>
     <link href="https://googleapis.com/css2?family=Gabarito:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -19,9 +19,8 @@
             </div>
             <nav class="nav-menu" onclick="this.classList.toggle('mobile-open')">
                 <button class="nav-item active" onclick="event.stopPropagation(); switchView('landing'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
-                    <i class="fa-solid fa-house"></i> <span>Dashboard</span>
+                    <i class="fa-solid fa-house"></i> <span>Home</span>
                 </button>
-                <div class="nav-section">Analyseværktøjer</div>
                 
                 <!-- 1. Pizza Chart -->
                 <button class="nav-item" onclick="event.stopPropagation(); switchView('pizza'); document.querySelector('.nav-menu').classList.remove('mobile-open');">
@@ -73,8 +72,6 @@
                     <i class="fa-solid fa-file-invoice"></i> <span>Match Report</span>
                 </button>
             </nav>
-
-            <div class="sidebar-footer"><i class="fa-solid fa-bolt"></i> RETRO v1.0</div>
         </aside>
         <main class="main-content">
             <!-- Landing Page View -->
@@ -116,10 +113,6 @@
                     <i class="fa-solid fa-chart-pie"></i>
                     <span>Pizza Chart</span>
                 </div>
-
-
-
-
 
                 <!-- UNIVERSELTRÆK-KNAP TIL BÅDE PC OG MOBIL -->
                 <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
@@ -196,12 +189,139 @@
 
 
             <!-- Radar Chart View -->
-            <section id="view-radar" class="content-view"><div class="view-header"><h2>Radar Chart</h2></div><div class="chart-container-wrapper c-davids"><div class="chart-box"><canvas id="radar-chart-canvas"></canvas></div></div></section>
+                        <!-- 2. Player Stats View -->
+            <section id="view-player_stats" class="content-view">
+                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-id-card-clip" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
+                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Player Stats</span>
+                </div>
+                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
+                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
+                </div>
+                <div class="chart-container-wrapper" id="player-stats-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
+                    <canvas id="player-stats-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
+                </div>
+                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadPlayerStatsPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
+            </section>
 
-            <!-- Scatter Plot View -->
-            <section id="view-scatter" class="content-view"><div class="view-header"><h2>Scatter Plot</h2></div><div class="chart-container-wrapper c-rooney"><div class="chart-box"><canvas id="scatter-chart-canvas"></canvas></div></div></section>
-        </main>
-    </div>
+            <!-- 3. Radar Chart View -->
+            <section id="view-radar" class="content-view">
+                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-circle-nodes" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
+                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Radar Sammenligning</span>
+                </div>
+                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
+                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
+                </div>
+                <div class="chart-container-wrapper" id="radar-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
+                    <canvas id="radar-chart-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
+                </div>
+                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadRadarPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
+            </section>
+
+            <!-- 4. Scatter Plot View -->
+            <section id="view-scatter" class="content-view">
+                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-chart-line" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
+                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Scatter Plot</span>
+                </div>
+                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
+                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
+                </div>
+                <div class="chart-container-wrapper" id="scatter-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
+                    <canvas id="scatter-chart-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
+                </div>
+                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadScatterPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
+            </section>
+            <!-- 5. Table View -->
+            <section id="view-table" class="content-view">
+                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-table-list" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
+                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Data Database</span>
+                </div>
+                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
+                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
+                </div>
+                <div class="chart-container-wrapper" id="table-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
+                    <div style="width:100%; overflow-x:auto;" id="table-render-container"></div>
+                </div>
+                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadTablePNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
+            </section>
+
+            <!-- 6. Stat Filters View -->
+            <section id="view-stat_filters" class="content-view">
+                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-filter" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
+                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Avancerede Filtre</span>
+                </div>
+                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
+                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
+                </div>
+                <div class="chart-container-wrapper" id="stat-filters-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
+                    <canvas id="filters-chart-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
+                </div>
+                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadFiltersPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
+            </section>
+
+            <!-- 7. Similarity View -->
+            <section id="view-similarity" class="content-view">
+                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-arrows-left-right-to-line" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
+                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Spiller-lighed (Similarity)</span>
+                </div>
+                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
+                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
+                </div>
+                <div class="chart-container-wrapper" id="similarity-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
+                    <canvas id="similarity-chart-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
+                </div>
+                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadSimilarityPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
+            </section>
+            <!-- 8. Role Ranks View -->
+            <section id="view-role_ranks" class="content-view">
+                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-medal" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
+                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Taktiske Rollekår</span>
+                </div>
+                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
+                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
+                </div>
+                <div class="chart-container-wrapper" id="role-ranks-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
+                    <canvas id="role-ranks-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
+                </div>
+                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadRolePNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
+            </section>
+
+            <!-- 9. Event Data View -->
+            <section id="view-event_data" class="content-view">
+                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-location-crosshairs" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
+                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Event Kort & Banedata</span>
+                </div>
+                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
+                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
+                </div>
+                <div class="chart-container-wrapper" id="event-data-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
+                    <canvas id="event-map-canvas" width="500" height="440" style="max-width: 100%; height: auto;"></canvas>
+                </div>
+                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadEventsPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
+            </section>
+
+            <!-- 10. Match Report View -->
+            <section id="view-match_report" class="content-view">
+                <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-file-invoice" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
+                    <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Automated Match Report</span>
+                </div>
+                <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
+                    <button class="open-drawer-btn">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
+                </div>
+                <div class="chart-container-wrapper" id="match-report-only" style="position: relative; display: flex; flex-direction: column; align-items: center; padding: 40px; background: #0B1220; border-radius: 12px; min-height: 600px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); width: 100%;">
+                    <div id="match-report-text-container" style="color: #fff; line-height: 1.6; font-size: 14px; width:100%;"></div>
+                </div>
+                <div class="download" style="display: flex; justify-content: center; margin-top: 24px;"><button onclick="downloadReportPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer;">Download as PNG</button></div>
+            </section>
+
 
     <!-- SCRIPT TIL UNIVERSEL ÅBEN/LUK AF BUND-SKUFFE (PC & MOBIL) -->
     <script>
