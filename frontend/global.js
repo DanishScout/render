@@ -135,6 +135,34 @@ function switchView(viewId) {
             console.error("FEJL: initTableView() blev ikke fundet i table.js");
         }
     }
+
+    // Visning: ADVANCED STAT FILTERS ENGINE
+    else if (viewId === 'stat_filters') {
+        if (typeof initFiltersView === 'function') {
+            initFiltersView(contentArea);
+            // Hvis der er en global spiller valgt, kan du køre et filter-change fallback her
+            if (fallbackPlayer && typeof onFiltersFilterChange === 'function') {
+                onFiltersFilterChange();
+            }
+        } else {
+            console.error("FEJL: initFiltersView() blev ikke fundet i filters.js");
+        }
+    }
+
+    // Visning: PLAYER SIMILARITY ENGINE
+    else if (viewId === 'similarity') {
+        if (typeof initSimilarityView === 'function') {
+            initSimilarityView(contentArea);
+            // Giver den nuværende valgte spiller med videre som fallback, hvis det ønskes
+            if (fallbackPlayer && typeof onSimilarityFilterChange === 'function') {
+                onSimilarityFilterChange();
+            }
+        } else {
+            console.error("FEJL: initSimilarityView() blev ikke fundet i similarity.js");
+        }
+    }
+
+
     // Visning: FALLBACK PLACEHOLDERS (De resterende 5 faner under opbygning)
     else {
         const faneNavn = viewId.replace('_', ' ').toUpperCase();
