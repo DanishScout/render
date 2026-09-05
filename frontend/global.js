@@ -1,8 +1,8 @@
 // ==========================================================================
-// PER 90 - GLOBAL.JS - DEL 1 AF 2 (ROUTING OG WEB INTERFACE ENGINE)
+// PER 90 - GLOBAL.JS - CENTRAL INTERFACE ROUTER & APP BRAIN
 // ==========================================================================
 
-// Finder automatisk ud af om du tester lokalt eller kører live på Render
+// Finder automatisk ud af, om du tester lokalt eller kører live på Render
 const API_BASE_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' ? 'http://127.0.0.1:8000' : window.location.origin;
 
 // Global reference til dit pizza-chart objekt
@@ -14,39 +14,33 @@ let pizzaChartInstance = null;
 function switchView(viewId) {
     console.log("LOG: Skifter visning til -> " + viewId);
     
-    // 1. Navigation opdateringer (behold dine eksisterende linjer her...)
+    // 1. NAVIGATION: Opdater aktive klasser på knapperne i sidebaren
     const allNavItems = document.querySelectorAll('.nav-item');
     allNavItems.forEach(item => item.classList.remove('active'));
+    
     allNavItems.forEach(item => {
         if (item.getAttribute('onclick') && item.getAttribute('onclick').includes("'" + viewId + "'")) {
             item.classList.add('active');
         }
     });
 
+    // Luk mobilmenuen hvis den er åben
     const navMenu = document.querySelector('.nav-menu');
     if (navMenu) navMenu.classList.remove('mobile-open');
 
-    // 2. Find det centrale område
+    // 2. CONTAINER-TJEK: Find det centrale visningsområde i index.html
     const contentArea = document.getElementById('dynamic-content-area');
-    if (!contentArea) return;
-
-    // 🎯 GLOBAL OPRYDNING: Sletter alle gamle skuffer i body, så de ikke overlapper hinanden!
-    const eksisterendeSkuffer = document.querySelectorAll('.filter-drawer');
-    eksisterendeSkuffer.forEach(drawer => drawer.remove());
-
-    // Luk også slørings-overlayet ned ved faneskift, hvis det var åbent
-    if (typeof closeGlobalDrawer === 'function') {
-        closeGlobalDrawer();
+    if (!contentArea) {
+        console.error("FEJL: Kunne ikke finde #dynamic-content-area i HTML'en.");
+        return;
     }
 
+    // Gem den nuværende valgte spiller som fallback til den næste fane, der indlæses
     const fallbackPlayer = (typeof CURRENT_SELECTED_PLAYER !== 'undefined' && CURRENT_SELECTED_PLAYER) ? CURRENT_SELECTED_PLAYER : "";
 
-    // ... resten af din switchView if/else logik (Home, pizza, radar osv.) fortsætter uforstyrret herunder ...
-
-
-    // 3. ROUTING LOGIK 🎯
+    // 3. CENTRAL ROUTING MATRIX 🎯
     
-    // Visning: HOME / LANDING PAGE (Bevaret 1:1)
+    // Visning: HOME / LANDING PAGE
     if (viewId === 'landing' || viewId === 'home') {
         contentArea.innerHTML = `
             <section id="view-landing" class="content-view active">
@@ -56,15 +50,31 @@ function switchView(viewId) {
                     <p class="hero-subtitle">Avanceret performance-filtrering på tværs af historiske og moderne topdivisioner.</p>
                 </div>
                 <div class="stats-grid">
-                    <div class="stat-card c-rooney"><div class="stat-value">4.440</div><div class="stat-label">Minutter</div><div class="stat-desc">Højeste spilletid</div></div>
-                    <div class="stat-card c-ronaldinho"><div class="stat-value">684</div><div class="stat-label">Spillere</div><div class="stat-desc">Liga-database</div></div>
-                    <div class="stat-card c-davids"><div class="stat-value">47</div><div class="stat-label">Metrikker</div><div class="stat-desc">Parametre målt pr. kamp</div></div>
-                    <div class="stat-card c-henry"><div class="stat-value">73</div><div class="stat-label">Modeller</div><div class="stat-desc">Taktiske spillestile</div></div>
+                    <div class="stat-card c-rooney">
+                        <div class="stat-value">4.440</div>
+                        <div class="stat-label">Minutter</div>
+                        <div class="stat-desc">Højeste spilletid</div>
+                    </div>
+                    <div class="stat-card c-ronaldinho">
+                        <div class="stat-value">684</div>
+                        <div class="stat-label">Spillere</div>
+                        <div class="stat-desc">Liga-database</div>
+                    </div>
+                    <div class="stat-card c-davids">
+                        <div class="stat-value">47</div>
+                        <div class="stat-label">Metrikker</div>
+                        <div class="stat-desc">Parametre målt pr. kamp</div>
+                    </div>
+                    <div class="stat-card c-henry">
+                        <div class="stat-value">73</div>
+                        <div class="stat-label">Modeller</div>
+                        <div class="stat-desc">Taktiske spillestile</div>
+                    </div>
                 </div>
             </section>
         `;
     } 
-    // Visning: PIZZA CHART
+    // Visning: PIZZA CHART ENGINE
     else if (viewId === 'pizza') {
         if (typeof initPizzaView === 'function') {
             initPizzaView(contentArea);
@@ -75,21 +85,7 @@ function switchView(viewId) {
             console.error("FEJL: initPizzaView() blev ikke fundet i pizza.js");
         }
     } 
-
-    else if (viewId === 'player_stats') {
-        if (typeof initPlayerStatsView === 'function') {
-            // 🎯 Vi beder stats.js om selv at bygge og tegne sit layout ind i containeren
-            initPlayerStatsView(contentArea);
-            
-            if (fallbackPlayer && typeof onStatsFilterChange === 'function') {
-                onStatsFilterChange();
-            }
-        } else {
-            console.error("FEJL: initPlayerStatsView() blev ikke fundet i stats.js");
-        }
-    }
-
-    // Visning: RADAR CHART (Ny live fane!) 🕸️
+    // Visning: RADAR SPIDERWEB ENGINE
     else if (viewId === 'radar') {
         if (typeof initRadarView === 'function') {
             initRadarView(contentArea);
@@ -100,7 +96,40 @@ function switchView(viewId) {
             console.error("FEJL: initRadarView() blev ikke fundet i radar.js");
         }
     }
-    // Visning: PLACEHOLDERS (De andre 8 faner under opbygning)
+    // Visning: PLAYER STATS PROFILE DASHBOARD
+    else if (viewId === 'player_stats') {
+        if (typeof initPlayerStatsView === 'function') {
+            initPlayerStatsView(contentArea);
+            if (fallbackPlayer && typeof onStatsFilterChange === 'function') {
+                onStatsFilterChange();
+            }
+        } else {
+            console.error("FEJL: initPlayerStatsView() blev ikke fundet i stats.js");
+        }
+    }
+    // Visning: SCATTER PLOT COORDINATE GRAPH
+    else if (viewId === 'scatter') {
+        if (typeof initScatterView === 'function') {
+            initScatterView(contentArea);
+            if (fallbackPlayer && typeof onScatterFilterChange === 'function') {
+                onScatterFilterChange();
+            }
+        } else {
+            console.error("FEJL: initScatterView() blev ikke fundet i scatter.js");
+        }
+    }
+    // Visning: TOP 10 LEADERBOARD TABLE
+    else if (viewId === 'table') {
+        if (typeof initTableView === 'function') {
+            initTableView(contentArea);
+            if (fallbackPlayer && typeof onTableFilterChange === 'function') {
+                onTableFilterChange();
+            }
+        } else {
+            console.error("FEJL: initTableView() blev ikke fundet i table.js");
+        }
+    }
+    // Visning: FALLBACK PLACEHOLDERS (De resterende 5 faner under opbygning)
     else {
         const faneNavn = viewId.replace('_', ' ').toUpperCase();
         contentArea.innerHTML = `
@@ -114,18 +143,18 @@ function switchView(viewId) {
         `;
     }
 }
+
 // ==========================================================================
-// PER 90 - GLOBAL.JS - DEL 2 AF 2 (HJÆLPEFUNKTIONER OG MOBILSTYRING)
+// MOBIL-NAVIGATION OG EVENT HANDLING
+// ==========================================================================
 
 /**
- * 🎯 MOBILSTYLING HJÆLPER: Sørger for, at mobilmenuen åbner og lukker fejlfrit,
- * når man klikker på selve menu-titlen/pilen på telefonen!
+ * Sørger for, at mobilmenuen toggler åben/lukket fejlfrit,
+ * når man klikker på selve overskriften/pilen på telefonen!
  */
 function toggleMobileMenu(event) {
-    // Hvis brugeren har klikket på en reel fane/knap indeni menuen, lader vi switchView håndtere det
     if (event.target.closest('.nav-item')) return;
     
-    // Ellers har de trykket på selve dropdown-pilen i toppen, og vi toggler åben/lukket statussen
     const navMenu = document.querySelector('.nav-menu');
     if (navMenu) {
         navMenu.classList.toggle('mobile-open');

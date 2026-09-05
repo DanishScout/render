@@ -79,11 +79,13 @@ from routers.pizza import router as pizza_router
 from routers.stats import router as stats_router
 from routers.radar import router as radar_router
 from routers.scatter import router as scatter_router
+from routers.table import router as table_router
 
 app.include_router(pizza_router)
 app.include_router(stats_router)
 app.include_router(radar_router)
 app.include_router(scatter_router)
+app.include_router(table_router)
 
 # FRONTEND-STI: Går ét niveau op fra 'backend' og ind i 'frontend'
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend"))
