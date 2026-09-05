@@ -75,6 +75,20 @@ function switchView(viewId) {
             console.error("FEJL: initPizzaView() blev ikke fundet i pizza.js");
         }
     } 
+
+    else if (viewId === 'player_stats') {
+        if (typeof initPlayerStatsView === 'function') {
+            // 🎯 Vi beder stats.js om selv at bygge og tegne sit layout ind i containeren
+            initPlayerStatsView(contentArea);
+            
+            if (fallbackPlayer && typeof onStatsFilterChange === 'function') {
+                onStatsFilterChange();
+            }
+        } else {
+            console.error("FEJL: initPlayerStatsView() blev ikke fundet i stats.js");
+        }
+    }
+
     // Visning: RADAR CHART (Ny live fane!) 🕸️
     else if (viewId === 'radar') {
         if (typeof initRadarView === 'function') {
@@ -102,28 +116,6 @@ function switchView(viewId) {
 }
 // ==========================================================================
 // PER 90 - GLOBAL.JS - DEL 2 AF 2 (HJÆLPEFUNKTIONER OG MOBILSTYRING)
-// ==========================================================================
-
-/**
- * Global hjælpefunktion der kaldes, når brugeren ændrer noget i dine pizza-filtre
- */
-function triggerPizzaUpdate() {
-    if (typeof onPizzaFilterChange === 'function') {
-        onPizzaFilterChange();
-    }
-}
-
-/**
- * Henter valgte tjekbokse og opdaterer data for pizza-diagrammet
- */
-async function loadPizzaChartData(playerName) {
-    if (typeof loadPizzaChartDataWithFilters === 'function' && typeof CURRENT_SELECTED_POS !== 'undefined') {
-        const checkboxes = document.querySelectorAll('#checkboxes-container input[type="checkbox"]');
-        const selected = [];
-        checkboxes.forEach(cb => { if (cb.checked) selected.push(cb.value); });
-        await loadPizzaChartDataWithFilters(playerName, CURRENT_SELECTED_POS, selected);
-    }
-}
 
 /**
  * 🎯 MOBILSTYLING HJÆLPER: Sørger for, at mobilmenuen åbner og lukker fejlfrit,

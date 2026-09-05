@@ -76,10 +76,12 @@ def get_team_logo_base64(team_id: str):
 
 # Vi kobler dine tre fane-routers på API-strukturen bagefter
 from routers.pizza import router as pizza_router
+from routers.stats import router as stats_router
 from routers.radar import router as radar_router
 from routers.scatter import router as scatter_router
 
 app.include_router(pizza_router)
+app.include_router(stats_router)
 app.include_router(radar_router)
 app.include_router(scatter_router)
 
