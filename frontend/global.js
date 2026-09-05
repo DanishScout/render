@@ -14,6 +14,12 @@ let pizzaChartInstance = null;
 function switchView(viewId) {
     console.log("LOG: Skifter visning til -> " + viewId);
     
+    // 🎯 DOM-STØVSUGER: Sletter alle gamle faners indstillingsskuffer øjeblikkeligt!
+    // Dette forhindrer at dropdowns smitter af på hinanden, når du skifter fane.
+    document.querySelectorAll('.filter-drawer, .stats-filter-drawer, .scatter-filter-drawer, .table-filter-drawer').forEach(drawer => {
+        drawer.remove();
+    });
+
     // 1. NAVIGATION: Opdater aktive klasser på knapperne i sidebaren
     const allNavItems = document.querySelectorAll('.nav-item');
     allNavItems.forEach(item => item.classList.remove('active'));
@@ -138,7 +144,7 @@ function switchView(viewId) {
                     <i class="fa-solid fa-screwdriver-wrench" style="font-size: 60px; color: var(--text-muted); opacity: 0.5;"></i>
                 </div>
                 <h2 style="font-size: 24px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px;">${faneNavn}</h2>
-                <p style="color: var(--text-muted);">Denne fane er under opbygning. Logik og diagrammer tilføjes i din ${viewId}.js fil senere.</p>
+                <p style="color: var(--text-muted);">Denne fane is under opbygning. Logik og diagrammer tilføjes i din ${viewId}.js fil senere.</p>
             </section>
         `;
     }

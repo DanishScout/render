@@ -156,31 +156,49 @@ body { background-color: var(--bg-dark); color: var(--text-primary); font-family
 /* ==========================================================================
    PER 90 - CORE STYLES (RESPONSIV MOBILOPTIMERING) - DEL 4 AF 4
    ========================================================================== */
+/* ==========================================================================
+   PER 90 - RESPONSIV MOBILOPTIMERING (RETTET: INGEN HOVER-CRASH & FRI SCROLL)
+   ========================================================================== */
 @media screen and (max-width: 900px) {
-    body { overflow-y: auto; height: auto; }
+    body { overflow-y: scroll !important; height: auto; } /* 🎯 FIX: Sikrer universel scroll på mobil */
     .app-container { flex-direction: column; height: auto; width: 100vw; }
 
-    /* Sticky topbar med intakte ikoner */
-    .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-color); padding: 14px 16px; flex-direction: row; justify-content: space-between; align-items: center; position: sticky; top: 0; background-color: var(--bg-sidebar); z-index: 1000; overflow: visible; }
+    /* Sticky topbar på mobilen */
+    .sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-color); padding: 14px 16px; display: flex; flex-direction: row; justify-content: space-between; align-items: center; position: sticky; top: 0; background-color: var(--bg-sidebar); z-index: 1000; overflow: visible; }
     .sidebar::after { content: none; }
     .logo { margin-bottom: 0; font-size: 18px; flex-shrink: 0; }
     .nav-section, .sidebar-footer { display: none !important; }
 
-    /* Mobil top-menu dropdown */
-    .nav-menu { display: flex; flex-direction: column; gap: 0; flex-grow: 0; position: relative; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; width: 140px; height: 36px; overflow: visible; cursor: pointer; }
+    /* 🎯 DYNAMISK FLEXBOX MOBIL dropdown (Slut med hårde top: px-fejl!) */
+    .nav-menu { display: flex; flex-direction: column; gap: 0; flex-grow: 0; position: relative; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; width: 150px; height: 36px; overflow: visible; cursor: pointer; }
     .nav-menu::before { content: "MENU ▾"; display: flex; align-items: center; justify-content: center; height: 34px; width: 100%; font-size: 11px; font-weight: 800; color: var(--text-primary); letter-spacing: 1px; text-transform: uppercase; }
+    
     .nav-menu .nav-item { display: none !important; }
+    
     .nav-menu:hover, .nav-menu:active, .nav-menu:focus-within { background: #07030c; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9); border-radius: 6px 6px 0 0; }
     .nav-menu:hover::before, .nav-menu:active::before { content: "MENU ▴"; color: var(--accent-purple); }
-    .nav-menu:hover .nav-item, .nav-menu:active .nav-item { display: flex !important; position: absolute; left: -1px; right: -1px; width: calc(100% + 2px); background: #07030c !important; border-left: 1px solid var(--accent-purple); border-right: 1px solid var(--accent-purple); z-index: 2000; }
-    .nav-menu:hover .nav-item:nth-of-type(1), .nav-menu:active .nav-item:nth-of-type(1) { top: 35px; border-top: 1px solid var(--border-color); }
-    .nav-menu:hover .nav-item:nth-of-type(2), .nav-menu:active .nav-item:nth-of-type(2) { top: 76px; }
-    .nav-menu:hover .nav-item:nth-of-type(3), .nav-menu:active .nav-item:nth-of-type(3) { top: 117px; }
-    .nav-menu:hover .nav-item:nth-of-type(4), .nav-menu:active .nav-item:nth-of-type(4) { top: 158px; }
-    .nav-menu:hover .nav-item:last-child, .nav-menu:active .nav-item:last-child { border-bottom: 1px solid var(--accent-purple); border-radius: 0 0 6px 6px; }
+    
+    /* 🎯 LØSNING: Vi bruger flex-retning og statisk position, så knapperne altid følger HTML'en under hinanden! */
+    .nav-menu:hover .nav-item, .nav-menu:active .nav-item { 
+        display: flex !important; 
+        position: static !important; /* Fjernet position: absolute */
+        width: 100%; 
+        background: #07030c !important; 
+        border-left: 1px solid var(--accent-purple); 
+        border-right: 1px solid var(--accent-purple); 
+        z-index: 2000; 
+    }
+    
+    /* Giver en flot adskillelseslinje mellem menupunkterne automatisk */
+    .nav-menu:hover .nav-item:not(:last-child), .nav-menu:active .nav-item:not(:last-child) {
+        border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .nav-menu:hover .nav-item:last-child, .nav-menu:active .nav-item:last-child { 
+        border-bottom: 1px solid var(--accent-purple); 
+        border-radius: 0 0 6px 6px; 
+    }
 
-    /* .nav-item her bevarer Fejlfrit navigations-ikoner på mobilen */
-    .nav-item { padding: 12px 14px; height: 42px; font-size: 11px; font-weight: 700; text-transform: uppercase; align-items: center; gap: 8px; color: var(--text-muted); border: none; }
+    .nav-item { padding: 12px 14px; height: 42px; font-size: 11px; font-weight: 700; text-transform: uppercase; align-items: center; gap: 8px; color: var(--text-muted); border: none; width: 100%; }
     .nav-item span { display: inline !important; }
     .nav-item:hover, .nav-item:active { background-color: rgba(168, 85, 247, 0.2) !important; color: var(--text-primary); }
     .nav-item.active { border-left: 4px solid var(--accent-purple) !important; background-color: var(--accent-purple-dim) !important; color: var(--text-primary); }
@@ -191,7 +209,6 @@ body { background-color: var(--bg-dark); color: var(--text-primary); font-family
     .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; padding-top: 24px; }
     .stat-card { padding: 16px; } .stats-grid .stat-value { font-size: 24px; }
 
-    /* Mobil tilpasning af skuffe */
     .open-drawer-btn { width: 100% !important; }
     .filter-drawer { left: 0 !important; width: 100vw !important; max-width: none !important; transform: translateY(100%); }
     .filter-drawer.active { transform: translateY(0); }
@@ -201,5 +218,6 @@ body { background-color: var(--bg-dark); color: var(--text-primary); font-family
     .p-sub-bar { gap: 4px !important; font-size: 8px !important; margin-top: 0px !important; padding-top: 0px !important; }
     .header-card { padding: 12px 16px !important; margin-bottom: 12px !important; }
 }
+
 
 @media screen and (max-width: 400px) { .stats-grid { grid-template-columns: 1fr; } }
