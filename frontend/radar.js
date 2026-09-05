@@ -242,7 +242,7 @@ async function loadRadarChartDataWithFilters(p1, p2, metricsList) {
         const chartContainer = $r("radar-chart-only"); if (!chartContainer) return;
 
         chartContainer.innerHTML = `
-            <div class="chart-container">
+            <div class="chart-container" id="radar-capture-target-area">
                 <div class="h-cnt">
                     <div class="p-panel left">
                         <h2 class="p-nm b-tx" style="color: ${RADAR_COLOR_1};">${d1.player_name}</h2>
@@ -360,7 +360,7 @@ function buildRadarVektorSpiderweb(d1, d2) {
 }
 
 function downloadRadarPNG() {
-    const el = $r("radar-chart-only");
+    const el = $r("radar-capture-target-area"); // Tager kun det rene diagram-kort med!
     html2canvas(el, { scale: 4, backgroundColor: "#0B1220", useCORS: true, logging: false }).then(canvas => {
         const link = document.createElement("a"); link.download = `radar_comparison.png`;
         link.href = canvas.toDataURL("image/png"); link.click();
