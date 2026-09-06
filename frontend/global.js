@@ -162,6 +162,19 @@ function switchView(viewId) {
         }
     }
 
+    // Visning: CUSTOM PERFORMANCE RANKING ENGINE
+    else if (viewId === 'ranking') {
+        if (typeof initRankingView === 'function') {
+            initRankingView(contentArea);
+            if (fallbackPlayer && typeof onRankingFilterChange === 'function') {
+                onRankingFilterChange();
+            }
+        } else {
+            console.error("FEJL: initRankingView() blev ikke fundet i ranking.js");
+        }
+    }
+
+
 
     // Visning: FALLBACK PLACEHOLDERS (De resterende 5 faner under opbygning)
     else {

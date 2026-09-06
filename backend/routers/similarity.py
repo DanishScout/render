@@ -1,5 +1,5 @@
 # ==========================================================================
-# PER 90 - SIMILARITY.PY (API ROUTER TIL MATHEMATICAL PLAYER COMPARISON)
+# PER 90 - SIMILARITY.PY (API ROUTER TIL SPILLER-LIGHEDSMOTOR)
 # ==========================================================================
 from fastapi import APIRouter, HTTPException, Query
 import pandas as pd
@@ -8,93 +8,165 @@ from typing import List, Dict, Any
 
 router = APIRouter(prefix="/api", tags=["similarity"])
 
-@router.get("/similarity-data")
-def get_player_similarity_data(
-    target_player: str = Query(..., description="Navnet på den spiller, der skal findes kopier af")
+# 🎯 1:1 KATEGORISERET MAPPING FRA DINE OFFICIELLE APPMETRIKKER (LÅST TIL _p90)
+METRIC_CONFIG = {
+    "Shooting": {
+        "total goals_p90": "Goals",
+        "xG_p90": "npxG",
+        "total ontarget attempt_p90": "Shots On Target",
+        "attempt_success_pct_p90": "On Target %"
+    },
+    "Passing / Playmaking": {
+        "total assists_p90": "Assists",
+        "xA_p90": "xA",
+        "total att assist_p90": "Key Passes",
+        "pass_success_pct_p90": "Pass Accuracy %",
+        "long_balls_success_pct_p90": "Long Ball Accuracy %",
+        "cross_success_pct_p90": "Cross Accuracy %"
+    },
+    "Possession": {
+        "total won contest_p90": "Successful Dribbles",
+        "total contest_p90": "Dribble Attempts",
+        "dribble_success_pct_p90": "Dribble Success %"
+    },
+    "Defending / Duels": {
+        "tackle_success_pct_p90": "Tackles Won %",
+        "aerial_success_pct_p90": "Aerials Won %",
+        "duel_success_pct_p90": "Duels Won %"
+    }
+}
+
+# Flad ordbog til hurtigt opslag på tværs af kategorier
+CUSTOM_TITLES_P90 = {}
+for category, metrics in METRIC_CONFIG.items():
+    CUSTOM_TITLES_P90.update(metrics)
+
+# Inverteret ordbog til at oversætte fra Custom Title (f.eks. "npxG") tilbage til CSV-kolonne (f.eks. "xG_p90")
+REVERSE_LOOKUP = {v: k for k, v in CUSTOM_TITLES_P90.items()}
+
+
+@router.get("/similarity-config")
+def get_similarity_config():
+    """Returnerer metrikkerne opdelt i kategorier, så similarity.js nemt kan bygge tjekbokse i grupper"""
+    return {
+        "categories": {cat: list(metrics.values()) for cat, metrics in METRIC_CONFIG.items()}
+    }
+
+
+@router.get("/similarity-search")
+def search_similar_players(
+    target_player: str = Query(..., description="Navnet på spilleren der skal sammenlignes med"),
+    selected_metrics: List[str] = Query(..., description="De valgte metrikker sendt som pæne navne (f.eks. 'npxG', 'Goals')")
 ):
     from app import GLOBAL_DATASET
     if GLOBAL_DATASET is None or GLOBAL_DATASET.empty:
         raise HTTPException(status_code=500, detail="Datamotoren er tom eller ikke indlæst.")
 
-    # 1. 🎯 FASTE STRØMLINEDE _p90 METRIKKER DIREKTE FRA DINE DATAFILER
-    metric_cols = [
-        "total goals_p90", "xG_p90", "total ontarget attempt_p90", "attempt_success_pct_p90",
-        "total assists_p90", "xA_p90", "total att assist_p90", "pass_success_pct_p90",
-        "long_balls_success_pct_p90", "cross_success_pct_p90", "total won contest_p90",
-        "total contest_p90", "dribble_success_pct_p90", "tackle_success_pct_p90",
-        "aerial_success_pct_p90", "duel_success_pct_p90"
-    ]
-
+    # Beskyt master-data ved at tage en lokal kopi
     df = GLOBAL_DATASET.copy()
 
-    # Tjek om metrik-kolonnerne eksisterer i datasættet
-    existing_cols = [c for c in metric_cols if c in df.columns]
-    if not existing_cols:
-         raise HTTPException(status_code=500, detail="Kritiske _p90 metrik-kolonner blev ikke fundet i datasættet.")
-
-    # Find referencespilleren (Case-insensitive)
+    # Find målinstansen (Target Player) i CSV-databasen
     target_row = df[df['Player Name'].str.lower() == target_player.lower()]
     if target_row.empty:
-        raise HTTPException(status_code=404, detail=f"Referencespilleren '{target_player}' blev ikke fundet.")
+        raise HTTPException(status_code=404, detail=f"Spilleren '{target_player}' blev ikke fundet i databasen.")
     
-    target_player_real_name = str(target_row.iloc[0]['Player Name'])
-    
-    try:
-        # 2. MIN-MAX SKALERING (NORMALISERING) AF PRESTATIONSDATAEN
-        matrix = df[existing_cols].fillna(0.0).to_numpy()
-        target_vector = target_row[existing_cols].fillna(0.0).to_numpy()
-        
-        min_vals = matrix.min(axis=0)
-        max_vals = matrix.max(axis=0)
-        
-        # Undgå division med 0
-        range_vals = np.where((max_vals - min_vals) == 0, 1.0, max_vals - min_vals)
-        
-        # Skaler datasæt og target-spiller mellem 0 og 1
-        normalized_matrix = (matrix - min_vals) / range_vals
-        normalized_target = (target_vector - min_vals) / range_vals
+    target_player_data = target_row.iloc[0]
 
-        # 3. MATHEMATICAL EUCLIDEAN DISTANCE & SIMILARITY PCT (0-100%)
-        distances = np.linalg.norm(normalized_matrix - normalized_target, axis=1)
-        similarity_scores = (1.0 / (1.0 + distances)) * 100.0
-        df['similarity_pct'] = similarity_scores
+    # Oversæt de valgte pæne navne til de faktiske _p90 CSV-kolonnenavne
+    p90_columns = []
+    for metric_title in selected_metrics:
+        if metric_title in REVERSE_LOOKUP:
+            csv_col = REVERSE_LOOKUP[metric_title]
+            if csv_col in df.columns:
+                p90_columns.append(csv_col)
 
-        # Rens positionskolonnen
-        pos_col = 'Pos.' if 'Pos.' in df.columns else ('Position' if 'Position' in df.columns else 'Position')
+    if not p90_columns:
+        raise HTTPException(status_code=400, detail="Ingen af de valgte metrikker matchede databasens _p90 kolonner.")
 
-        # 4. LOOP OG GENERER RESULTAT-LISTE
-        results_list = []
-        for idx, row in df.iterrows():
-            player_metrics = {}
-            for c in existing_cols:
-                # Omdan f.eks. "total goals_p90" til det rene navn "total goals" i JSON-pakken
-                pretty_key = c.replace("_p90", "")
-                val = row[c]
-                player_metrics[pretty_key] = float(val) if not pd.isna(val) else 0.0
+    # Udpak target-spillerens værdier til en sammenlignings-vektor
+    target_vector = np.array([
+        float(target_player_data[col]) if not pd.isna(target_player_data.get(col)) else 0.0 
+        for col in p90_columns
+    ])
 
-            extracted_mins = row.get('total mins played', row.get('Mins', 0))
+    # Forbered ordbog til Min-Max normalisering (forhindrer at store talværdier overskygger procenter)
+    min_max_dict = {}
+    for col in p90_columns:
+        max_val = float(df[col].max()) if not df[col].empty else 1.0
+        min_val = float(df[col].min()) if not df[col].empty else 0.0
+        if max_val == min_val:
+            max_val += 0.001
+        min_max_dict[col] = {"min": min_val, "max": max_val}
+
+    results = []
+    pos_col = 'Pos.' if 'Pos.' in df.columns else ('Position' if 'Position' in df.columns else 'Position')
+
+    # Loop igennem alle spillere i databasen for at finde match
+    for _, row in df.iterrows():
+        if pd.isna(row.get('Player Name')) or str(row['Player Name']).lower() == target_player.lower():
+            continue
+
+        try:
+            current_vector = []
+            target_vector_norm = []
             
-            results_list.append({
-                "player_name": str(row['Player Name']),
-                "team": str(row.get('Team', 'Ukendt Klub')),
-                "league": str(row.get('League', 'Ukendt Liga')),
-                "position": str(row.get(pos_col, 'N/A')),
-                "nationality": str(row.get('Nationality', 'N/A')),
-                "age": int(row.get('Age', 0)) if not pd.isna(row.get('Age')) else 0,
-                "mins_played": int(extracted_mins) if not pd.isna(extracted_mins) else 0,
-                "team_id": str(row.get('contestantId', 'nan')),
-                "similarity_percentage": float(row['similarity_pct']),
-                "metrics": player_metrics
-            })
+            # Normaliser værdierne for både target-spilleren og den nuværende række
+            for idx, col in enumerate(p90_columns):
+                val = float(row[col]) if not pd.isna(row[col]) else 0.0
+                t_val = target_vector[idx]
+                
+                mn = min_max_dict[col]["min"]
+                mx = min_max_dict[col]["max"]
+                
+                norm_val = (val - mn) / (mx - mn)
+                norm_t_val = (t_val - mn) / (mx - mn)
+                
+                current_vector.append(norm_val)
+                target_vector_norm.append(norm_t_val)
 
-        # Sorter så de mest identiske spillere ligger øverst
-        results_list.sort(key=lambda x: x['similarity_percentage'], reverse=True)
+            current_vector = np.array(current_vector)
+            target_vector_norm = np.array(target_vector_norm)
 
-        return {
-            "target_player_verified": target_player_real_name,
-            "metrics_analyzed": [c.replace("_p90", "") for c in existing_cols],
-            "similarity_leaderboard": results_list
-        }
+            # Euklidisk afstandsberegning
+            distance = np.linalg.norm(target_vector_norm - current_vector)
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Fejl i similarity-motor: {str(e)}")
+            # Omsæt afstand til procentvis lighed (0 - 100%)
+            max_possible_dist = np.sqrt(len(p90_columns))
+            similarity_pct = max(0.0, min(100.0, (1.0 - (distance / max_possible_dist)) * 100.0))
+
+        except Exception:
+            continue
+
+        # Rens og pak metadata ud fuldstændig identisk med table.py
+        extracted_mins = row.get('total mins played', row.get('Mins', 0))
+        mins_played = int(extracted_mins) if not pd.isna(extracted_mins) else 0
+        nationality = str(row.get('Nationality', 'N/A')) if not pd.isna(row.get('Nationality')) else 'N/A'
+
+        # Pak spillerens metrikker ud med de pæne Custom Titles som nøgler
+        player_metrics = {}
+        for col in p90_columns:
+            pretty_name = CUSTOM_TITLES_P90[col]
+            val = row[col]
+            player_metrics[pretty_name] = float(val) if not pd.isna(val) else 0.0
+
+        results.append({
+            "player_name": str(row['Player Name']),
+            "team": str(row.get('Team', 'Ukendt Klub')),
+            "league": str(row.get('League', 'Ukendt Liga')),
+            "position": str(row.get(pos_col, 'N/A')),
+            "nationality": nationality,
+            "age": int(row.get('Age', 0)) if not pd.isna(row.get('Age')) else 0,
+            "mins_played": mins_played,
+            "team_id": str(row.get('contestantId', 'nan')),
+            "similarity_score": round(similarity_pct, 1),
+            "metrics": player_metrics
+        })
+
+    # Sorter efter højeste lighedsscore og returner top 10
+    top_similar = sorted(results, key=lambda x: x['similarity_score'], reverse=True)[:10]
+
+    return {
+        "target_player": target_player,
+        "metrics_used": selected_metrics,
+        "similar_players": top_similar
+    }
