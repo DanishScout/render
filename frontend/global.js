@@ -183,6 +183,16 @@ function switchView(viewId) {
         }
     }
 
+    // Visning: WHOSCORED ADVANCED EVENT DATA ENGINE
+    else if (viewId === 'eventdata') {
+        if (typeof initEventDataView === 'function') {
+            initEventDataView(contentArea);
+        } else {
+            console.error("FEJL: initEventDataView() blev ikke fundet i eventdata.js");
+        }
+    }
+
+
     // Visning: FALLBACK PLACEHOLDERS (De resterende 5 faner under opbygning)
     else {
         const faneNavn = viewId.replace('_', ' ').toUpperCase();

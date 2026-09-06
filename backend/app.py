@@ -84,6 +84,8 @@ from routers.filters import router as filters_router
 from routers.similarity import router as similarity_router
 from routers.ranking import router as ranking_router
 from routers.matchreport import router as matchreport_router
+from routers.eventdata import router as eventdata_router
+
 
 app.include_router(pizza_router)
 app.include_router(stats_router)
@@ -94,6 +96,8 @@ app.include_router(filters_router)
 app.include_router(similarity_router)
 app.include_router(ranking_router)
 app.include_router(matchreport_router)
+app.include_router(eventdata_router)
+
 
 # FRONTEND-STI: Går ét niveau op fra 'backend' og ind i 'frontend'
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend"))
