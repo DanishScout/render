@@ -72,7 +72,7 @@ async function initRadarView(container) {
             <!-- 🎯 DIT STORE IKON OG IDENTISKE HOVED-OVER-SKRIFT ER TILBAGE 1:1 🎯 -->
             <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-circle-nodes" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
-                <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Radar Sammenligning</span>
+                <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Radar Chart</span>
             </div>
 
             <div class="control-trigger-wrapper" style="margin-bottom: 24px; display: flex; justify-content: center; width: 100%;">
@@ -98,14 +98,14 @@ function buildAndAppendRadarDrawer() {
         <div class="filter-panel" style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
             
             <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; position: relative;">
-                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Player 1 (Target)</label>
+                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Player 1</label>
                 <div style="display: flex; gap: 10px; width: 100%;">
                     <div class="custom-select-wrapper" id="radar-player1-wrapper" style="position: relative; flex-grow: 1;">
                         <div class="custom-select-trigger" onclick="toggleRadarDropdown('player1')" style="background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
                             <span id="radar-p1-selected-text">Vælg Spiller 1</span><i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
                         </div>
                         <div class="custom-options-list" id="radar-player1-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; max-height: 200px; overflow-y: auto; z-index: 120;">
-                            <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid var(--border-color); z-index: 130;"><input type="text" id="radar-p1-search" oninput="filterRadarPlayerList('p1')" placeholder="Søg spiller 1..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none;" onclick="event.stopPropagation();"></div>
+                            <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid var(--border-color); z-index: 130;"><input type="text" id="radar-p1-search" oninput="filterRadarPlayerList('p1')" placeholder="Search..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none;" onclick="event.stopPropagation();"></div>
                             <div id="radar-p1-items-container"></div>
                         </div>
                     </div>
@@ -114,14 +114,14 @@ function buildAndAppendRadarDrawer() {
             </div>
 
             <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; position: relative;">
-                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Player 2 (Comparison)</label>
+                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Player 2</label>
                 <div style="display: flex; gap: 10px; width: 100%;">
                     <div class="custom-select-wrapper" id="radar-player2-wrapper" style="position: relative; flex-grow: 1;">
                         <div class="custom-select-trigger" onclick="toggleRadarDropdown('player2')" style="background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
                             <span id="radar-p2-selected-text">Vælg Spiller 2</span><i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
                         </div>
                         <div class="custom-options-list" id="radar-player2-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; max-height: 200px; overflow-y: auto; z-index: 120;">
-                            <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid var(--border-color); z-index: 130;"><input type="text" id="radar-p2-search" oninput="filterRadarPlayerList('p2')" placeholder="Søg spiller 2..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none;" onclick="event.stopPropagation();"></div>
+                            <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid var(--border-color); z-index: 130;"><input type="text" id="radar-p2-search" oninput="filterRadarPlayerList('p2')" placeholder="Search..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none;" onclick="event.stopPropagation();"></div>
                             <div id="radar-p2-items-container"></div>
                         </div>
                     </div>
@@ -174,8 +174,8 @@ async function onRadarFilterChange() {
     const selected = [...checkboxes].filter(cb => cb.checked).map(cb => cb.value);
     const selectText = $r("radar-metrics-select-text");
     if (selectText) {
-        selectText.innerText = selected.length === checkboxes.length ? "Alle metrikker valgt" :
-                               selected.length === 0 ? "Ingen metrikker valgt" : `${selected.length} af ${checkboxes.length} valgt`;
+        selectText.innerText = selected.length === checkboxes.length ? "All metrics chosen" :
+                               selected.length === 0 ? "No metrics chosen" : `${selected.length}/${checkboxes.length} chosen`;
     }
     const lowMetrics = selected.length < 3;
     if ($r("radar-warning-overlay")) $r("radar-warning-overlay").style.display = lowMetrics ? "flex" : "none";

@@ -75,7 +75,7 @@ async function initSimilarityView(container) {
         <section id="view-similarity" class="content-view active" style="padding-top: 10px;">
             <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-people-arrows" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
-                <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Player Similarity Match</span>
+                <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Player Similarity</span>
             </div>
 
             <div class="control-trigger-wrapper" style="margin-bottom: 25px; display: flex; justify-content: center; width: 100%;">
@@ -129,25 +129,25 @@ function buildAndAppendSimilarityDrawerHTML(playerList = []) {
         <div class="filter-panel" style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-height: 85vh; overflow-y: auto;">
             
             <div class="table-drawer-group">
-                <label class="table-drawer-label">Målspiller (Target Player)</label>
+                <label class="table-drawer-label">Reference Player</label>
                 <select id="sim-opt-target" class="table-drawer-select" onchange="handleSimTargetChange()">
-                    <option value="">-- Vælg en spiller --</option>
+                    <option value="">-- Select player --</option>
                     ${playerOptions}
                 </select>
             </div>
             
-            <div class="table-drawer-group"><label class="table-drawer-label">Ligaer</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(leagues, 'leagues')}</div></div>
-            <div class="table-drawer-group"><label class="table-drawer-label">Positioner</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(positions, 'positions')}</div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Leagues</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(leagues, 'leagues')}</div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Positions</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(positions, 'positions')}</div></div>
 
             <div class="table-drawer-group">
-                <label class="table-drawer-label">Alder Range (Min / Max)</label>
+                <label class="table-drawer-label">Age (Min / Max)</label>
                 <div class="table-drawer-input-row">
                     <input type="number" id="sim-filt-min-age" class="table-drawer-input" value="${SIM_FILTERS.minAge}" oninput="handleSimFilterInputChange()">
                     <input type="number" id="sim-filt-max-age" class="table-drawer-input" value="${SIM_FILTERS.maxAge}" oninput="handleSimFilterInputChange()">
                 </div>
             </div>
             <div class="table-drawer-group">
-                <label class="table-drawer-label">Minutter Range (Min / Max)</label>
+                <label class="table-drawer-label">Minutes (Min / Max)</label>
                 <div class="table-drawer-input-row">
                     <input type="number" id="sim-filt-min-mins" class="table-drawer-input" value="${SIM_FILTERS.minMins}" oninput="handleSimFilterInputChange()">
                     <input type="number" id="sim-filt-max-mins" class="table-drawer-input" value="${SIM_FILTERS.maxMins}" oninput="handleSimFilterInputChange()">
@@ -281,13 +281,13 @@ function buildSimilarityLeaderboardEngine() {
         <div class="sim-scouting-header">
             <div class="sim-sc-hdr-left">
                 <div style="width:35px; text-align:center;">Rank</div>
-                <div style="padding-left:64px;">Spillerdetaljer</div>
+                <div style="padding-left:64px;">Player</div>
             </div>
             <div class="sim-sc-hdr-right">
-                <div style="width:50px; text-align:center;">Pos</div>
-                <div style="width:55px; text-align:center;">Alder</div>
-                <div style="width:65px; text-align:center;">Minutter</div>
-                <div style="width:140px; padding-left:25px;">Lighedsprofil</div>
+                <div style="width:50px; text-align:center;">Pos.</div>
+                <div style="width:55px; text-align:center;">Age</div>
+                <div style="width:65px; text-align:center;">Min.</div>
+                <div style="width:140px; padding-left:25px;">Similarity</div>
                 <div style="width:65px; text-align:right;">Match %</div>
             </div>
         </div>

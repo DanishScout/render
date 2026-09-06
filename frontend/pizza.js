@@ -71,7 +71,7 @@ async function initPizzaView(container) {
                     </div>
                     <div class="custom-options-list" id="custom-player-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; max-height: 250px; overflow-y: auto; z-index: 120;">
                         <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid var(--border-color); z-index: 130;">
-                            <input type="text" id="player-search-input" oninput="filterPlayerList()" placeholder="Søg efter spiller..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none;" onclick="event.stopPropagation();">
+                            <input type="text" id="player-search-input" oninput="filterPlayerList()" placeholder="Search..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none;" onclick="event.stopPropagation();">
                         </div>
                         <div id="custom-player-items-container"></div>
                     </div>
@@ -120,8 +120,8 @@ async function onPizzaFilterChange() {
     const selected = [...checkboxes].filter(cb => cb.checked).map(cb => cb.value);
     const selectText = $("metrics-select-text");
     if (selectText) {
-        selectText.innerText = selected.length === checkboxes.length ? "Alle metrikker valgt" :
-                               selected.length === 0 ? "Ingen metrikker valgt" : `${selected.length} af ${checkboxes.length} valgt`;
+        selectText.innerText = selected.length === checkboxes.length ? "All metrics selected" :
+                               selected.length === 0 ? "No metrics chosen" : `${selected.length}/${checkboxes.length} chosen`;
     }
     const lowMetrics = selected.length < 3;
     if ($("pizza-warning-overlay")) $("pizza-warning-overlay").style.display = lowMetrics ? "flex" : "none";

@@ -118,13 +118,13 @@ function buildAndAppendStatsDrawerHTML() {
                         <span id="stats-player-selected-text">Indlæser...</span><i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
                     </div>
                     <div class="custom-options-list" id="stats-player-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; max-height: 200px; overflow-y: auto; z-index: 120;">
-                        <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid var(--border-color); z-index: 130;"><input type="text" id="stats-player-search" oninput="filterStatsPlayerList()" placeholder="Søg spiller..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none;" onclick="event.stopPropagation();"></div>
+                        <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid var(--border-color); z-index: 130;"><input type="text" id="stats-player-search" oninput="filterStatsPlayerList()" placeholder="Search..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none;" onclick="event.stopPropagation();"></div>
                         <div id="stats-player-items-container"></div>
                     </div>
                 </div>
             </div>
             <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;">
-                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Toggle Categories</label>
+                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Select Categories</label>
                 <div style="background: #07030c; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
                     ${checkboxesHTML}
                 </div>
@@ -220,9 +220,9 @@ function renderStatsPlayerHeaderCard(data) {
                 </div>
             </div>
             <div class="stats-p-right" style="grid-template-columns: repeat(3, 115px) !important;">
-                <div class="stats-meta-box"><div class="stats-meta-val" style="color:var(--accent-purple);">${data.team || 'N/A'}</div><div class="stats-meta-lbl">Klub</div></div>
-                <div class="stats-meta-box"><div class="stats-meta-val" style="color:var(--accent-purple);">${data.age || 0} ÅR</div><div class="stats-meta-lbl">Alder</div></div>
-                <div class="stats-meta-box"><div class="stats-meta-val" style="color:var(--accent-purple);">${data.mins_played || 0}</div><div class="stats-meta-lbl">Minutter</div></div>
+                <div class="stats-meta-box"><div class="stats-meta-val" style="color:var(--accent-purple);">${data.team || 'N/A'}</div><div class="stats-meta-lbl">Club</div></div>
+                <div class="stats-meta-box"><div class="stats-meta-val" style="color:var(--accent-purple);">${data.age || 0} Y/O</div><div class="stats-meta-lbl">Age</div></div>
+                <div class="stats-meta-box"><div class="stats-meta-val" style="color:var(--accent-purple);">${data.mins_played || 0}</div><div class="stats-meta-lbl">Min.</div></div>
             </div>
         </div>
     `;

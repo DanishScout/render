@@ -111,7 +111,7 @@ async function initRankingView(container) {
         <section id="view-ranking" class="content-view active" style="padding-top: 10px;">
             <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-arrow-up-9-1" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
-                <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Taktisk Rolle-Ranking</span>
+                <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Role Ranking</span>
             </div>
             <div class="control-trigger-wrapper" style="margin-bottom: 25px; display: flex; justify-content: center; width: 100%;">
                 <button class="open-drawer-btn" onclick="openGlobalDrawer()">Customize Ranking Engine <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
@@ -154,27 +154,27 @@ function buildAndAppendRankingDrawerHTML(configData, leagueList = []) {
         <div class="drawer-header"><span class="drawer-title">Scouting & Ranking</span><button class="close-drawer-btn" onclick="closeGlobalDrawer()">✕</button></div>
         <div class="filter-panel" style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-height: 85vh; overflow-y: auto;">
             <div class="table-drawer-group">
-                <label class="table-drawer-label">Position Group</label>
+                <label class="table-drawer-label">Position</label>
                 <select id="rank-opt-position" class="table-drawer-select" onchange="handleRankPositionChange()">
                     ${posOptions}
                 </select>
             </div>
             <div class="table-drawer-group">
-                <label class="table-drawer-label">Tactical Role (Fra roles.csv)</label>
+                <label class="table-drawer-label">Role</label>
                 <select id="rank-opt-role" class="table-drawer-select" onchange="handleRankRoleChange()">
                     ${roleOptions}
                 </select>
             </div>
-            <div class="table-drawer-group"><label class="table-drawer-label">Ligaer (Vælg ingen for 'All')</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(leagueList)}</div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Leagues</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(leagueList)}</div></div>
             <div class="table-drawer-group">
-                <label class="table-drawer-label">Alder Range (Min / Max)</label>
+                <label class="table-drawer-label">Age (Min / Max)</label>
                 <div class="table-drawer-input-row">
                     <input type="number" id="rank-filt-min-age" class="table-drawer-input" value="${RANK_FILTERS.minAge}" oninput="handleRankFilterInputChange()">
                     <input type="number" id="rank-filt-max-age" class="table-drawer-input" value="${RANK_FILTERS.maxAge}" oninput="handleRankFilterInputChange()">
                 </div>
             </div>
             <div class="table-drawer-group">
-                <label class="table-drawer-label">Minutter Range (Min / Max)</label>
+                <label class="table-drawer-label">Minutes (Min / Max)</label>
                 <div class="table-drawer-input-row">
                     <input type="number" id="rank-filt-min-mins" class="table-drawer-input" value="${RANK_FILTERS.minMins}" oninput="handleRankFilterInputChange()">
                     <input type="number" id="rank-filt-max-mins" class="table-drawer-input" value="${RANK_FILTERS.maxMins}" oninput="handleRankFilterInputChange()">

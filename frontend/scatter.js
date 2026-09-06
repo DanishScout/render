@@ -89,7 +89,7 @@ async function initScatterView(container) {
             <!-- STORT FLOT HOVED-IKON OG DESIGNLINJE -->
             <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-circle-nodes" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
-                <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Scatter Plot Analyse</span>
+                <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Scatter Plot</span>
             </div>
 
             <!-- BUTTON DER ÅBNER SKUFFEN -->
@@ -189,22 +189,22 @@ function buildAndAppendScatterDrawerHTML() {
         <div class="filter-panel" style="display: flex; flex-direction: column; gap: 14px; width: 100%; max-height: 85vh; overflow-y: auto;">
             
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Stat Type</label><select id="sc-opt-stat-type" class="scatter-drawer-select" onchange="handleScatterConfigChange()"><option value="Per 90" ${SCATTER_STAT_TYPE === "Per 90" ? "selected" : ""}>Per 90</option><option value="Total" ${SCATTER_STAT_TYPE === "Total" ? "selected" : ""}>Total</option></select></div>
-            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Choose X Axis</label><select id="sc-opt-x-axis" class="scatter-drawer-select" onchange="handleScatterConfigChange()">${xOptions}</select></div>
-            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Choose Y Axis</label><select id="sc-opt-y-axis" class="scatter-drawer-select" onchange="handleScatterConfigChange()">${yOptions}</select></div>
+            <div class="scatter-drawer-group"><label class="scatter-drawer-label">X Axis Metric</label><select id="sc-opt-x-axis" class="scatter-drawer-select" onchange="handleScatterConfigChange()">${xOptions}</select></div>
+            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Y Axis Metric</label><select id="sc-opt-y-axis" class="scatter-drawer-select" onchange="handleScatterConfigChange()">${yOptions}</select></div>
             
-            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Ligaer</label><div class="sc-drawer-checkbox-box">${lCheckboxes}</div></div>
-            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Nationaliteter</label><div class="sc-drawer-checkbox-box">${nCheckboxes}</div></div>
-            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Positioner</label><div class="sc-drawer-checkbox-box">${pCheckboxes}</div></div>
+            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Leagues</label><div class="sc-drawer-checkbox-box">${lCheckboxes}</div></div>
+            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Nationalities</label><div class="sc-drawer-checkbox-box">${nCheckboxes}</div></div>
+            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Positions</label><div class="sc-drawer-checkbox-box">${pCheckboxes}</div></div>
 
             <div class="scatter-drawer-group">
-                <label class="scatter-drawer-label">Alder (Min / Max)</label>
+                <label class="scatter-drawer-label">Age (Min / Max)</label>
                 <div class="scatter-drawer-input-row">
                     <input type="number" id="sc-filt-min-age" class="scatter-drawer-input" value="${SCATTER_FILTERS.minAge}" oninput="handleScatterFilterInputChange()">
                     <input type="number" id="sc-filt-max-age" class="scatter-drawer-input" value="${SCATTER_FILTERS.maxAge}" oninput="handleScatterFilterInputChange()">
                 </div>
             </div>
             <div class="scatter-drawer-group">
-                <label class="scatter-drawer-label">Minutter (Min / Max)</label>
+                <label class="scatter-drawer-label">Minutes (Min / Max)</label>
                 <div class="scatter-drawer-input-row">
                     <input type="number" id="sc-filt-min-mins" class="scatter-drawer-input" value="${SCATTER_FILTERS.minMins}" oninput="handleScatterFilterInputChange()">
                     <input type="number" id="sc-filt-max-mins" class="scatter-drawer-input" value="${SCATTER_FILTERS.maxMins}" oninput="handleScatterFilterInputChange()">
@@ -428,9 +428,9 @@ function showScatterLiveTooltip(e, name, team, league, pos, nat, age, mins, xVal
         </div>
         <div class="sc-tt-body-box">
             <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">Position:</span><span class="sc-tt-stat-val" style="color:#00f0ff;">${pos}</span></div>
-            <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">Nationalitet:</span><span class="sc-tt-stat-val" style="color:#fff;">${nat}</span></div>
-            <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">Alder:</span><span class="sc-tt-stat-val">${age} ÅR</span></div>
-            <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">Minutter:</span><span class="sc-tt-stat-val">${mins}m</span></div>
+            <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">Nationality:</span><span class="sc-tt-stat-val" style="color:#fff;">${nat}</span></div>
+            <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">Age:</span><span class="sc-tt-stat-val">${age} ÅR</span></div>
+            <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">Minutes:</span><span class="sc-tt-stat-val">${mins}m</span></div>
             <div class="sc-tt-stat-row" style="margin-top:4px;"><span class="sc-tt-stat-lbl">${SCATTER_X_AXIS}:</span><span class="sc-tt-stat-val">${xVal.toFixed(2)}</span></div>
             <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">${SCATTER_Y_AXIS}:</span><span class="sc-tt-stat-val">${yVal.toFixed(2)}</span></div>
         </div>

@@ -69,7 +69,7 @@ async function initFiltersView(container) {
         <section id="view-filters" class="content-view active" style="padding-top: 10px;">
             <div style="text-align: center; margin: 0 auto 20px auto;">
                 <i class="fa-solid fa-filter" style="font-size: 65px; color: #ffffff; opacity: 0.8; margin-bottom:6px;"></i><br>
-                <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Advanced Performance Filtering</span>
+                <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Stat filters</span>
             </div>
             <div class="control-trigger-wrapper" style="margin-bottom: 25px; display: flex; justify-content: center; width: 100%;">
                 <button class="open-drawer-btn" onclick="openGlobalDrawer()">Configure Metrics & Sliders <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
@@ -127,11 +127,11 @@ function buildAndAppendFiltersDrawerHTML() {
         <div class="drawer-header"><span class="drawer-title">Filter Engine</span><button class="close-drawer-btn" onclick="closeGlobalDrawer()">✕</button></div>
         <div class="filter-panel" style="display:flex; flex-direction:column; gap:12px; width:100%; max-height:85vh; overflow-y:auto;">
             <div class="table-drawer-group"><label class="table-drawer-label">Stat Type</label><select id="fl-opt-stat-type" class="table-drawer-select" onchange="handleFiltersStatTypeChange()"><option value="Per 90" ${FILTERS_STAT_TYPE === "Per 90" ? "selected" : ""}>Per 90</option><option value="Total" ${FILTERS_STAT_TYPE === "Total" ? "selected" : ""}>Total</option></select></div>
-            <div class="table-drawer-group"><label class="table-drawer-label">Ligaer</label><div class="table-drawer-checkbox-box">${genCheckboxes(leagues, 'leagues')}</div></div>
-            <div class="table-drawer-group"><label class="table-drawer-label">Nationaliteter</label><div class="table-drawer-checkbox-box">${genCheckboxes(nationalities, 'nationalities')}</div></div>
-            <div class="table-drawer-group"><label class="table-drawer-label">Positioner</label><div class="table-drawer-checkbox-box">${genCheckboxes(positions, 'positions')}</div></div>
-            <div class="table-drawer-group"><label class="table-drawer-label">Alder Range</label><div class="table-drawer-input-row"><input type="number" id="fl-filt-min-age" class="table-drawer-input" value="${FILTERS_META.minAge}" oninput="handleFiltersMetaInputChange()"><input type="number" id="fl-filt-max-age" class="table-drawer-input" value="${FILTERS_META.maxAge}" oninput="handleFiltersMetaInputChange()"></div></div>
-            <div class="table-drawer-group"><label class="table-drawer-label">Minutter Range</label><div class="table-drawer-input-row"><input type="number" id="fl-filt-min-mins" class="table-drawer-input" value="${FILTERS_META.minMins}" oninput="handleFiltersMetaInputChange()"><input type="number" id="fl-filt-max-mins" class="table-drawer-input" value="${FILTERS_META.maxMins}" oninput="handleFiltersMetaInputChange()"></div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Leagues</label><div class="table-drawer-checkbox-box">${genCheckboxes(leagues, 'leagues')}</div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Nationalities</label><div class="table-drawer-checkbox-box">${genCheckboxes(nationalities, 'nationalities')}</div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Positions</label><div class="table-drawer-checkbox-box">${genCheckboxes(positions, 'positions')}</div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Age (Min / Max)</label><div class="table-drawer-input-row"><input type="number" id="fl-filt-min-age" class="table-drawer-input" value="${FILTERS_META.minAge}" oninput="handleFiltersMetaInputChange()"><input type="number" id="fl-filt-max-age" class="table-drawer-input" value="${FILTERS_META.maxAge}" oninput="handleFiltersMetaInputChange()"></div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Minutes (Min / Max)</label><div class="table-drawer-input-row"><input type="number" id="fl-filt-min-mins" class="table-drawer-input" value="${FILTERS_META.minMins}" oninput="handleFiltersMetaInputChange()"><input type="number" id="fl-filt-max-mins" class="table-drawer-input" value="${FILTERS_META.maxMins}" oninput="handleFiltersMetaInputChange()"></div></div>
             ${slidersHTML}
         </div>`;
     document.body.appendChild(drawerDiv);
@@ -240,10 +240,10 @@ function runAdvancedFilteringEngine() {
     // 3. GENERER KLIKBARE COLUMNS HEADERS DYNAMISK
     let headerHTML = `
         <div class="filters-scouting-header" style="grid-template-columns: ${gridLayout};">
-            <div>Spillerdetaljer</div>
-            <div style="text-align:center;">Pos</div>
-            <div style="text-align:center;" class="filters-sort-trigger ${getSortClass('age')}" onclick="setFiltersSortColumn('age','meta')">Alder${getSortIndicator('age')}</div>
-            <div style="text-align:center;" class="filters-sort-trigger ${getSortClass('mins_played')}" onclick="setFiltersSortColumn('mins_played','meta')">Minutter${getSortIndicator('mins_played')}</div>
+            <div>Player</div>
+            <div style="text-align:center;">Pos.</div>
+            <div style="text-align:center;" class="filters-sort-trigger ${getSortClass('age')}" onclick="setFiltersSortColumn('age','meta')">Age${getSortIndicator('age')}</div>
+            <div style="text-align:center;" class="filters-sort-trigger ${getSortClass('mins_played')}" onclick="setFiltersSortColumn('mins_played','meta')">Min.${getSortIndicator('mins_played')}</div>
             ${activeM.map(m => `
                 <div class="filters-sort-trigger filters-hdr-metric ${getSortClass(m)}" onclick="setFiltersSortColumn('${m}','metric')">
                     ${m}${getSortIndicator(m)}

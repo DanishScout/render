@@ -29,8 +29,10 @@ GLOBAL_DATASET = None
 def startup_load_data():
     """Indlæser og cachelagrer alle liga-CSV-filer i hukommelsen med det samme ved boot"""
     global GLOBAL_DATASET
-    files = ["den1.csv", "den2.csv", "ger1.csv", "ger2.csv", "eng1.csv", "eng2.csv", "bel1.csv", "hol1.csv",
-            "nor1.csv", "swe1.csv"]
+    files = ['aut1.csv', 'tur1.csv', 'sco1.csv', 'cze1.csv', 'gre1.csv', 'swi1.csv',
+             'ger2.csv','cro1.csv', 'pol1.csv', 'ser1.csv', 'swe1.csv', 'nor1.csv',
+             'svk1.csv', 'fin1.csv','eng1.csv', 'eng2.csv', 'ger1.csv', 'ita1.csv',
+             'spa1.csv', 'fra1.csv', 'por1.csv', 'hol1.csv', 'bel1.csv']
     combined_df = []
     
     print(f"LOG: Starter PER 90 datamotoren. Leder efter filer i: {DATA_DIR}")

@@ -82,7 +82,7 @@ async function initTableView(container) {
             <!-- STORT FLOT HOVED-IKON OG DESIGNLINJE -->
             <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-list-ol" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
-                <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Top 10 Leaderboard</span>
+                <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Table</span>
             </div>
 
             <!-- BUTTON DER ÅBNER FILTER-SKUFFEN -->
@@ -130,7 +130,7 @@ function buildAndAppendTableDrawerHTML() {
         <div class="filter-panel" style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-height: 85vh; overflow-y: auto;">
             
             <div class="table-drawer-group">
-                <label class="table-drawer-label">Scouting Metric</label>
+                <label class="table-drawer-label">Metric</label>
                 <select id="tb-opt-metric" class="table-drawer-select" onchange="handleTableConfigChange()">
                     ${metricOptions}
                 </select>
@@ -140,23 +140,23 @@ function buildAndAppendTableDrawerHTML() {
                 <label class="table-drawer-label">Stat Type</label>
                 <select id="tb-opt-stat-type" class="table-drawer-select" onchange="handleTableConfigChange()">
                     <option value="Per 90" ${TABLE_STAT_TYPE === "Per 90" ? "selected" : ""}>Per 90</option>
-                    <option value="Total" ${TABLE_STAT_TYPE === "Total" ? "selected" : ""}>Total (Akkumuleret)</option>
+                    <option value="Total" ${TABLE_STAT_TYPE === "Total" ? "selected" : ""}>Total</option>
                 </select>
             </div>
             
-            <div class="table-drawer-group"><label class="table-drawer-label">Ligaer</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(leagues, 'leagues')}</div></div>
-            <div class="table-drawer-group"><label class="table-drawer-label">Nationaliteter</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(nationalities, 'nationalities')}</div></div>
-            <div class="table-drawer-group"><label class="table-drawer-label">Positioner</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(positions, 'positions')}</div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Leagues</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(leagues, 'leagues')}</div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Nationalities</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(nationalities, 'nationalities')}</div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Positions</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(positions, 'positions')}</div></div>
 
             <div class="table-drawer-group">
-                <label class="table-drawer-label">Alder Range (Min / Max)</label>
+                <label class="table-drawer-label">Age (Min / Max)</label>
                 <div class="table-drawer-input-row">
                     <input type="number" id="tb-filt-min-age" class="table-drawer-input" value="${TABLE_FILTERS.minAge}" oninput="handleTableFilterInputChange()">
                     <input type="number" id="tb-filt-max-age" class="table-drawer-input" value="${TABLE_FILTERS.maxAge}" oninput="handleTableFilterInputChange()">
                 </div>
             </div>
             <div class="table-drawer-group">
-                <label class="table-drawer-label">Minutter Range (Min / Max)</label>
+                <label class="table-drawer-label">Minutes (Min / Max)</label>
                 <div class="table-drawer-input-row">
                     <input type="number" id="tb-filt-min-mins" class="table-drawer-input" value="${TABLE_FILTERS.minMins}" oninput="handleTableFilterInputChange()">
                     <input type="number" id="tb-filt-max-mins" class="table-drawer-input" value="${TABLE_FILTERS.maxMins}" oninput="handleTableFilterInputChange()">
@@ -258,12 +258,12 @@ async function buildTableLeaderboardEngine() {
         <div class="table-scouting-header">
             <div class="table-sc-hdr-left">
                 <div style="width:35px; text-align:center;">Rank</div>
-                <div style="padding-left:64px;">Spillerdetaljer</div>
+                <div style="padding-left:64px;">Player</div>
             </div>
             <div class="table-sc-hdr-right">
-                <div style="width:50px; text-align:center;">Pos</div>
-                <div style="width:55px; text-align:center;">Alder</div>
-                <div style="width:65px; text-align:center;">Minutter</div>
+                <div style="width:50px; text-align:center;">Pos.</div>
+                <div style="width:55px; text-align:center;">Age</div>
+                <div style="width:65px; text-align:center;">Min.</div>
                 <div style="width:140px; padding-left:25px;">Performance</div>
                 <div style="width:65px; text-align:right;">${TABLE_SELECTED_METRIC}</div>
             </div>
@@ -291,7 +291,7 @@ async function buildTableLeaderboardEngine() {
                 <div class="table-row-right">
                     <div class="table-row-meta-val-pos">${p.position}</div>
                     <div class="table-row-meta-val-age">${p.age} År</div>
-                    <div class="table-row-meta-val-mins">${p.mins_played}m</div>
+                    <div class="table-row-meta-val-mins">${p.mins_played}</div>
                     <div class="table-row-bar-container">
                         <div class="table-row-bar-bg">
                             <div class="table-row-bar-fill" style="width: ${barWidthPct}%;"></div>
