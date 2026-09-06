@@ -52,7 +52,7 @@ function switchView(viewId) {
             <section id="view-landing" class="content-view active">
                 <div class="hero-container">
                     <div class="dashboard-tag">WELCOME!</div>
-                    <h1 class="hero-title">ALL YOU NEED - <span class="highlight">PER 90</span></h1>
+                    <h1 class="hero-title">ALL YOU NEED<br><span class="highlight">PER 90</span></h1>
                     <p class="hero-subtitle">Advanced data from 25 leagues worldwide. Advanced data from 25 leagues worldwide. Advanced data from 25 leagues worldwide. Advanced data from 25 leagues worldwide.</p>
                 </div>
                 <div class="stats-grid">

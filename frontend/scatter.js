@@ -1,5 +1,5 @@
 // ==========================================================================
-// PER 90 - SCATTER.JS - DEL 1 AF 5 (MASTER ARRAYS & CUSTOM-DRAWER CSS)
+// PER 90 - SCATTER.JS - DEL 1 AF 5 (MASTER ARRAYS MED BUNDESLIGA & CB DEFAULT)
 // ==========================================================================
 
 let SCATTER_GLOBAL_DATA = null;
@@ -7,10 +7,11 @@ let SCATTER_X_AXIS = "npxG";
 let SCATTER_Y_AXIS = "Assists";
 let SCATTER_STAT_TYPE = "Per 90";
 
+// 🎯 STANDARDVALG DEFINERET: Loader nu direkte Bundesliga og CB for lynhurtig performance
 let SCATTER_FILTERS = {
-    leagues: [],
+    leagues: ["Bundesliga"],
     nationalities: [],
-    positions: [],
+    positions: ["CM/AM"],
     minAge: 0,
     maxAge: 100,
     minMins: 0,
@@ -28,12 +29,10 @@ let SCATTER_QUICK_HIGHLIGHTS = {
 
 const $sc = id => document.getElementById(id);
 
-// 🎨 COMPREHENSIVE STYLE INJECTION: Med neongrønne flueben og live quick-dropdowns
+// 🎨 COMPREHENSIVE STYLE INJECTION: Med neongrønne flueben, live quick-dropdowns og fuld mobil-responsivitet!
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
-        @import url('https://googleapis.com');
-        
         .scatter-chart-card { background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important; padding: 30px; border-radius: 20px; width: 100%; max-width: 1100px; margin: 0 auto; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); box-sizing: border-box; position: relative; }
         
         /* 🎯 Den opdaterede Quick-Highlight Toolbar med integrerede menuer */
@@ -75,9 +74,37 @@ document.addEventListener("DOMContentLoaded", () => {
         .sc-tt-stat-row { display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 4px; }
         .sc-tt-stat-lbl { color: #94a3b8; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
         .sc-tt-stat-val { font-weight: 800; color: #f59e0b !important; font-size: 12px; text-shadow: 0 0 8px rgba(245,158,11,0.2); }
+
+        /* 📱 RESPONSIV MOBILOPTIMERING FOR SCATTER PLOT (Når skærmen er under 480px) */
+        @media (max-width: 480px) {
+            .scatter-chart-card { padding: 16px 12px !important; border-radius: 14px !important; }
+            #scatter-dynamic-vs-title { font-size: 12px !important; letter-spacing: 1px !important; margin-bottom: 12px !important; }
+            
+            /* Tvinger Quick-Highlight toolbaren til at stable elementerne pænt vertikalt */
+            .scatter-quick-toolbar { gap: 6px !important; margin-bottom: 15px !important; }
+            .scatter-quick-btn { padding: 0 10px !important; font-size: 9px !important; height: 32px !important; flex-grow: 1 !important; text-align: center !important; }
+            .scatter-drawer-input { height: 32px !important; font-size: 11px !important; width: 100% !important; }
+
+            /* Nedskalerer grafik, akser og spillerlabels på SVG-kortet */
+            #scatter-svg-canvas { max-height: 320px !important; }
+            .scatter-axis-lbl { font-size: 8px !important; letter-spacing: 0.5px !important; }
+            .scatter-player-text-label { font-size: 7.5px !important; }
+            
+            /* Gør farvebjælken i bunden smallere til mobil */
+            .scatter-colorbar-wrapper { font-size: 9px !important; gap: 8px !important; margin-top: 12px !important; }
+            .scatter-colorbar-gradient { width: 140px !important; height: 6px !important; }
+            
+            /* Gør popup-tooltippet en smule mere kompakt på mobil */
+            .scatter-hover-tooltip { padding: 10px 14px !important; min-width: 190px !important; }
+            .sc-tt-name { font-size: 12px !important; }
+            .sc-tt-meta { font-size: 9px !important; }
+            .sc-tt-stat-lbl, .sc-tt-stat-val { font-size: 10px !important; }
+        }
     `;
     document.head.appendChild(style);
 });
+
+
 // ==========================================================================
 // PER 90 - SCATTER.JS - DEL 2 AF 5 (LAYOUT GENERATOR)
 // ==========================================================================

@@ -1,5 +1,5 @@
 // ==========================================================================
-// PER 90 - STATS.JS - DEL 1 AF 4 (MASTER MODUL & COMPACT TEXT CSS)
+// PER 90 - STATS.JS - DEL 1 AF 4 (MASTER MODUL & COMPACT TEXT CSS RESPONSIV)
 // ==========================================================================
 
 const STATS_CATEGORIES_LIST = ["OUTPUT", "PLAYMAKING", "PASSING", "POSSESSION", "DEFENDING/DUELS", "OTHER"];
@@ -9,7 +9,7 @@ let STATS_GLOBAL_PAYLOAD = null;
 
 const $s = id => document.getElementById(id);
 
-// 🎨 FIXET LOKAL CSS INJECTION: Gør teksterne mindre og barerne 5-trins farvede
+// 🎨 FIXET LOKAL CSS INJECTION: Gør teksterne mindre, barerne 5-trins farvede og fuldt mobil-responsive!
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
@@ -50,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
         
         .stats-status-badge { font-size: 8.5px; font-weight: 900; padding: 1px 5px; border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
         
-        /* Dine 5 nye præcise farveklasser og badges */
         .fill-elite { background: #22c55e !important; }
         .fill-good { background: #60a5fa !important; }
         .fill-avg { background: #94a3b8 !important; }
@@ -62,12 +61,33 @@ document.addEventListener("DOMContentLoaded", () => {
         .badge-avg { background: rgba(148, 163, 184, 0.12); border: 1px solid #94a3b8; color: #94a3b8; }
         .badge-concern { background: rgba(245, 158, 11, 0.06); border: 1px solid #f59e0b; color: #f59e0b; }
         .badge-poor { background: rgba(239, 68, 68, 0.06); border: 1px solid #ef4444; color: #ef4444; }
+
+        /* 📱 RESPONSIV MOBILOPTIMERING FOR STATS-PROFIL (Når skærmen er under 480px) */
+        @media (max-width: 480px) {
+            .stats-profile-card { padding: 16px !important; margin-bottom: 20px !important; gap: 14px !important; }
+            .stats-p-left { gap: 12px !important; width: 100% !important; }
+            .stats-p-names { border-left-width: 3px !important; padding-left: 10px !important; }
+            .stats-p-name { font-size: 20px !important; letter-spacing: 0px !important; }
+            .stats-p-sub { font-size: 9px !important; margin-top: 4px !important; }
+
+            /* Tvinger højre side af profilkortet (Club, Age, Mins) i et rent 2-kolonne layout på mobilen */
+            .stats-p-right { grid-template-columns: repeat(2, 1fr) !important; width: 100% !important; gap: 8px !important; }
+            .stats-meta-box { padding: 8px !important; }
+            .stats-meta-val { font-size: 10px !important; }
+            .stats-meta-lbl { font-size: 8px !important; }
+
+            /* Justering af de store kategoriblokke og metrik-listerne */
+            .stats-cat-block { padding: 16px !important; gap: 14px !important; }
+            .stats-cat-title { font-size: 11px !important; padding-bottom: 6px !important; }
+            .stats-m-lbl { font-size: 9px !important; margin-bottom: 4px !important; }
+            .stats-m-val-text { font-size: 10px !important; }
+            .stats-m-val-text span { font-size: 9px !important; }
+            .stats-status-badge { font-size: 7.5px !important; padding: 1px 4px !important; }
+        }
     `;
     document.head.appendChild(style);
 });
-// ==========================================================================
-// PER 90 - STATS.JS - DEL 2 AF 4 (HEADER & CLEAN DRAWER GENERATOR)
-// ==========================================================================
+==========================================================================
 
 // ==========================================================================
 // PER 90 - STATS.JS - DEL 2 AF 4 (RENSÉ DRAWER SKABELON - UDEN SKRÅSTREGER)

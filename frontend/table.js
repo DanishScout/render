@@ -1,5 +1,5 @@
 // ==========================================================================
-// PER 90 - TABLE.JS - DEL 1 AF 4 (MASTER STATES & ROBUST SPLIT-CARD CSS)
+// PER 90 - TABLE.JS - DEL 1 AF 4 (MASTER STATES & RESPONSIV SPLIT-CARD CSS)
 // ==========================================================================
 
 let TABLE_GLOBAL_DATA = null;
@@ -19,12 +19,10 @@ let TABLE_FILTERS = {
 
 const $t = id => document.getElementById(id);
 
-// 🎨 CORE DESIGN INJECTION (DIT FORETRUKNE VISUELLE LOOK MED FULDE BOKSE)
+// 🎨 CORE DESIGN INJECTION (DIT FAVORIT LOOK - NU FULDT MOBIL-OPTIMERET)
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
-        @import url('https://googleapis.com');
-
         .table-blocks-container { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 950px; margin: 0 auto; padding: 0 10px; box-sizing: border-box; }
         
         /* 🎯 LEADERBOARD OVER-OVERSKRIFT: Definerer kolonnerne én gang for alle øverst! */
@@ -41,12 +39,24 @@ document.addEventListener("DOMContentLoaded", () => {
         .table-row-rank { font-size: 22px; font-weight: 900; color: #f59e0b; width: 35px; text-align: center; text-shadow: 0 0 12px rgba(245,158,11,0.25); }
         
         /* Logo ramme */
-        .table-row-logo-box { width: 44px; height: 44px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 4px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .table-row-crest { width: 100%; height: 100%; object-fit: contain; }
+        .table-row-logo-box { width: 44px; height: 44px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 3px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .table-row-crest { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+            opacity: 0; 
+            transition: opacity 0.25s ease-in-out; 
+        }
         
-        .table-row-names { display: flex; flex-direction: column; gap: 2px; }
-        .table-row-player-name { font-size: 15px; font-weight: 900; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
-        .table-row-subtext { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        /* Denne klasse smides på via JavaScript, i det sekund billedet er hentet */
+        .table-row-crest.logo-loaded { 
+            opacity: 1 !important; 
+        }
+
+        
+        .table-row-names { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .table-row-player-name { font-size: 15px; font-weight: 900; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .table-row-subtext { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         /* Højre felt */
         .table-row-right { display: flex; align-items: center; gap: 25px; flex-grow: 1; justify-content: flex-end; max-width: 500px; box-sizing: border-box; }
@@ -68,9 +78,40 @@ document.addEventListener("DOMContentLoaded", () => {
         .table-drawer-checkbox-box { background: #07030c; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 8px; max-height: 115px; overflow-y: auto; }
         .table-drawer-checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; color: var(--text-primary); transition: opacity 0.15s; }
         .table-drawer-input-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+
+        /* 📱 RESPONSIV MOBILOPTIMERING FOR LEADERBOARD TABLE (Når skærmen er under 480px) */
+        @media (max-width: 480px) {
+            /* Skjuler tabel-headeren på mobil, da kortene omstruktureres vertikalt */
+            .table-scouting-header { display: none !important; }
+            
+            .table-blocks-container { gap: 10px !important; padding: 0 4px !important; }
+            
+            /* Gør selve kortet fleksibelt og stabler indholdet i to rækker */
+            .table-leaderboard-card { flex-direction: column !important; align-items: flex-start !important; padding: 12px !important; gap: 10px !important; border-radius: 12px !important; }
+            
+            .table-row-left { width: 100% !important; gap: 12px !important; }
+            .table-row-rank { font-size: 16px !important; width: 24px !important; }
+            .table-row-logo-box { width: 34px !important; height: 34px !important; border-radius: 8px !important; }
+            .table-row-player-name { font-size: 13px !important; }
+            .table-row-subtext { font-size: 10px !important; }
+            
+            /* Højre side (dataene) omdannes til en sekundær linje under navnet */
+            .table-row-right { width: 100% !important; max-width: 100% !important; justify-content: space-between !important; padding-left: 36px !important; box-sizing: border-box; gap: 0px !important; }
+            
+            /* Metadata-punkter linet pænt op side om side */
+            .table-row-meta-val-pos, .table-row-meta-val-age, .table-row-meta-val-mins { font-size: 10.5px !important; width: auto !important; text-align: left !important; }
+            .table-row-meta-val-pos::after { content: ' •'; color: #475569; }
+            .table-row-meta-val-age::after { content: ' •'; color: #475569; }
+            
+            /* Skjuler performance-baren på mobil for at spare plads og bevare fokus på det rene tal */
+            .table-row-bar-container { display: none !important; }
+            
+            .table-row-score-value { font-size: 14px !important; width: auto !important; text-align: right !important; font-weight: 900 !important; }
+        }
     `;
     document.head.appendChild(style);
 });
+
 // ==========================================================================
 // PER 90 - TABLE.JS - DEL 2 AF 4 (LAYOUT & CHECKBOX DRAWER PANEL)
 // ==========================================================================
@@ -306,20 +347,40 @@ async function buildTableLeaderboardEngine() {
     container.innerHTML = markup;
 
     // Asynkron hentning af base64-logoer 1:1 fra pizza-logikken
+        // ==========================================================================
+    // AKTUEL OPTIMERING: GLIDENDE FADE-IN OG AUTOMATISK OPRYDNING AF TOMME BOKSE
+    // ==========================================================================
     top10.forEach(async (p, idx) => {
         const imgId = `tb-crest-${idx}-${p.player_name.replace(/[^a-zA-Z0-9]/g, '')}`;
         const imgEl = document.getElementById(imgId);
         if (!imgEl) return;
 
-        if (p.team_id && p.team_id !== "nan") {
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/logo/${p.team_id}`).then(r => r.json());
-                if (res.logo_base64) {
-                    imgEl.src = res.logo_base64;
-                }
-            } catch (e) { console.warn(`Kunne ikke hente logo for hold ID: ${p.team_id}`, e); }
+        const containerBox = imgEl.parentElement;
+
+        // Hvis holdet mangler et gyldigt ID, skjuler vi boksen med det samme i stedet for at vise en tom ramme
+        if (!p.team_id || p.team_id === "nan" || p.team_id === "None") {
+            if (containerBox) containerBox.style.display = "none";
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/logo/${p.team_id}`).then(r => r.json());
+            if (res.logo_base64) {
+                // Sørg for at tilføje klassen, når billedet reelt er færdig med at loade i DOM'en
+                imgEl.onload = () => {
+                    imgEl.classList.add('logo-loaded');
+                };
+                imgEl.src = res.logo_base64;
+            } else {
+                // Hvis API'et ikke returnerer et gyldigt base64-billede, rydder vi rammen op
+                if (containerBox) containerBox.style.display = "none";
+            }
+        } catch (e) { 
+            console.warn(`Kunne ikke hente logo for hold ID: ${p.team_id}`, e);
+            if (containerBox) containerBox.style.display = "none";
         }
     });
+
 }
 
 // 🎯 DIT FOTO-ISOLEREDE DOWNLOAD SYSTEM TIL DATATABELLEN 1:1 🎯

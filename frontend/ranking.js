@@ -1,5 +1,5 @@
 // ==========================================================================
-// PER 90 - RANKING.JS - DEL 1 AF 4 (OPDATERET: RECENTRERET RANK & MERE PLADS)
+// PER 90 - RANKING.JS - DEL 1 AF 4 (OPDATERET: SQUEEZED MED RESPONSIV MOBIL-CSS)
 // ==========================================================================
 
 let RANK_GLOBAL_DATA = null;
@@ -76,13 +76,23 @@ document.addEventListener("DOMContentLoaded", () => {
         .rank-card-top-row { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 10px; }
         .rank-row-left { display: flex; align-items: center; gap: 12px; min-width: 0; flex-grow: 1; }
         
-        /* 🎯 RETTELSE: Gør rank markant mindre og tildeler fast bredde for at frigive plads */
         .rank-row-rank { font-size: 15px; font-weight: 900; color: #3498db; text-shadow: 0 0 10px rgba(52,152,219,0.3); line-height: 1; width: 24px; text-align: center; flex-shrink: 0; }
         
         .rank-row-logo-box { width: 36px; height: 36px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 3px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .rank-row-crest { width: 100%; height: 100%; object-fit: contain; }
+        .rank-row-crest { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+            opacity: 0; 
+            transition: opacity 0.25s ease-in-out; 
+        }
         
-        /* 🎯 RETTELSE: Tillader spillernavnet at brede sig helt ud uden at klippe */
+        /* Denne klasse smides på via JavaScript, i det sekund billedet er klar */
+        .rank-row-crest.logo-loaded { 
+            opacity: 1 !important; 
+        }
+
+        
         .rank-row-names { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex-grow: 1; }
         .rank-row-player-name { font-size: 14px; font-weight: 900; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
         .rank-row-subtext { font-size: 10px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -98,9 +108,31 @@ document.addEventListener("DOMContentLoaded", () => {
         .rank-bar-info { display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 700; text-transform: uppercase; color: #64748b; }
         .rank-bar-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.03); border-radius: 3px; overflow: hidden; }
         .rank-bar-fill { height: 100%; border-radius: 3px; width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* 📱 RESPONSIV MOBILOPTIMERING FOR LEADERBOARD CARDS (Når skærmen er under 480px) */
+        @media (max-width: 480px) {
+            .rank-blocks-container { grid-template-columns: 1fr !important; padding: 0 4px !important; gap: 12px !important; }
+            .rank-leaderboard-card { padding: 12px !important; gap: 10px !important; }
+            
+            /* Squeezer top-rækken så navne, logo og score har plads */
+            .rank-row-rank { font-size: 13px !important; width: 18px !important; }
+            .rank-row-logo-box { width: 30px !important; height: 30px !important; border-radius: 6px !important; }
+            .rank-row-player-name { font-size: 12px !important; letter-spacing: 0.1px !important; }
+            .rank-row-subtext { font-size: 9px !important; }
+            .rank-row-score-value { font-size: 15px !important; }
+            
+            /* Komprimerer metadata-linjen (Position, Alder, Minutter) */
+            .rank-card-meta-row { font-size: 10px !important; padding-top: 6px !important; gap: 6px !important; }
+            
+            /* Gør metrik-bjælkerne og talværdierne klar til små skærme */
+            .rank-metrics-grid { gap: 6px 10px !important; padding-top: 8px !important; }
+            .rank-bar-info { font-size: 8px !important; }
+            .rank-bar-bg { height: 3px !important; }
+        }
     `;
     document.head.appendChild(style);
 });
+
 
 // ==========================================================================
 // PER 90 - RANKING.JS - DEL 2 AF 4 (LAYOUT & CHECKBOX DRAWER PANEL)
@@ -403,7 +435,7 @@ function buildRankingLeaderboardEngine() {
     fetchRankLogosParallel(top9);
 }
 // ==========================================================================
-// PER 90 - RANKING.JS - DEL 4B (ASYNKRON LOGO PROXY-MOTOR)
+// PER 90 - RANKING.JS - RETTET DEL 4B (GLIDENDE FADE-IN OG AUTOMATISK OPRYDNING)
 // ==========================================================================
 
 function fetchRankLogosParallel(playerList) {
@@ -412,16 +444,31 @@ function fetchRankLogosParallel(playerList) {
         const imgEl = document.getElementById(imgId);
         if (!imgEl) return;
 
-        if (p.team_id && p.team_id !== "nan" && p.team_id !== "None") {
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/logo/${p.team_id}`).then(r => r.json());
-                if (res.logo_base64) {
-                    imgEl.src = res.logo_base64;
-                }
-            } catch (e) {
-                console.warn(`Kunne ikke hente logo for hold ID: ${p.team_id}`, e);
+        const containerBox = imgEl.parentElement;
+
+        // Hvis holdet mangler et gyldigt ID, fjerner vi rammen med det samme for at undgå tom støj
+        if (!p.team_id || p.team_id === "nan" || p.team_id === "None") {
+            if (containerBox) containerBox.style.display = "none";
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/logo/${p.team_id}`).then(r => r.json());
+            if (res.logo_base64) {
+                // Først når billedet reelt er færdigbygget i hukommelsen, fader vi det blidt ind
+                imgEl.onload = () => {
+                    imgEl.classList.add('logo-loaded');
+                };
+                imgEl.src = res.logo_base64;
+            } else {
+                // Hvis API'et ikke returnerer et gyldigt billede, rydder vi bunden op
+                if (containerBox) containerBox.style.display = "none";
             }
+        } catch (e) {
+            console.warn(`Kunne ikke hente logo for hold ID: ${p.team_id}`, e);
+            if (containerBox) containerBox.style.display = "none";
         }
     });
 }
+
 

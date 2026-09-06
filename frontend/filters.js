@@ -1,5 +1,5 @@
 // ==========================================================================
-// PER 90 - FILTERS.JS - DEL 1 AF 5 (SORT STATES & BASE PERFORMANCE CSS)
+// PER 90 - FILTERS.JS - DEL 1 AF 5 (SORT STATES & RESPONSIV PERFORMANCE CSS)
 // ==========================================================================
 
 let FILTERS_GLOBAL_DATA = null, FILTERS_STAT_TYPE = "Per 90";
@@ -14,7 +14,6 @@ const $f = id => document.getElementById(id);
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
-        @import url('https://googleapis.com');
         .filters-main-layout { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 950px; margin: 0 auto; padding: 0 10px; box-sizing: border-box; }
         .filters-data-viewport-wrapper { width: 100%; background: linear-gradient(180deg, #090f1e 0%, #020617 100%); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; overflow-x: auto; box-sizing: border-box; }
         .filters-dynamic-grid-container { min-width: 100%; display: flex; flex-direction: column; width: max-content; }
@@ -32,14 +31,38 @@ document.addEventListener("DOMContentLoaded", () => {
         .filters-c-player-name { font-size: 13.5px; font-weight: 800; color: #fff; text-transform: uppercase; }
         .filters-c-subtext { font-size: 10.5px; color: #64748b; font-weight: 600; text-transform: uppercase; }
         .filters-c-val-pos { font-size: 11px; font-weight: 800; color: #00f0ff; text-transform: uppercase; text-align: center; }
-        .filters-c-val-age, .filters-c-val-mins { font-size: 12px; font-weight: 700; color: #94a3b8; text-align: center; }
+        .filters-c-val-age, .filters-c-val-mins { font-size: 12px; height: 700; color: #94a3b8; text-align: center; }
         .filters-c-val-metric { font-size: 12.5px; font-weight: 900; color: #f59e0b; text-align: right; padding-right: 10px; }
         .filters-hdr-metric { justify-content: flex-end; padding-right: 10px; }
         .filters-data-viewport-wrapper::-webkit-scrollbar { height: 6px; width: 5px; }
         .filters-data-viewport-wrapper::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+
+        /* 📱 RESPONSIV MOBILOPTIMERING FOR SPREADSHEET ENGINE (Når skærmen er under 480px) */
+        @media (max-width: 480px) {
+            .filters-main-layout { padding: 0 4px !important; gap: 14px !important; }
+            #filters-live-counter { font-size: 11px !important; }
+            
+            /* Gør tabelrækkerne og headeren mere kompakte i højden for bedre overblik på mobilen */
+            .filters-scouting-header { padding: 10px 12px !important; font-size: 9.5px !important; }
+            .filters-compact-card { padding: 10px 12px !important; }
+            
+            /* Squeezer padding i cellerne så kolonnerne rykker tættere sammen */
+            .filters-c-cell { padding-right: 8px !important; }
+            .filters-c-player-name { font-size: 11.5px !important; }
+            .filters-c-subtext { font-size: 9px !important; }
+            
+            .filters-c-val-pos { font-size: 10px !important; }
+            .filters-c-val-age, .filters-c-val-mins { font-size: 10.5px !important; }
+            .filters-c-val-metric { font-size: 11px !important; padding-right: 4px !important; }
+            .filters-hdr-metric { padding-right: 4px !important; }
+            
+            /* Gør rulle-vinduet mindre, så det ikke sluger hele mobilskærmen */
+            .filters-scroll-window { max-height: 350px !important; }
+        }
     `;
     document.head.appendChild(style);
 });
+
 // ==========================================================================
 // PER 90 - FILTERS.JS - DEL 2 AF 5 (MAIN VIEW SETUP & METRIC CSS)
 // ==========================================================================
@@ -137,7 +160,7 @@ function buildAndAppendFiltersDrawerHTML() {
     document.body.appendChild(drawerDiv);
 }
 // ==========================================================================
-// PER 90 - FILTERS.JS - DEL 4 AF 5 (API SYNC & CLICK SORT TRIGGERS)
+// PER 90 - FILTERS.JS - DEL 4 AF 5 (API SYNC MED FASTLÅST PERFORMANCE MINIMUM)
 // ==========================================================================
 
 async function loadFiltersAPIDataFeed() {
@@ -146,17 +169,37 @@ async function loadFiltersAPIDataFeed() {
         if (!res.ok) return;
         FILTERS_GLOBAL_DATA = await res.json();
         const list = FILTERS_GLOBAL_DATA.players, mList = FILTERS_GLOBAL_DATA.filter_metrics;
+        
         if (list.length > 0) {
             const ages = list.map(p => p.age).filter(a => a > 0), mins = list.map(p => p.mins_played).filter(m => m > 0);
             FILTERS_META.minAge = Math.min(...ages); FILTERS_META.maxAge = Math.max(...ages);
             FILTERS_META.minMins = Math.min(...mins); FILTERS_META.maxMins = Math.max(...mins);
+            
             FILTERS_METRIC_SLIDERS = {}; 
             mList.forEach(m => {
                 const vals = list.map(p => p.metrics[m] || 0.0), mn = Math.min(...vals), mx = Math.max(...vals);
-                FILTERS_METRIC_SLIDERS[m] = { enabled: false, min: mn, max: mx, currentMin: mn, currentMax: mx };
+                
+                // Standard værdier
+                let isEnabled = false;
+                let calculatedMin = mn;
+
+                // 🎯 80% OPTIMERING: Hvis metrikken er Goals eller npxG, skruer vi bunden op på 80% af max
+                if (m === "Goals" || m === "npxG") {
+                    isEnabled = true;
+                    calculatedMin = mn + (mx - mn) * 0.35; 
+                }
+
+                FILTERS_METRIC_SLIDERS[m] = { 
+                    enabled: isEnabled, 
+                    min: mn, 
+                    max: mx, 
+                    currentMin: calculatedMin, 
+                    currentMax: mx 
+                };
             });
         }
-        buildAndAppendFiltersDrawerHTML(); runAdvancedFilteringEngine();
+        buildAndAppendFiltersDrawerHTML(); 
+        runAdvancedFilteringEngine();
     } catch (e) { console.error("API Fejl:", e); }
 }
 
@@ -166,8 +209,8 @@ function setFiltersSortColumn(columnKey, columnType) {
         FILTERS_SORT.desc = !FILTERS_SORT.desc; // Samme kolonne -> Vend rækkefølgen om
     } else {
         FILTERS_SORT.key = columnKey;
-        FILTERS_SORT.type = columnType; // 'meta' (alder, mins) eller 'metric' (goals, assists osv.)
-        FILTERS_SORT.desc = true; // Ny kolonne -> Sorter altid højest-til-lavest først
+        FILTERS_SORT.type = columnType; // 'meta' eller 'metric'
+        FILTERS_SORT.desc = true; // Sorter altid højest-til-lavest først
     }
     runAdvancedFilteringEngine();
 }
@@ -178,6 +221,19 @@ function handleMetricToggleClick(cb, m) {
     if (wrapper) wrapper.classList.toggle('active', cb.checked);
     runAdvancedFilteringEngine();
 }
+
+function handleDualSliderMovement(el, m, type) {
+    const s = FILTERS_METRIC_SLIDERS[m], val = parseFloat(el.value);
+    if (type === 'min') {
+        if (val > s.currentMax) { el.value = s.currentMax; s.currentMin = s.currentMax; } else { s.currentMin = val; }
+    } else {
+        if (val < s.currentMin) { el.value = s.currentMin; s.currentMax = s.currentMin; } else { s.currentMax = val; }
+    }
+    const lbl = $f(`fl-lbl-${m.replace(/\s+/g, '')}`);
+    if (lbl) lbl.innerText = `${s.currentMin.toFixed(2)} - ${s.currentMax.toFixed(2)}`;
+    runAdvancedFilteringEngine();
+}
+
 
 function handleDualSliderMovement(el, m, type) {
     const s = FILTERS_METRIC_SLIDERS[m], val = parseFloat(el.value);

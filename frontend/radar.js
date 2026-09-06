@@ -1,5 +1,5 @@
 // ==========================================================================
-// PER 90 - RADAR.JS - RETTET DEL 1 AF 4 (ISOLERET LOKAL CSS - INGEN PIZZA-STØJ)
+// PER 90 - RADAR.JS - RETTET DEL 1 AF 4 (ISOLERET LOKAL CSS MED RESPONSIV LOGIK)
 // ==========================================================================
 
 const AVAILABLE_RADAR_METRICS = [
@@ -20,11 +20,10 @@ let RADAR_COLOR_1 = "#00f0ff", RADAR_COLOR_2 = "#d946ef";
 
 const $r = id => document.getElementById(id);
 
-// 🎯 LOKALISERET STYLE INJECTION: Nu påvirker disse regler KUN radar-fanen!
+// 🎯 LOKALISERET STYLE INJECTION: Nu med fuld kontrol over mobil-looket!
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
-        @import url('https://googleapis.com');
         #view-radar .wrap { max-width: 100%; margin: auto; padding: 10px; background: #0B1220; display: flex; flex-direction: column; align-items: center; }
         #view-radar .chart-container { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); padding: 30px; border-radius: 20px; width: 100%; max-width: 710px; margin: 10px auto; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); box-sizing: border-box; }
         #view-radar .h-cnt { position: relative; display: flex; flex-direction: row; height: 110px; margin-bottom: 35px; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); background: rgba(15, 23, 42, 0.6); }
@@ -33,7 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
         #view-radar .p-panel.right { align-items: flex-end; text-align: right; background: linear-gradient(315deg, rgba(217,70,239,0.08) 0%, rgba(0,0,0,0) 80%); }
         #view-radar .h-divider { position: absolute; left: 50%; top: 10%; bottom: 10%; width: 1px; background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.35), transparent); transform: translateX(-50%); z-index: 2; }
         
-        /* Tilføjet #view-radar foran navnet, så pizzaens .p-nm (28px) overlever i fred! */
         #view-radar .p-nm { font-size: 15px; font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 2px; opacity: 0.95; z-index: 2; }
         #view-radar .b-tx { color: #00f0ff; text-shadow: 0 0 15px rgba(0,240,255,0.3); } 
         #view-radar .p-tx { color: #d946ef; text-shadow: 0 0 15px rgba(217,70,239,0.3); }
@@ -42,7 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
         #view-radar .left .info-tag { border-left: 2px solid #00f0ff; }
         #view-radar .right .info-tag { border-right: 2px solid #d946ef; }
         
-        /* Låser SVG specifikt til radaren */
         #radar-svg-element { display: block; margin: 0 auto; overflow: visible; max-width: 100%; height: auto; }
         #view-radar .grid-poly { fill: rgba(255,255,255,0.005); stroke: rgba(255,255,255,0.1); }
         #view-radar .grid-line { stroke: rgba(255,255,255,0.075); stroke-dasharray: 4,4; }
@@ -57,9 +54,29 @@ document.addEventListener("DOMContentLoaded", () => {
         #view-radar .svg-score-rect-p1 { fill: rgba(0, 240, 255, 0.04); stroke: #00f0ff; stroke-width: 1; }
         #view-radar .svg-score-rect-p2 { fill: rgba(217, 70, 239, 0.04); stroke: #d946ef; stroke-width: 1; }
         #view-radar .svg-score-text { font-size: 10px; font-weight: 700; font-family: 'Gabarito', sans-serif; dominant-baseline: central; text-anchor: middle; }
+
+        /* 📱 RESPONSIV MOBILOPTIMERING FOR RADAR (MATCH INTERFACE-MØNSTER) */
+        @media (max-width: 480px) {
+            #view-radar .chart-container { padding: 12px 16px !important; width: 100% !important; }
+            #view-radar .h-cnt { height: auto !important; min-height: 70px !important; padding: 10px 0 !important; margin-bottom: 15px !important; }
+            #view-radar .p-panel { padding: 0 12px !important; }
+            
+            /* Nedskalerer spillernavn, så lange navne ikke crasher på midten */
+            #view-radar .p-nm { font-size: 11px !important; letter-spacing: 0.5px !important; line-height: 1.2 !important; }
+            #view-radar .p-row { gap: 3px !important; margin-top: 4px !important; flex-wrap: wrap !important; }
+            #view-radar .info-tag { font-size: 8px !important; padding: 1px 4px !important; }
+            
+            /* Kontrol over det nedskalerede SVG-kort og dets tekst-elementer */
+            #radar-svg-element { max-height: 400px !important; }
+            #view-radar .ax-lbl { font-size: 8px !important; letter-spacing: 0.5px !important; }
+            #view-radar .svg-score-text { font-size: 8px !important; }
+            
+            #view-radar .chart-footer, #view-radar .chart-footer-source { font-size: 9px !important; margin-top: 10px !important; }
+        }
     `;
     document.head.appendChild(style);
 });
+
 
 // ==========================================================================
 // PER 90 - RADAR.JS - DEL 2 AF 4 (FRONTEND VISNING & SETTINGS DRAWER)

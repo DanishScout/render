@@ -17,8 +17,9 @@ let SIM_FILTERS = {
 
 // 🎯 ISOLERET SELEKTOR-FUNKTION: Forhindrer 'already been declared' fejl permanent!
 const getSimEl = id => document.getElementById(id);
+
 // ==========================================================================
-// PER 90 - SIMILARITY.JS - DEL 2 AF 5 (ROBUST SPLIT-CARD CSS DESIGN)
+// PER 90 - SIMILARITY.JS - DEL 2 AF 5 (ROBUST SPLIT-CARD CSS MED RESPONSIV LOGIK)
 // ==========================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -26,8 +27,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.id = 'sim-core-styles';
     style.innerHTML = `
-        @import url('https://googleapis.com');
-
         .sim-blocks-container { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 950px; margin: 0 auto; padding: 0 10px; box-sizing: border-box; }
         
         /* LEADERBOARD OVER-OVERSKRIFT: Definerer kolonnerne én gang for alle øverst */
@@ -44,12 +43,24 @@ document.addEventListener("DOMContentLoaded", () => {
         .sim-row-rank { font-size: 22px; font-weight: 900; color: #a855f7; width: 35px; text-align: center; text-shadow: 0 0 12px rgba(168,85,247,0.25); }
         
         /* Logo ramme */
-        .sim-row-logo-box { width: 44px; height: 44px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 4px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .sim-row-crest { width: 100%; height: 100%; object-fit: contain; }
+        .sim-row-logo-box { width: 44px; height: 44px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 3px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .sim-row-crest { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+            opacity: 0; 
+            transition: opacity 0.25s ease-in-out; 
+        }
         
-        .sim-row-names { display: flex; flex-direction: column; gap: 2px; }
-        .sim-row-player-name { font-size: 15px; font-weight: 900; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
-        .sim-row-subtext { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        /* Denne klasse skydes på via JavaScript, i det sekund billedet er færdighentet */
+        .sim-row-crest.logo-loaded { 
+            opacity: 1 !important; 
+        }
+
+        
+        .sim-row-names { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .sim-row-player-name { font-size: 15px; font-weight: 900; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sim-row-subtext { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         /* Højre felt */
         .sim-row-right { display: flex; align-items: center; gap: 25px; flex-grow: 1; justify-content: flex-end; max-width: 500px; box-sizing: border-box; }
@@ -63,9 +74,40 @@ document.addEventListener("DOMContentLoaded", () => {
         .sim-row-bar-fill { height: 100%; background: linear-gradient(90deg, #a855f7 0%, #00f0ff 100%); border-radius: 10px; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         
         .sim-row-score-value { font-size: 16px; font-weight: 900; color: #00f0ff; width: 65px; text-align: right; text-shadow: 0 0 10px rgba(0,240,255,0.2); }
+
+        /* 📱 RESPONSIV MOBILOPTIMERING FOR SIMILARITY FEED (Når skærmen er under 480px) */
+        @media (max-width: 480px) {
+            /* Skjuler tabeloverskriften på mobil for at forhindre støj */
+            .sim-scouting-header { display: none !important; }
+            
+            .sim-blocks-container { gap: 10px !important; padding: 0 4px !important; }
+            
+            /* Stabler spillerkortet vertikalt */
+            .sim-leaderboard-card { flex-direction: column !important; align-items: flex-start !important; padding: 12px !important; gap: 10px !important; border-radius: 12px !important; }
+            
+            .sim-row-left { width: 100% !important; gap: 12px !important; }
+            .sim-row-rank { font-size: 16px !important; width: 24px !important; }
+            .sim-row-logo-box { width: 34px !important; height: 34px !important; border-radius: 8px !important; }
+            .sim-row-player-name { font-size: 13px !important; }
+            .sim-row-subtext { font-size: 10px !important; }
+            
+            /* Flytter højre datapanel ind under navnet som en sekundær linje */
+            .sim-row-right { width: 100% !important; max-width: 100% !important; justify-content: space-between !important; padding-left: 36px !important; box-sizing: border-box; gap: 0px !important; }
+            
+            /* Arrangerer metadata inline med prik-separatorer */
+            .sim-row-meta-val-pos, .sim-row-meta-val-age, .sim-row-meta-val-mins { font-size: 10.5px !important; width: auto !important; text-align: left !important; }
+            .sim-row-meta-val-pos::after { content: ' •'; color: #475569; }
+            .sim-row-meta-val-age::after { content: ' •'; color: #475569; }
+            
+            /* Fjerner den lineære matchbjælke for at holde det kompakt på mobil */
+            .sim-row-bar-container { display: none !important; }
+            
+            .sim-row-score-value { font-size: 14px !important; width: auto !important; text-align: right !important; font-weight: 900 !important; }
+        }
     `;
     document.head.appendChild(style);
 });
+
 // ==========================================================================
 // PER 90 - SIMILARITY.JS - DEL 3 AF 5 (LAYOUT & DYNAMISK SKUFFE-HTML)
 // ==========================================================================
@@ -83,7 +125,6 @@ async function initSimilarityView(container) {
             </div>
             
             <div class="sim-blocks-container" id="sim-capture-target-area" style="padding: 15px 5px; width: 100%; box-sizing: border-box;">
-                <div style="text-align:center; padding:50px; color:#64748b; font-weight:700;">ÅBEN INDSTILLINGER FOR AT VÆLGE EN SPILLER OG FINDE MATCHES</div>
             </div>
         </section>
     `;
@@ -326,21 +367,38 @@ function buildSimilarityLeaderboardEngine() {
 
     container.innerHTML = markup;
 
-    // Asynkron hentning af klublogoer bag om Cloudflare mure
+        // ==========================================================================
+    // AKTUEL OPTIMERING: GLIDENDE FADE-IN OG AUTOMATISK OPRYDNING AF TOMME BOKSE
+    // ==========================================================================
     top10.forEach(async (p, idx) => {
         const imgId = `sim-crest-${idx}-${p.player_name.replace(/[^a-zA-Z0-9]/g, '')}`;
         const imgEl = document.getElementById(imgId);
         if (!imgEl) return;
 
-        if (p.team_id && p.team_id !== "nan") {
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/logo/${p.team_id}`).then(r => r.json());
-                if (res.logo_base64) {
-                    imgEl.src = res.logo_base64;
-                }
-            } catch (e) {
-                console.warn(`Kunne ikke hente logo for hold ID: ${p.team_id}`, e);
+        const containerBox = imgEl.parentElement;
+
+        // Hvis holdet mangler et gyldigt ID, fjerner vi logorammen med det samme for et rent udtryk
+        if (!p.team_id || p.team_id === "nan" || p.team_id === "None") {
+            if (containerBox) containerBox.style.display = "none";
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/logo/${p.team_id}`).then(r => r.json());
+            if (res.logo_base64) {
+                // Sørg for først at fjerne gennemsigtigheden, når base64-strengen reelt er færdigbygget i DOM'en
+                imgEl.onload = () => {
+                    imgEl.classList.add('logo-loaded');
+                };
+                imgEl.src = res.logo_base64;
+            } else {
+                // Hvis API'et ikke returnerer et gyldigt billede, rydder vi op
+                if (containerBox) containerBox.style.display = "none";
             }
+        } catch (e) {
+            console.warn(`Kunne ikke hente logo for hold ID: ${p.team_id}`, e);
+            if (containerBox) containerBox.style.display = "none";
         }
     });
+
 }
