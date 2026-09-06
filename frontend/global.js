@@ -174,7 +174,14 @@ function switchView(viewId) {
         }
     }
 
-
+    // Visning: TACTICAL MATCH REPORT ENGINE
+    else if (viewId === 'matchreport') {
+        if (typeof initMatchReportView === 'function') {
+            initMatchReportView(contentArea);
+        } else {
+            console.error("FEJL: initMatchReportView() blev ikke fundet i matchreport.js");
+        }
+    }
 
     // Visning: FALLBACK PLACEHOLDERS (De resterende 5 faner under opbygning)
     else {
