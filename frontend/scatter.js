@@ -1,5 +1,5 @@
 // ==========================================================================
-// PER 90 - SCATTER.JS - DEL 1 AF 5 (MASTER ARRAYS MED BUNDESLIGA & CB DEFAULT)
+// PER 90 - SCATTER.JS - DEL 1 AF 5 (MASTER ARRAYS MED BUNDESIGA & CB DEFAULT)
 // ==========================================================================
 
 let SCATTER_GLOBAL_DATA = null;
@@ -7,9 +7,9 @@ let SCATTER_X_AXIS = "npxG";
 let SCATTER_Y_AXIS = "Assists";
 let SCATTER_STAT_TYPE = "Per 90";
 
-// 🎯 STANDARDVALG DEFINERET: Loader nu direkte Bundesliga og CB for lynhurtig performance
+// 🎯 STANDARDVALG DEFINERET: Loader nu direkte Bunesliga og CB for lynhurtig performance
 let SCATTER_FILTERS = {
-    leagues: ["Bundesliga"],
+    leagues: ["Bundesliga", "Eliteserien"],
     nationalities: [],
     positions: ["CM/AM"],
     minAge: 0,
@@ -21,7 +21,7 @@ let SCATTER_FILTERS = {
 };
 
 let SCATTER_QUICK_HIGHLIGHTS = {
-    top10x: false,
+    top10x: true,
     top10y: false,
     u21: false,
     u19: false
@@ -80,7 +80,28 @@ document.addEventListener("DOMContentLoaded", () => {
         
         /* Scouting Colorbar */
         .scatter-colorbar-wrapper { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 20px; font-family: 'Gabarito', sans-serif; font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .scatter-colorbar-gradient { width: 250px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #1e3a8a 0%, #a21caf 50%, #00f0ff 100%); border: 1px solid rgba(255,255,255,0.05); }
+        /* 🎯 LØSNING 1: 3-trins neon-overgang (Mørkeblå -> Lilla -> Lys Limegrøn) */
+        .scatter-colorbar-gradient { 
+            width: 250px; 
+            height: 8px; 
+            border-radius: 4px; 
+            background: linear-gradient(90deg, #1e3a8a 0%, #a21caf 50%, var(--accent-purple) 100%) !important; 
+            border: 1px solid rgba(255,255,255,0.05); 
+        }
+
+        /* 🎯 LØSNING 2: Mindre opacity på pilen og teksten (sat til 0.5) */
+        .scatter-colorbar-text-fix {
+            font-size: 11px !important; 
+            color: #ffffff !important; 
+            font-weight: 900 !important; 
+            letter-spacing: 1.5px !important; 
+            text-transform: uppercase !important; 
+            font-family: 'Gabarito', sans-serif;
+            opacity: 0.5 !important; /* Dæmpet for et mere integreret look */
+            text-shadow: 0 0 10px rgba(255,255,255,0.1);
+        }
+
+
 
         /* Gulglow Tooltip */
         .scatter-hover-tooltip { position: absolute; background: #060a12; border: 1px solid #f59e0b; border-radius: 12px; padding: 16px 20px; font-family: 'Gabarito', sans-serif; font-size: 12px; color: #fff; pointer-events: none; opacity: 0; transition: opacity 0.12s ease; z-index: 200; box-shadow: 0 20px 40px rgba(0,0,0,0.7); min-width: 240px; box-sizing: border-box; }
@@ -177,23 +198,28 @@ function buildScatterQuickToolbarUI() {
     const teamOptions = teams.map(t => `<option value="${t === "Highlight Hold..." ? "" : t}" ${t.toLowerCase() === SCATTER_FILTERS.highlightTeam ? 'selected' : ''}>${t}</option>`).join('');
     const playerOptions = players.map(p => `<option value="${p === "Highlight Spillere..." ? "" : p}" ${p.toLowerCase() === SCATTER_FILTERS.highlightPlayer ? 'selected' : ''}>${p}</option>`).join('');
 
+    // Genererer kasser med neongrønne flueben (accent-color)
     bar.innerHTML = `
-        <button class="scatter-quick-btn ${SCATTER_QUICK_HIGHLIGHTS.top10x ? 'active' : ''}" onclick="toggleScatterQuickHighlight('top10x')">Top 10 X-Axis</button>
-        <button class="scatter-quick-btn ${SCATTER_QUICK_HIGHLIGHTS.top10y ? 'active' : ''}" onclick="toggleScatterQuickHighlight('top10y')">Top 10 Y-Axis</button>
-        <button class="scatter-quick-btn ${SCATTER_QUICK_HIGHLIGHTS.u21 ? 'active' : ''}" onclick="toggleScatterQuickHighlight('u21')">U21 Players</button>
-        <button class="scatter-quick-btn ${SCATTER_QUICK_HIGHLIGHTS.u19 ? 'active' : ''}" onclick="toggleScatterQuickHighlight('u19')">U19 Players</button>
-        
-        <!-- 🎯 NYE DROPDOWNS INTEGRERET DIREKTE I TOOLBAREN MED RIGTIG STYLING 🎯 -->
-        <select id="sc-toolbar-team" class="scatter-drawer-input" style="width: auto; height: 38px; padding: 0 12px;" onchange="handleToolbarFilterChange('team')">
-            ${teamOptions}
-        </select>
-        <select id="sc-toolbar-player" class="scatter-drawer-input" style="width: auto; height: 38px; padding: 0 12px;" onchange="handleToolbarFilterChange('player')">
-            ${playerOptions}
-        </select>
+        <label class="sc-drawer-checkbox-label" style="opacity: ${SCATTER_QUICK_HIGHLIGHTS.top10x ? 1 : 0.4}; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">
+            <input type="checkbox" ${SCATTER_QUICK_HIGHLIGHTS.top10x ? "checked" : ""} onclick="toggleScatterQuickHighlight('top10x')" style="accent-color: var(--accent-purple); width: 14px; height: 14px; cursor: pointer;"> Top 10 X-Axis
+        </label>
+        <label class="sc-drawer-checkbox-label" style="opacity: ${SCATTER_QUICK_HIGHLIGHTS.top10y ? 1 : 0.4}; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">
+            <input type="checkbox" ${SCATTER_QUICK_HIGHLIGHTS.top10y ? "checked" : ""} onclick="toggleScatterQuickHighlight('top10y')" style="accent-color: var(--accent-purple); width: 14px; height: 14px; cursor: pointer;"> Top 10 Y-Axis
+        </label>
+        <label class="sc-drawer-checkbox-label" style="opacity: ${SCATTER_QUICK_HIGHLIGHTS.u21 ? 1 : 0.4}; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">
+            <input type="checkbox" ${SCATTER_QUICK_HIGHLIGHTS.u21 ? "checked" : ""} onclick="toggleScatterQuickHighlight('u21')" style="accent-color: var(--accent-purple); width: 14px; height: 14px; cursor: pointer;"> U21 Players
+        </label>
+        <label class="sc-drawer-checkbox-label" style="opacity: ${SCATTER_QUICK_HIGHLIGHTS.u19 ? 1 : 0.4}; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">
+            <input type="checkbox" ${SCATTER_QUICK_HIGHLIGHTS.u19 ? "checked" : ""} onclick="toggleScatterQuickHighlight('u19')" style="accent-color: var(--accent-purple); width: 14px; height: 14px; cursor: pointer;"> U19 Players
+        </label>
     `;
 }
 // ==========================================================================
 // PER 90 - SCATTER.JS - DEL 3 AF 5 (CHECKBOX DRAWER UI)
+// ==========================================================================
+
+// ==========================================================================
+// PER 90 - SCATTER.JS - DEL 3A AF 5 (HTML SKABELON TIL SKUFFEN)
 // ==========================================================================
 
 function buildAndAppendScatterDrawerHTML() {
@@ -206,11 +232,12 @@ function buildAndAppendScatterDrawerHTML() {
     const leagues = [...new Set(list.map(p => p.league).filter(Boolean).sort())];
     const nationalities = [...new Set(list.map(p => p.nationality).filter(Boolean).sort())];
     const positions = [...new Set(list.map(p => p.position).filter(Boolean).sort())];
+    const teams = ["Highlight Hold...", ...new Set(list.map(p => p.team).filter(Boolean).sort())];
+    const players = ["Highlight Spillere...", ...new Set(list.map(p => p.player_name).filter(Boolean).sort())];
 
     const xOptions = availableAxes.map(ax => `<option value="${ax}" ${ax === SCATTER_X_AXIS ? 'selected' : ''}>${ax}</option>`).join('');
     const yOptions = availableAxes.map(ax => `<option value="${ax}" ${ax === SCATTER_Y_AXIS ? 'selected' : ''}>${ax}</option>`).join('');
     
-    // 🎯 FLUEBEN GENERATORER FOR LIGA, NATIONALITET OG POSITION 1:1 🎯
     const lCheckboxes = leagues.map(l => {
         const checked = SCATTER_FILTERS.leagues.includes(l);
         return `<label class="sc-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${l}" ${checked ? "checked" : ""} onchange="handleScatterCheckboxToggle(this, 'leagues')" style="accent-color: var(--accent-purple);"> ${l}</label>`;
@@ -225,6 +252,9 @@ function buildAndAppendScatterDrawerHTML() {
         const checked = SCATTER_FILTERS.positions.includes(pos);
         return `<label class="sc-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${pos}" ${checked ? "checked" : ""} onchange="handleScatterCheckboxToggle(this, 'positions')" style="accent-color: var(--accent-purple);"> ${pos}</label>`;
     }).join('');
+
+    const teamOptions = teams.map(t => `<option value="${t === "Highlight Hold..." ? "" : t}" ${t.toLowerCase() === SCATTER_FILTERS.highlightTeam ? 'selected' : ''}>${t}</option>`).join('');
+    const playerOptions = players.map(p => `<option value="${p === "Highlight Spillere..." ? "" : p}" ${p.toLowerCase() === SCATTER_FILTERS.highlightPlayer ? 'selected' : ''}>${p}</option>`).join('');
 
     const drawerDiv = document.createElement('div');
     drawerDiv.className = 'filter-drawer stats-filter-drawer scatter-filter-drawer';
@@ -254,10 +284,49 @@ function buildAndAppendScatterDrawerHTML() {
                     <input type="number" id="sc-filt-max-mins" class="scatter-drawer-input" value="${SCATTER_FILTERS.maxMins}" oninput="handleScatterFilterInputChange()">
                 </div>
             </div>
+
+            <!-- 🎯 HIGHLIGHTS PLACERET NEDERST: Dine to dropdowns ligger nu i bunden af skuffen -->
+            <div class="scatter-drawer-group">
+                <label class="scatter-drawer-label">Highlight Team</label>
+                <select id="sc-toolbar-team" class="scatter-drawer-select" onchange="handleToolbarFilterChange('team')">${teamOptions}</select>
+            </div>
+            <div class="scatter-drawer-group">
+                <label class="scatter-drawer-label">Highlight Player</label>
+                <select id="sc-toolbar-player" class="scatter-drawer-select" onchange="handleToolbarFilterChange('player')">${playerOptions}</select>
+            </div>
         </div>
     `;
     document.body.appendChild(drawerDiv);
+    
+    // Udløser den næste mindre brik for at aktivere de synlige grid-linjer
+    activateScatterGridVisibility();
 }
+
+// ==========================================================================
+// PER 90 - SCATTER.JS - DEL 3B AF 5 (CHECKBOXES & GRID STYLING TRRIGERS)
+// ==========================================================================
+
+function activateScatterGridVisibility() {
+    // 🎯 GRID LINJER SYNGLIGHED: Skruer op for synligheden direkte via dynamisk CSS-injection
+    const gridLines = document.getElementById('sc-grid-density-styles') || document.createElement('style');
+    gridLines.id = 'sc-grid-density-styles';
+    gridLines.innerHTML = ` .scatter-grid-line { stroke: rgba(255,255,255,0.12) !important; } `;
+    if (!document.getElementById('sc-grid-density-styles')) {
+        document.head.appendChild(gridLines);
+    }
+}
+
+function handleScatterCheckboxToggle(cb, key) {
+    const val = cb.value;
+    if (cb.checked) {
+        if (!SCATTER_FILTERS[key].includes(val)) SCATTER_FILTERS[key].push(val);
+    } else {
+        SCATTER_FILTERS[key] = SCATTER_FILTERS[key].filter(v => v !== val);
+    }
+    cb.parentElement.style.opacity = cb.checked ? '1' : '0.4';
+    buildScatterPlotVektorEngine();
+}
+
 
 function handleScatterCheckboxToggle(cb, key) {
     const val = cb.value;
@@ -334,15 +403,25 @@ function toggleScatterQuickHighlight(key) {
 // PER 90 - SCATTER.JS - RETTET DEL 5A AF 5 (PERFEKT CENTRERING & TITEL ENGINE)
 // ==========================================================================
 
+// ==========================================================================
+// PER 90 - SCATTER.JS - GENOPBYGGET DEL 5A AF 5 (STREGE- & FARVESYNKRONISERING)
+// ==========================================================================
+
+// ==========================================================================
+// PER 90 - SCATTER.JS - OPDATERET DEL 5A AF 5 (FLERE TAL PÅ AKSERNE)
+// ==========================================================================
+
+// ==========================================================================
+// PER 90 - SCATTER.JS - RETTET DEL 5A AF 5 (RENE, AFRUNDEDE AKSE-INTERVALLER)
+// ==========================================================================
+
 function buildScatterPlotVektorEngine() {
     const svg = $sc("scatter-svg-canvas"); if (!svg || !SCATTER_GLOBAL_DATA) return;
     svg.innerHTML = "";
 
-    // 🎯 SIKRER TITLEN: Vi gennemtvinger din faste, flotte hovedtitel øverst i kortet
     const titleContainer = $sc("scatter-dynamic-vs-title");
     if (titleContainer) titleContainer.innerText = "SCATTER PLOT";
 
-    // 🎯 PERFEKT CENTRERING: Vi balancerer venstre og højre padding fuldstændig ens (55px / 55px), så plottet sidder præcis i midten
     const padding = { top: 40, right: 55, bottom: 65, left: 55 }; 
     const width = 730, height = 500;
     const graphWidth = width - padding.left - padding.right;
@@ -367,29 +446,56 @@ function buildScatterPlotVektorEngine() {
     let minMinsGlobal = Math.min(...filteredPlayers.map(p => p.mins_played));
     let maxMinsGlobal = Math.max(...filteredPlayers.map(p => p.mins_played));
 
-    // 🎯 SIKRER RENT COLORBAR LOOK: Giver den dit præcise pil-design uden talstøj
     const colorbar = $sc("scatter-live-colorbar");
     if (colorbar) {
         colorbar.style.display = "flex";
         colorbar.style.flexDirection = "column";
         colorbar.style.alignItems = "center";
-        colorbar.style.gap = "6px";
+        colorbar.style.gap = "8px";
         colorbar.style.marginTop = "25px";
         colorbar.innerHTML = `
             <div class="scatter-colorbar-gradient"></div>
-            <span style="font-size: 9px; color: #475569; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; font-family: 'Gabarito', sans-serif;">MINUTES PLAYED &rarr;</span>
+            <span class="scatter-colorbar-text-fix">MINUTES PLAYED &rarr;</span>
         `;
     }
 
-    const roundToNiceInterval = (val, roundUp) => {
-        if (val === 0) return 0;
-        const factor = val > 10 ? 5 : (val > 1 ? 0.5 : 0.05);
-        return roundUp ? Math.ceil(val / factor) * factor : Math.floor(val / factor) * factor;
+    // 🎯 NY REVOLUTIONERENDE AKSE-MATEMATIK: Finder smukke, afrundede intervaller (f.eks. 0.10, 0.50, 1.00)
+    const calculateNiceAxisBounds = (minVal, maxVal) => {
+        if (maxVal === minVal) maxVal += 1;
+        const rawRange = maxVal - minVal;
+        
+        // Find en rå skridtlængde baseret på 4 intervaller
+        const rawStep = rawRange / 4;
+        const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+        const residual = rawStep / magnitude;
+        
+        // Lås skridtlængden til de absolut pæneste afrundede værdier i fodbolddata
+        let cleanStep;
+        if (residual < 1.5) cleanStep = 1 * magnitude;
+        else if (residual < 3) cleanStep = 2 * magnitude;
+        else if (residual < 7) cleanStep = 5 * magnitude;
+        else cleanStep = 10 * magnitude;
+
+        // Tving bunden til at starte på et rent multiplum af skridtlængden (eller 0, hvis tæt på)
+        let cleanMin = Math.floor(minVal / cleanStep) * cleanStep;
+        if (minVal >= 0 && cleanMin < 0) cleanMin = 0;
+        
+        // Max-værdien bliver bare præcis 4 rene skridt over bunden
+        let cleanMax = cleanMin + (cleanStep * 4);
+        
+        // Sikkerhedsmargin: Hvis data stikker udenfor efter afrunding, ruller vi et ekstra skridt ud
+        if (cleanMax < maxVal) cleanMax += cleanStep;
+        if (cleanMin > minVal) cleanMin -= cleanStep;
+
+        return { min: cleanMin, max: cleanMax };
     };
 
-    let minX = roundToNiceInterval(Math.min(...xVals), false), maxX = roundToNiceInterval(Math.max(...xVals), true);
-    let minY = roundToNiceInterval(Math.min(...yVals), false), maxY = roundToNiceInterval(Math.max(...yVals), true);
-    if (maxX === minX) maxX += 1; if (maxY === minY) maxY += 1;
+    // Henter de helt rene, afrundede aksegrænser
+    const boundsX = calculateNiceAxisBounds(Math.min(...xVals), Math.max(...xVals));
+    const boundsY = calculateNiceAxisBounds(Math.min(...yVals), Math.max(...yVals));
+
+    let minX = boundsX.min, maxX = boundsX.max;
+    let minY = boundsY.min, maxY = boundsY.max;
 
     const getXPixel = v => padding.left + ((v - minX) / (maxX - minX)) * graphWidth;
     const getYPixel = v => padding.top + graphHeight - ((v - minY) / (maxY - minY)) * graphHeight;
@@ -397,39 +503,45 @@ function buildScatterPlotVektorEngine() {
     const getMinutesColor = (m) => {
         const pct = (m - minMinsGlobal) / (maxMinsGlobal - minMinsGlobal || 1);
         if (pct < 0.5) {
-            return `rgb(${Math.round(30 + 132 * (pct * 2))}, ${Math.round(58 - 30 * (pct * 2))}, ${Math.round(138 + 37 * (pct * 2))})`;
+            const r = Math.round(30 + (162 - 30) * (pct * 2));
+            const g = Math.round(58 + (28 - 58) * (pct * 2));
+            const b = Math.round(138 + (175 - 138) * (pct * 2));
+            return `rgb(${r}, ${g}, ${b})`;
         } else {
-            return `rgb(${Math.round(162 - 162 * ((pct - 0.5) * 2))}, ${Math.round(28 + 212 * ((pct - 0.5) * 2))}, ${Math.round(175 + 80 * ((pct - 0.5) * 2))})`;
+            const r = Math.round(162 + (168 - 162) * ((pct - 0.5) * 2));
+            const g = Math.round(28 + (240 - 28) * ((pct - 0.5) * 2));
+            const b = Math.round(175 + (12 - 175) * ((pct - 0.5) * 2));
+            return `rgb(${r}, ${g}, ${b})`;
         }
     };
 
     let markup = "";
 
-    // Tegn baggrunds-grid
+    // 🎯 TEGNER GRIDLINJER OG DE SPINTERNYE RENE EN-TIL-EN TALVÆRDIER
     for (let i = 0; i <= 4; i++) {
-        const xVal = minX + (i / 4) * (maxX - minX), yVal = minY + (i / 4) * (maxY - minY);
-        const px = getXPixel(xVal), py = getYPixel(yVal);
+        const xVal = minX + (i / 4) * (maxX - minX);
+        const yVal = minY + (i / 4) * (maxY - minY);
+        const px = getXPixel(xVal);
+        const py = getYPixel(yVal);
+        
+        // Tydelige stiplede gridlinjer (Synlighed styres af din Del 3B)
         markup += `<line x1="${px}" y1="${padding.top}" x2="${px}" y2="${padding.top + graphHeight}" class="scatter-grid-line" style="stroke-dasharray:3,3;" />`;
-        markup += `<line x1="${padding.left}" y1="${padding.top + graphHeight - (i/4)*graphHeight}" x2="${padding.left + graphWidth}" y2="${padding.top + graphWidth}" class="scatter-grid-line" style="stroke-dasharray:3,3;" />`;
+        markup += `<line x1="${padding.left}" y1="${py}" x2="${padding.left + graphWidth}" y2="${py}" class="scatter-grid-line" style="stroke-dasharray:3,3;" />`;
+
+        // X-AKSE: Nu med fuldstændig afrundede, lækre tal (f.eks. 0.00 -> 0.10 -> 0.20 -> 0.30 -> 0.40)
+        markup += `<text x="${px}" y="${padding.top + graphHeight + 16}" fill="#475569" font-size="9" text-anchor="middle" font-family="'Gabarito', sans-serif" font-weight="700">${xVal.toFixed(2)}</text>`;
+        
+        // Y-AKSE: Symmetriske, rene mellemtal hele vejen op ad kanten
+        markup += `<text x="${padding.left - 8}" y="${py}" fill="#475569" font-size="9" text-anchor="end" dominant-baseline="middle" font-family="'Gabarito', sans-serif" font-weight="700">${yVal.toFixed(2)}</text>`;
     }
 
-    // Akserammer
     markup += `<line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${padding.top + graphHeight}" class="scatter-axis-line" />`;
     markup += `<line x1="${padding.left}" y1="${padding.top + graphHeight}" x2="${padding.left + graphWidth}" y2="${padding.top + graphHeight}" class="scatter-axis-line" />`;
 
-    // Aksernes talværdier
-    markup += `<text x="${padding.left}" y="${padding.top + graphHeight + 16}" fill="#475569" font-size="10" text-anchor="middle" font-family="'Gabarito', sans-serif" font-weight="700">${minX.toFixed(2)}</text>`;
-    markup += `<text x="${padding.left + graphWidth}" y="${padding.top + graphHeight + 16}" fill="#475569" font-size="10" text-anchor="middle" font-family="'Gabarito', sans-serif" font-weight="700">${maxX.toFixed(2)}</text>`;
-    markup += `<text x="${padding.left - 8}" y="${padding.top + graphHeight}" fill="#475569" font-size="10" text-anchor="end" dominant-baseline="middle" font-family="'Gabarito', sans-serif" font-weight="700">${minY.toFixed(2)}</text>`;
-    markup += `<text x="${padding.left - 8}" y="${padding.top}" fill="#475569" font-size="10" text-anchor="end" dominant-baseline="middle" font-family="'Gabarito', sans-serif" font-weight="700">${maxY.toFixed(2)}</text>`;
-
-    // 🎯 PERFEKTE AKSETITLER: Placeres og lines op symmetrisk ud fra den nye midterakse
-    // X-AKSE TITEL (Præcis centreret horisontalt)
     const xLabelX = padding.left + graphWidth / 2;
     const xLabelY = height - 12; 
     markup += `<text x="${xLabelX}" y="${xLabelY}" class="scatter-axis-lbl" text-anchor="middle">${SCATTER_X_AXIS}</text>`;
 
-    // Y-AKSE TITEL (Rykket ind på x=16 og centreret på midteraksen, så den ikke svæver ude til venstre)
     const yLabelX = 16;
     const yLabelY = padding.top + graphHeight / 2;
     markup += `<text x="${yLabelX}" y="${yLabelY}" class="scatter-axis-lbl" text-anchor="middle" transform="rotate(-90, ${yLabelX}, ${yLabelY})">${SCATTER_Y_AXIS}</text>`;
@@ -438,8 +550,15 @@ function buildScatterPlotVektorEngine() {
 }
 
 
+
+
+
 // ==========================================================================
 // PER 90 - SCATTER.JS - DEL 5B AF 5 (NODE DOT ENGINE & YELLOW-GLOW TOOLTIP)
+// ==========================================================================
+
+// ==========================================================================
+// PER 90 - SCATTER.JS - DEL 5B AF 5 (NODE DOT ENGINE & APPSYNK)
 // ==========================================================================
 
 function continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPixel, getYPixel, getMinutesColor) {
@@ -452,7 +571,6 @@ function continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPix
 
         const isTarget = (typeof CURRENT_SELECTED_PLAYER !== 'undefined' && CURRENT_SELECTED_PLAYER && p.player_name.toLowerCase() === CURRENT_SELECTED_PLAYER.toLowerCase());
         
-        // 🎯 HIGHLIGHT VALÍDATOR: Læser nu både knapper og dine to nye live toolbar-dropdowns
         let isHighlighted = false;
         if (SCATTER_QUICK_HIGHLIGHTS.top10x && sortedX.includes(p)) isHighlighted = true;
         if (SCATTER_QUICK_HIGHLIGHTS.top10y && sortedY.includes(p)) isHighlighted = true;
@@ -461,10 +579,10 @@ function continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPix
         if (SCATTER_FILTERS.highlightTeam && p.team.toLowerCase() === SCATTER_FILTERS.highlightTeam) isHighlighted = true;
         if (SCATTER_FILTERS.highlightPlayer && p.player_name.toLowerCase() === SCATTER_FILTERS.highlightPlayer) isHighlighted = true;
 
-        // OPACITY ENGINE: Hvis noget er highlighted, dæmpes de andre prikker helt ned til 0.12!
         const anyHighlightActive = SCATTER_QUICK_HIGHLIGHTS.top10x || SCATTER_QUICK_HIGHLIGHTS.top10y || SCATTER_QUICK_HIGHLIGHTS.u21 || SCATTER_QUICK_HIGHLIGHTS.u19 || SCATTER_FILTERS.highlightTeam || SCATTER_FILTERS.highlightPlayer;
         const opacity = isTarget ? 1 : (isHighlighted ? 1 : (anyHighlightActive ? 0.12 : 0.45));
         
+        // Trækker den splinternye, synkroniserede 3-trins RGB farve ind live på kortet
         const nodeColor = isTarget ? "#d946ef" : getMinutesColor(p.mins_played);
         const radius = isTarget ? 6.5 : (isHighlighted ? 5.5 : 4.5);
 
@@ -487,6 +605,10 @@ function continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPix
 }
 
 // 🎯 DIT RENE UNIFORME YELLOW-GLOW SCOUTING TOOLTIP FRA SCREENSHOT 1:1 🎯
+// ==========================================================================
+// PER 90 - SCATTER.JS - INDBYGGET INTELLIGENT KANT-DETEKTION FOR TOOLTIP
+// ==========================================================================
+
 function showScatterLiveTooltip(e, name, team, league, pos, nat, age, mins, xVal, yVal) {
     const tooltip = $sc("scatter-live-tooltip"); if (!tooltip) return;
     
@@ -506,16 +628,58 @@ function showScatterLiveTooltip(e, name, team, league, pos, nat, age, mins, xVal
         </div>
     `;
 
-    const rect = $sc("scatter-capture-target-area").getBoundingClientRect();
-    tooltip.style.left = `${e.clientX - rect.left + 15}px`;
-    tooltip.style.top = `${e.clientY - rect.top + 15}px`;
+    // Gør tooltippet synligt med det samme, så browseren kan måle dets fysiske højde og bredde
     tooltip.style.opacity = "1";
+
+    // Find koordinaterne for selve det mørke diagram-kort (capture området)
+    const rect = $sc("scatter-capture-target-area").getBoundingClientRect();
+    
+    // Beregn musens position RELATIVT til diagrammets øverste venstre hjørne
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    // Hent tooltippets reelle dimensioner live
+    const tooltipWidth = tooltip.offsetWidth;
+    const tooltipHeight = tooltip.offsetHeight;
+
+    // Standard afstand (offset) fra musemarkøren
+    let targetLeft = mouseX + 15;
+    let targetTop = mouseY + 15;
+
+    // 🎯 SIKKERHEDS-CHECK FOR HØJRE KANT: 
+    // Hvis musen + tooltippets bredde ryger ud over kortets bredde, flipper vi den til venstre for musen
+    if (mouseX + tooltipWidth + 25 > rect.width) {
+        targetLeft = mouseX - tooltipWidth - 15;
+    }
+
+    // 🎯 SIKKERHEDS-CHECK FOR BUNDEN:
+    // Hvis musen + tooltippets højde ryger ud over kortets bund, flipper vi den op over musen
+    if (mouseY + tooltipHeight + 25 > rect.height) {
+        targetTop = mouseY - tooltipHeight - 15;
+    }
+
+    // Sørg for at den aldrig kan glide ud over top- eller venstre-kanten (0) i ekstreme tilfælde
+    if (targetLeft < 5) targetLeft = 5;
+    if (targetTop < 5) targetTop = 5;
+
+    // Aflever de korrigerede, kantsikre pixelværdier direkte til CSS'en
+    tooltip.style.left = `${targetLeft}px`;
+    tooltip.style.top = `${targetTop}px`;
 }
 
+// ==========================================================================
+// 🎯 KANT-FIX: Nulstiller og skjuler tooltippet øjeblikkeligt ved mouseout
+// ==========================================================================
 function hideScatterLiveTooltip() { 
     const tooltip = $sc("scatter-live-tooltip"); 
-    if (tooltip) tooltip.style.opacity = "0"; 
+    if (tooltip) {
+        tooltip.style.opacity = "0"; 
+        // Valgfrit: Flytter boksen væk fra skærmen, så den ikke blokerer for klik på noderne bagefter
+        tooltip.style.left = "-9999px";
+        tooltip.style.top = "-9999px";
+    }
 }
+
 
 function downloadScatterPNG() {
     const el = $sc("scatter-capture-target-area"); if (!el) return;
