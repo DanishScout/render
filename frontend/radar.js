@@ -339,17 +339,89 @@ async function onRadarFilterChange() {
     if (!lowMetrics) await loadRadarChartDataWithFilters(RADAR_PLAYER_1, RADAR_PLAYER_2, selected);
 }
 
+// 🎯 GLOBAL CACHE & TIMERS TIL RADAR.JS (Gør søgningen øjeblikkelig for Player 1 & 2)
+let RADAR_CACHED_P1_ITEMS = null;
+let RADAR_CACHED_P2_ITEMS = null;
+let RADAR_SEARCH_DEBOUNCE_TIMER = null;
+
 function filterRadarPlayerList(type) {
-    const filter = $r(`radar-${type}-search`)?.value.toLowerCase();
-    if (filter === undefined) return;
-    document.querySelectorAll(`#radar-${type}-items-container .custom-option-item`).forEach(item => {
-        item.style.display = item.innerText.toLowerCase().includes(filter) ? "block" : "none";
-    });
+    // ⏱️ DEBOUNCE: Nulstil timeren hvis brugeren stadig taster løs
+    clearTimeout(RADAR_SEARCH_DEBOUNCE_TIMER);
+
+    // Vent 150ms efter sidste tastetryk før vi ændrer i layoutet
+    RADAR_SEARCH_DEBOUNCE_TIMER = setTimeout(() => {
+        const filter = $r(`radar-${type}-search`)?.value.toLowerCase();
+        if (filter === undefined) return;
+        
+        // Vælg den rigtige cache baseret på om det er p1 eller p2 der søges i
+        if (type === 'p1' && !RADAR_CACHED_P1_ITEMS) {
+            RADAR_CACHED_P1_ITEMS = document.querySelectorAll("#radar-p1-items-container .custom-option-item");
+        } else if (type === 'p2' && !RADAR_CACHED_P2_ITEMS) {
+            RADAR_CACHED_P2_ITEMS = document.querySelectorAll("#radar-p2-items-container .custom-option-item");
+        }
+        
+        const cachedItems = (type === 'p1') ? RADAR_CACHED_P1_ITEMS : RADAR_CACHED_P2_ITEMS;
+        let matchesFound = 0;
+        
+        // 🚀 EFFEKTIV LOOP: Søger i hukommelsen og viser maksimalt 30 elementer ad gangen
+        for (let i = 0; i < cachedItems.length; i++) {
+            const item = cachedItems[i];
+            
+            if (filter === "") {
+                item.style.display = i < 30 ? "block" : "none";
+            } else {
+                if (item.innerText.toLowerCase().includes(filter) && matchesFound < 30) {
+                    item.style.display = "block";
+                    matchesFound++;
+                } else {
+                    item.style.display = "none";
+                }
+            }
+        }
+    }, 150);
 }
 
 function resetRadarPlayerSearch(type) {
-    if ($r(`radar-${type}-search`)) { $r(`radar-${type}-search`).value = ""; filterRadarPlayerList(type); }
+    if ($r(`radar-${type}-search`)) { 
+        $r(`radar-${type}-search`).value = ""; 
+        
+        // Genopbyg cachen og nulstil visningen til kun at vise de første 30 spillere
+        if (type === 'p1') {
+            RADAR_CACHED_P1_ITEMS = document.querySelectorAll("#radar-p1-items-container .custom-option-item");
+            for (let i = 0; i < RADAR_CACHED_P1_ITEMS.length; i++) {
+                RADAR_CACHED_P1_ITEMS[i].style.display = i < 30 ? "block" : "none";
+            }
+        } else {
+            RADAR_CACHED_P2_ITEMS = document.querySelectorAll("#radar-p2-items-container .custom-option-item");
+            for (let i = 0; i < RADAR_CACHED_P2_ITEMS.length; i++) {
+                RADAR_CACHED_P2_ITEMS[i].style.display = i < 30 ? "block" : "none";
+            }
+        }
+    }
 }
+
+function toggleRadarDropdown(type) {
+    const p1Opt = $r("radar-player1-options"), p2Opt = $r("radar-player2-options");
+    if (p1Opt && type !== 'player1') p1Opt.style.display = "none";
+    if (p2Opt && type !== 'player2') p2Opt.style.display = "none";
+    
+    if (type === 'player1' && p1Opt) {
+        const isOpening = p1Opt.style.display === "none" || p1Opt.style.display === "";
+        p1Opt.style.display = isOpening ? "block" : "none";
+        if (isOpening) { 
+            resetRadarPlayerSearch('p1'); 
+            setTimeout(() => $r("radar-p1-search")?.focus(), 50); 
+        }
+    } else if (type === 'player2' && p2Opt) {
+        const isOpening = p2Opt.style.display === "none" || p2Opt.style.display === "";
+        p2Opt.style.display = isOpening ? "block" : "none";
+        if (isOpening) { 
+            resetRadarPlayerSearch('p2'); 
+            setTimeout(() => $r("radar-p2-search")?.focus(), 50); 
+        }
+    }
+}
+
 
 async function initCustomRadarSelectors() {
     try {

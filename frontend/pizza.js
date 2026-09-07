@@ -128,25 +128,66 @@ async function onPizzaFilterChange() {
     if (!lowMetrics) await loadPizzaChartDataWithFilters(CURRENT_SELECTED_PLAYER, CURRENT_SELECTED_POS, selected);
 }
 
+// 🎯 GLOBAL CACHE & TIMERS TIL PIZZA.JS (Gør spillersøgningen øjeblikkelig)
+let PIZZA_CACHED_PLAYER_ITEMS = null;
+let PIZZA_SEARCH_DEBOUNCE_TIMER = null;
+
 function filterPlayerList() {
-    const filter = $("player-search-input")?.value.toLowerCase();
-    if (filter === undefined) return;
-    document.querySelectorAll("#custom-player-items-container .custom-option-item").forEach(item => {
-        item.style.display = item.innerText.toLowerCase().includes(filter) ? "block" : "none";
-    });
+    // ⏱️ DEBOUNCE: Nulstil timeren hvis brugeren stadig taster løs
+    clearTimeout(PIZZA_SEARCH_DEBOUNCE_TIMER);
+
+    // Vent 150ms efter sidste tastetryk før vi ændrer i layoutet
+    PIZZA_SEARCH_DEBOUNCE_TIMER = setTimeout(() => {
+        const filter = $("player-search-input")?.value.toLowerCase();
+        if (filter === undefined) return;
+        
+        if (!PIZZA_CACHED_PLAYER_ITEMS) {
+            PIZZA_CACHED_PLAYER_ITEMS = document.querySelectorAll("#custom-player-items-container .custom-option-item");
+        }
+        
+        let matchesFound = 0;
+        
+        // 🚀 EFFEKTIV LOOP: Søger i hukommelsen og viser maksimalt 30 elementer ad gangen
+        for (let i = 0; i < PIZZA_CACHED_PLAYER_ITEMS.length; i++) {
+            const item = PIZZA_CACHED_PLAYER_ITEMS[i];
+            
+            if (filter === "") {
+                item.style.display = i < 30 ? "block" : "none";
+            } else {
+                if (item.innerText.toLowerCase().includes(filter) && matchesFound < 30) {
+                    item.style.display = "block";
+                    matchesFound++;
+                } else {
+                    item.style.display = "none";
+                }
+            }
+        }
+    }, 150);
 }
 
 function resetPlayerSearch() {
-    if ($("player-search-input")) { $("player-search-input").value = ""; filterPlayerList(); }
+    if ($("player-search-input")) { 
+        $("player-search-input").value = ""; 
+        
+        // Genopbyg cachen og nulstil visningen til de første 30 spillere
+        PIZZA_CACHED_PLAYER_ITEMS = document.querySelectorAll("#custom-player-items-container .custom-option-item");
+        for (let i = 0; i < PIZZA_CACHED_PLAYER_ITEMS.length; i++) {
+            PIZZA_CACHED_PLAYER_ITEMS[i].style.display = i < 30 ? "block" : "none";
+        }
+    }
 }
 
 function toggleCustomDropdown(type) {
     const pOpt = $("custom-player-options"), posOpt = $("custom-pos-options");
     if (type === 'player') {
-        const isOpening = pOpt?.style.display === "none";
+        const isOpening = pOpt?.style.display === "none" || pOpt?.style.display === "";
         if (pOpt) pOpt.style.display = isOpening ? "block" : "none"; 
         if (posOpt) posOpt.style.display = "none";
-        if (isOpening) { resetPlayerSearch(); setTimeout(() => $("player-search-input")?.focus(), 50); }
+        
+        if (isOpening) { 
+            resetPlayerSearch(); 
+            setTimeout(() => $("player-search-input")?.focus(), 50); 
+        }
     } else if (type === 'pos') {
         if (posOpt) posOpt.style.display = posOpt.style.display === "none" ? "block" : "none";
         if (pOpt) pOpt.style.display = "none";
@@ -159,6 +200,7 @@ function toggleCheckboxDropdown() {
     const pOpt = $("custom-player-options"), posOpt = $("custom-pos-options");
     if (pOpt) pOpt.style.display = "none"; if (posOpt) posOpt.style.display = "none";
 }
+
 
 async function initCustomPizzaSelectors() {
     try {

@@ -26,6 +26,10 @@ const getSimEl = id => document.getElementById(id);
 // PER 90 - SIMILARITY.JS - DEL 2 AF 5 (STRØMLINET PC & MINI MOBIL CSS)
 // ==========================================================================
 
+// ==========================================================================
+// PER 90 - SIMILARITY.JS - DEL 2 AF 5 (STRØMLINET PC & MINI MOBIL CSS)
+// ==========================================================================
+
 document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById('sim-core-styles')) return; 
     const style = document.createElement('style');
@@ -68,6 +72,11 @@ document.addEventListener("DOMContentLoaded", () => {
         .sim-row-bar-fill { height: 100%; background: var(--accent-purple); border-radius: 10px; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         .sim-row-score-value { font-size: 14px; font-weight: 900; color: var(--accent-purple); width: 100%; text-align: center; text-shadow: 0 0 10px rgba(168,85,247,0.2); line-height: 1; }
 
+        /* Styles til den nye avancerede dropdown */
+        .sim-custom-option-item { padding: 10px 14px; color: #f3f1f6; cursor: pointer; font-size: 14px; transition: all 0.15s ease; font-family: Gabarito, sans-serif; }
+        .sim-custom-option-item:hover { background-color: rgba(168, 85, 247, 0.25) !important; color: #ffffff !important; padding-left: 18px; }
+        .sim-custom-option-item.selected-active { background-color: var(--accent-purple) !important; color: #ffffff !important; }
+
         /* 📱 ULTRA-COMPACT MOBILOPTIMERING V6 (THE FINISHED BALANCED LOOK) */
         @media (max-width: 480px) {
             .sim-scouting-header { display: flex !important; padding: 4px 10px !important; font-size: 7px !important; letter-spacing: 0.5px !important; margin-bottom: 2px !important; border-bottom: 1px solid rgba(255,255,255,0.05) !important; }
@@ -102,7 +111,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     `;
     document.head.appendChild(style);
+
+    // Global klik-lytter til lukning af dropdown
+    document.addEventListener("click", e => {
+        if (!e.target.closest('#sim-custom-player-wrapper')) {
+            const p = getSimEl("sim-custom-player-options");
+            if (p) p.style.display = "none";
+        }
+    });
 });
+
 
 
 // ==========================================================================
@@ -141,6 +159,58 @@ async function initSimilarityView(container) {
     await bootstrapSimilarityFilters();
 }
 
+// 🎯 GLOBAL CACHE & TIMERS TIL SIMILARITY SPILLERSØGNING
+let SIM_CACHED_PLAYER_ITEMS = null;
+let SIM_SEARCH_DEBOUNCE_TIMER = null;
+
+function filterSimPlayerList() {
+    clearTimeout(SIM_SEARCH_DEBOUNCE_TIMER);
+    SIM_SEARCH_DEBOUNCE_TIMER = setTimeout(() => {
+        const filter = getSimEl("sim-player-search-input")?.value.toLowerCase();
+        if (filter === undefined) return;
+        
+        if (!SIM_CACHED_PLAYER_ITEMS) {
+            SIM_CACHED_PLAYER_ITEMS = document.querySelectorAll("#sim-custom-player-items-container .sim-custom-option-item");
+        }
+        
+        let matchesFound = 0;
+        for (let i = 0; i < SIM_CACHED_PLAYER_ITEMS.length; i++) {
+            const item = SIM_CACHED_PLAYER_ITEMS[i];
+            if (filter === "") {
+                item.style.display = i < 30 ? "block" : "none";
+            } else {
+                if (item.innerText.toLowerCase().includes(filter) && matchesFound < 30) {
+                    item.style.display = "block";
+                    matchesFound++;
+                } else {
+                    item.style.display = "none";
+                }
+            }
+        }
+    }, 150);
+}
+
+function resetSimPlayerSearch() {
+    if (getSimEl("sim-player-search-input")) { 
+        getSimEl("sim-player-search-input").value = ""; 
+        SIM_CACHED_PLAYER_ITEMS = document.querySelectorAll("#sim-custom-player-items-container .sim-custom-option-item");
+        for (let i = 0; i < SIM_CACHED_PLAYER_ITEMS.length; i++) {
+            SIM_CACHED_PLAYER_ITEMS[i].style.display = i < 30 ? "block" : "none";
+        }
+    }
+}
+
+function toggleSimPlayerDropdown() {
+    const pOpt = getSimEl("sim-custom-player-options");
+    if (!pOpt) return;
+    const isOpening = pOpt.style.display === "none" || pOpt.style.display === "";
+    pOpt.style.display = isOpening ? "block" : "none"; 
+    if (isOpening) { 
+        resetSimPlayerSearch(); 
+        setTimeout(() => getSimEl("sim-player-search-input")?.focus(), 50); 
+    }
+}
+
 function buildAndAppendSimilarityDrawerHTML(playerList = []) {
     document.querySelectorAll('.table-filter-drawer, .similarity-filter-drawer').forEach(d => d.remove());
 
@@ -157,7 +227,7 @@ function buildAndAppendSimilarityDrawerHTML(playerList = []) {
     const leagues = [...new Set(sourceList.map(p => p.league || p.League).filter(Boolean).sort())];
     const positions = [...new Set(sourceList.map(p => p.position || p['Pos.'] || p.Position).filter(Boolean).sort())];
 
-    const playerOptions = allPlayerNames.map(p => `<option value="${p}" ${p === SIM_TARGET_PLAYER ? 'selected' : ''}>${p}</option>`).join('');
+    SIM_CACHED_PLAYER_ITEMS = null; // Nulstil cache-referencen til DOM-søgningen
 
     const generateCheckboxesHTML = (items, key) => {
         return items.map(item => {
@@ -171,13 +241,26 @@ function buildAndAppendSimilarityDrawerHTML(playerList = []) {
     drawerDiv.innerHTML = `
         <div class="drawer-header"><span class="drawer-title">Similarity Settings</span><button class="close-drawer-btn" onclick="closeGlobalDrawer()">✕</button></div>
         <div class="filter-panel" style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-height: 85vh; overflow-y: auto;">
-            <div class="table-drawer-group">
+            
+            <!-- 🎯 AVANCERET DROPDOWN MED SØGEFELT -->
+            <div class="table-drawer-group" style="position: relative;">
                 <label class="table-drawer-label">Reference Player</label>
-                <select id="sim-opt-target" class="table-drawer-select" onchange="handleSimTargetChange()">
-                    <option value="">-- Select player --</option>
-                    ${playerOptions}
-                </select>
+                <div class="custom-select-wrapper" id="sim-custom-player-wrapper" style="position: relative; width: 100%;">
+                    <div class="custom-select-trigger" onclick="toggleSimPlayerDropdown()" style="background: rgba(20, 13, 33, 0.85); color: #fff; border: 1px solid rgba(255,255,255,0.08); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                        <span id="sim-custom-player-selected-text">${SIM_TARGET_PLAYER || 'Vælg spiller...'}</span>
+                        <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: #64748b;"></i>
+                    </div>
+                    <div class="custom-options-list" id="sim-custom-player-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; max-height: 250px; overflow-y: auto; z-index: 120;">
+                        <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 130;">
+                            <input type="text" id="sim-player-search-input" oninput="filterSimPlayerList()" placeholder="Search..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: #fff; border: 1px solid rgba(255,255,255,0.08); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none;" onclick="event.stopPropagation();">
+                        </div>
+                        <div id="sim-custom-player-items-container">
+                            ${allPlayerNames.map(p => `<div class="sim-custom-option-item ${p === SIM_TARGET_PLAYER ? 'selected-active' : ''}" onclick="selectSimPlayerItem('${p.replace(/'/g, "\\\\'")}')">${p}</div>`).join('')}
+                        </div>
+                    </div>
+                </div>
             </div>
+
             <div class="table-drawer-group"><label class="table-drawer-label">Leagues</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(leagues, 'leagues')}</div></div>
             <div class="table-drawer-group"><label class="table-drawer-label">Positions</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(positions, 'positions')}</div></div>
             <div class="table-drawer-group">
@@ -197,6 +280,7 @@ function buildAndAppendSimilarityDrawerHTML(playerList = []) {
         </div>`;
     document.body.appendChild(drawerDiv);
 }
+
 
 // ==========================================================================
 // PER 90 - SIMILARITY.JS - DEL 4 AF 5 (API DATA-FEEDER & BOOTSTRAP-MOTOR)
@@ -269,15 +353,26 @@ async function loadSimilarityAPIDataFeed() {
     }
 }
 
-async function handleSimTargetChange() {
-    const targetSelect = getSimEl("sim-opt-target");
-    if (!targetSelect) return;
-    SIM_TARGET_PLAYER = targetSelect.value;
+// 🎯 NY KLIK-LOGIK TIL VALG AF SPILLER FRA INTEGRERET SØGELISTE
+async function selectSimPlayerItem(value) {
+    SIM_TARGET_PLAYER = value;
     if (typeof CURRENT_SELECTED_PLAYER !== 'undefined') {
         CURRENT_SELECTED_PLAYER = SIM_TARGET_PLAYER;
     }
+    
+    const triggerText = getSimEl("sim-custom-player-selected-text");
+    if (triggerText) triggerText.innerText = value;
+    
+    const optEl = getSimEl("sim-custom-player-options"); 
+    if (optEl) optEl.style.display = "none";
+    
+    document.querySelectorAll('#sim-custom-player-options .sim-custom-option-item').forEach(el => {
+        el.classList.toggle('selected-active', el.innerText === value);
+    });
+    
     await loadSimilarityAPIDataFeed();
 }
+
 
 function handleSimFilterInputChange() {
     if (!getSimEl("sim-filt-min-age")) return;

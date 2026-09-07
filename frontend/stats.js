@@ -217,19 +217,72 @@ async function initCustomStatsSelectors() {
     } catch (e) { console.error("Fejl under indlæsning af spillere:", e); }
 }
 
+// 🎯 GLOBAL CACHE & TIMERS (Låser elementerne og forhindrer unødvendige opdateringer)
+let STATS_CACHED_PLAYER_ITEMS = null;
+let STATS_SEARCH_DEBOUNCE_TIMER = null;
+
 function toggleStatsDropdown() {
-    const p = $s("stats-player-options"); if (p) p.style.display = p.style.display === "none" ? "block" : "none";
+    const p = $s("stats-player-options"); 
+    if (!p) return;
+    
+    const isOpening = p.style.display === "none" || p.style.display === "";
+    p.style.display = isOpening ? "block" : "none";
+    
+    if (isOpening) {
+        if ($s("stats-player-search")) {
+            $s("stats-player-search").value = "";
+        }
+        
+        // Cache listen i hukommelsen
+        STATS_CACHED_PLAYER_ITEMS = document.querySelectorAll("#stats-player-items-container .custom-option-item");
+        
+        // 🚀 Begræns synligheden til kun de første 30 spillere ved åbning, så browseren ikke overvældes
+        for (let i = 0; i < STATS_CACHED_PLAYER_ITEMS.length; i++) {
+            STATS_CACHED_PLAYER_ITEMS[i].style.display = i < 30 ? "block" : "none";
+        }
+        
+        setTimeout(() => $s("stats-player-search")?.focus(), 50);
+    }
 }
 
 function filterStatsPlayerList() {
-    const filter = $s("stats-player-search")?.value.toLowerCase(); if (filter === undefined) return;
-    document.querySelectorAll("#stats-player-items-container .custom-option-item").forEach(item => {
-        item.style.display = item.innerText.toLowerCase().includes(filter) ? "block" : "none";
-    });
+    // ⏱️ DEBOUNCE: Nulstil timeren hvis brugeren stadig taster
+    clearTimeout(STATS_SEARCH_DEBOUNCE_TIMER);
+
+    // Vent 150 millisekunder efter sidste tastetryk før vi overhovedet rører layoutet
+    STATS_SEARCH_DEBOUNCE_TIMER = setTimeout(() => {
+        const filter = $s("stats-player-search")?.value.toLowerCase(); 
+        if (filter === undefined) return;
+        
+        if (!STATS_CACHED_PLAYER_ITEMS) {
+            STATS_CACHED_PLAYER_ITEMS = document.querySelectorAll("#stats-player-items-container .custom-option-item");
+        }
+        
+        let matchesFound = 0;
+        
+        // 🚀 SMART SYNLIGHEDS-LOOP
+        for (let i = 0; i < STATS_CACHED_PLAYER_ITEMS.length; i++) {
+            const item = STATS_CACHED_PLAYER_ITEMS[i];
+            
+            // Hvis feltet er tomt, vis kun de første 30
+            if (filter === "") {
+                item.style.display = i < 30 ? "block" : "none";
+            } else {
+                // Hvis der søges, tjek om teksten matcher, og om vi har fundet færre end 30 hits
+                if (item.innerText.toLowerCase().includes(filter) && matchesFound < 30) {
+                    item.style.display = "block";
+                    matchesFound++; // Stop med at tegne flere elementer når vi rammer 30
+                } else {
+                    item.style.display = "none";
+                }
+            }
+        }
+    }, 150); // 150ms forsinkelse er usynligt for øjet, men redder browserens ydeevne fuldstændig!
 }
 
 async function selectStatsPlayer(val) {
-    STATS_CURRENT_PLAYER = val; $s("stats-player-selected-text").innerText = val;
+    STATS_CURRENT_PLAYER = val; 
+    $s("stats-player-selected-text").innerText = val;
     if ($s("stats-player-options")) $s("stats-player-options").style.display = "none";
     await onStatsFilterChange();
 }
@@ -245,6 +298,7 @@ async function onStatsFilterChange() {
         }
     } catch (e) { console.error("Fejl under hentning af profil-data:", e); }
 }
+
 // ==========================================================================
 // PER 90 - STATS.JS - RETTET DEL 4A AF 4 (SYMMETRISK CORE LINING)
 // ==========================================================================
