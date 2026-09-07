@@ -55,24 +55,137 @@ document.addEventListener("DOMContentLoaded", () => {
         #view-radar .svg-score-rect-p2 { fill: rgba(217, 70, 239, 0.04); stroke: #d946ef; stroke-width: 1; }
         #view-radar .svg-score-text { font-size: 10px; font-weight: 700; font-family: 'Gabarito', sans-serif; dominant-baseline: central; text-anchor: middle; }
 
-        /* 📱 RESPONSIV MOBILOPTIMERING FOR RADAR (MATCH INTERFACE-MØNSTER) */
         @media (max-width: 480px) {
-            #view-radar .chart-container { padding: 12px 16px !important; width: 100% !important; }
-            #view-radar .h-cnt { height: auto !important; min-height: 70px !important; padding: 10px 0 !important; margin-bottom: 15px !important; }
-            #view-radar .p-panel { padding: 0 12px !important; }
+            /* Squeezer selve hovedkortets polstring */
+            #view-radar .chart-container { 
+                padding: 10px 10px !important; 
+                width: 100% !important; 
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 5px !important;
+                align-items: center !important; /* Låser den perfekte horisontale akse */
+            }
             
-            /* Nedskalerer spillernavn, så lange navne ikke crasher på midten */
-            #view-radar .p-nm { font-size: 11px !important; letter-spacing: 0.5px !important; line-height: 1.2 !important; }
-            #view-radar .p-row { gap: 3px !important; margin-top: 4px !important; flex-wrap: wrap !important; }
-            #view-radar .info-tag { font-size: 8px !important; padding: 1px 4px !important; }
+            /* Gør topbjælken ultra-lav og sikrer fuld bredde */
+            #view-radar .h-cnt { 
+                height: auto !important; 
+                min-height: 42px !important; 
+                padding: 6px 0 !important; 
+                margin-bottom: 5px !important; 
+                border-radius: 8px !important;
+                width: 100% !important;
+                display: flex !important;
+            }
             
-            /* Kontrol over det nedskalerede SVG-kort og dets tekst-elementer */
-            #radar-svg-element { max-height: 400px !important; }
-            #view-radar .ax-lbl { font-size: 8px !important; letter-spacing: 0.5px !important; }
-            #view-radar .svg-score-text { font-size: 8px !important; }
+            #view-radar .p-panel { 
+                padding: 0 4px !important; /* 🎯 Reduceret fra 10px for at give kritisk friplads horisontalt */
+                justify-content: center !important;
+                background: none !important; 
+                width: 50% !important;
+            }
             
-            #view-radar .chart-footer, #view-radar .chart-footer-source { font-size: 9px !important; margin-top: 10px !important; }
+            #view-radar .p-panel.left { 
+                align-items: flex-start !important;
+                filter: drop-shadow(0 0 12px rgba(0,240,255,0.15));
+            }
+            #view-radar .p-panel.right { 
+                align-items: flex-end !important;
+                text-align: right !important;
+                filter: drop-shadow(0 0 12px rgba(217,70,239,0.15));
+            }
+            
+            /* Gør spillernavnene super små og kompakte */
+            #view-radar .p-nm { 
+                font-size: 4.5px !important; 
+                letter-spacing: 0.2px !important; 
+                line-height: 1.1 !important; 
+                margin: 0 0 3px 0 !important;
+            }
+            
+            /* Tvinger tags til at stå side om side i en glidende række */
+            #view-radar .p-row { 
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                gap: 3.5px !important; 
+                margin-top: 0px !important; 
+                flex-wrap: nowrap !important;
+                line-height: 1 !important;
+            }
+            
+            /* Genskaber dine farvede, mørke info-tags i miniatureformat */
+            #view-radar .info-tag { 
+                font-size: 3px !important; 
+                padding: 1px 3px 2px 3px !important; /* 🎯 EKSPORT-FIX: Tilføjer 2px i bunden for at give plads til bogstaverne */
+                border-radius: 2px !important;
+                background: rgba(255,255,255,0.06) !important; 
+                color: #f1f5f9 !important; 
+                letter-spacing: 0px !important;
+                text-transform: uppercase !important;
+                border: none !important;
+                white-space: nowrap !important;
+                
+                /* 🎯 VERTIKAL OPTIMERING FOR HTML2CANVAS */
+                display: inline-flex !important;      /* Skiftet fra inline-block til inline-flex */
+                align-items: center !important;       /* Centrerer teksten fuldstændig midt i boksen */
+                justify-content: center !important;
+                line-height: 1.2 !important;          /* 🎯 Hævet en smule fra 1 så browseren ikke klipper baselinjen */
+                width: max-content !important;
+                box-sizing: border-box !important;
+            }
+
+            
+            /* 🎯 SWEET SPOT ELEVERET: Vi skruer bredden helt op til 100% og bruger negativ margin til at blæse hjulet op i størrelse */
+            #radar-svg-element { 
+                display: block !important;
+                width: 100% !important;         
+                max-width: 100% !important;
+                height: auto !important;
+                max-height: 580px !important;   
+                margin: 5px auto !important;    
+                transform: none !important;     /* Fjerner den drillende scale helt */
+                overflow: visible !important;
+            }
+            
+            /* Metrik-navne (f.eks. Goals, Assists) slås fast i en flot, stor og læsbar størrelse */
+            #view-radar .ax-lbl { 
+                font-size: 12px !important;    
+                font-weight: 900 !important;    
+                letter-spacing: 0.3px !important; 
+            }
+            
+            /* Tal-værdierne indeni mikro-boksene gøres tydelige */
+            #view-radar .svg-score-text { 
+                font-size: 11px !important;      
+                font-weight: 900 !important;
+            }
+
+
+            /* 🎯 ULTRA-KLEMTE FOOTER LINJER: Lægger sig helt op ad hinanden */
+            #view-radar .chart-footer, #view-radar .chart-footer-source { 
+                font-size: 4px !important; 
+                padding: 0 !important;          /* 1. Nulstiller al polstring */
+                margin: 0 !important;           /* 2. Nulstiller alle standard-mellemrum */
+                line-height: 1.0 !important;    /* 3. Låser tekstens højde til det absolut minimale */
+                text-align: center !important;
+                width: 100% !important;
+            }
+            
+            #view-radar .chart-footer { 
+                margin-top: 10px !important;    /* Styrer luften FRA diagrammet og NED til linje 1 */
+                opacity: 0.5 !important;
+            }
+            
+            #view-radar .chart-footer-source { 
+                margin-top: -2px !important;   /* 4. NEGATIV MARGIN: Trækker linje 2 FYSISKT OP i linje 1 */
+                opacity: 0.4 !important;
+            }
+
+
+
+
         }
+
     `;
     document.head.appendChild(style);
 });
@@ -185,6 +298,33 @@ function toggleRadarCheckboxDropdown() {
 // PER 90 - RADAR.JS - DEL 3 AF 4 (SPLIT CARD & LIVE JOGA BONITO KNAP)
 // ==========================================================================
 
+// ==========================================================================
+// 🎯 DYNAMISK FARVEOPDATERING: Gendan manglende funktion til live farveskift
+// ==========================================================================
+function updateRadarColors(playerNum) {
+    if (playerNum === 1) {
+        const input1 = $r("radar-color1-input");
+        if (input1) {
+            RADAR_COLOR_1 = input1.value;
+            // Skifter spillernavnets tekstfarve i toppen live
+            const name1 = document.querySelector("#view-radar .p-panel.left .p-nm");
+            if (name1) name1.style.color = RADAR_COLOR_1;
+        }
+    } else if (playerNum === 2) {
+        const input2 = $r("radar-color2-input");
+        if (input2) {
+            RADAR_COLOR_2 = input2.value;
+            // Skifter sammenligningsspillerens tekstfarve i toppen live
+            const name2 = document.querySelector("#view-radar .p-panel.right .p-nm");
+            if (name2) name2.style.color = RADAR_COLOR_2;
+        }
+    }
+    
+    // Kalder din eksisterende filter-ændring, som genopbygger SVG-diagrammet med de nye farver!
+    onRadarFilterChange();
+}
+                                 
+
 async function onRadarFilterChange() {
     if (!RADAR_PLAYER_1) return;
     const checkboxes = document.querySelectorAll('#radar-checkboxes-container input[type="checkbox"]');
@@ -264,18 +404,18 @@ async function loadRadarChartDataWithFilters(p1, p2, metricsList) {
                     <div class="p-panel left">
                         <h2 class="p-nm b-tx" style="color: ${RADAR_COLOR_1};">${d1.player_name}</h2>
                         <div class="p-row">
-                            <span class="info-tag">${d1.player_pos || 'N/A'}</span>
-                            <span class="info-tag">${d1.mins_played || 0} MIN.</span>
-                            <span class="info-tag">${d1.league || 'N/A'}</span>
+                            <span class="info-tag" style="border-left: 1px solid ${RADAR_COLOR_1} !important;">${d1.player_pos || 'N/A'}</span>
+                            <span class="info-tag" style="border-left: 1px solid ${RADAR_COLOR_1} !important;">${d1.mins_played || 0} MIN.</span>
+                            <span class="info-tag" style="border-left: 1px solid ${RADAR_COLOR_1} !important;">${d1.league || 'N/A'}</span>
                         </div>
                     </div>
                     <div class="h-divider"></div>
                     <div class="p-panel right">
                         <h2 class="p-nm p-tx" style="color: ${RADAR_COLOR_2};">${d2 && d2.player_name ? d2.player_name : 'No Compare'}</h2>
                         <div class="p-row">
-                            <span class="info-tag">${d2 ? d2.player_pos : 'N/A'}</span>
-                            <span class="info-tag">${d2 ? d2.mins_played : 0} MIN.</span>
-                            <span class="info-tag" style="border-right: 2px solid ${RADAR_COLOR_2};">${d2 ? d2.league : 'N/A'}</span>
+                            <span class="info-tag" style="border-right: 1px solid ${RADAR_COLOR_2} !important;">${d2 ? d2.player_pos : 'N/A'}</span>
+                            <span class="info-tag" style="border-right: 1px solid ${RADAR_COLOR_2} !important;">${d2 ? d2.mins_played : 0} MIN.</span>
+                            <span class="info-tag" style="border-right: 1px solid ${RADAR_COLOR_2} !important;">${d2 ? d2.league : 'N/A'}</span>
                         </div>
                     </div>
                 </div>
@@ -301,14 +441,17 @@ async function loadRadarChartDataWithFilters(p1, p2, metricsList) {
 
 function buildRadarVektorSpiderweb(d1, d2) {
     const svg = $r("radar-svg-element"); if (!svg) return;
-    const CX = 355, CY = 280, MAX_R = 150, total = d1.metrics.length, angle = (2 * Math.PI) / total;
+    
+    // 🎯 JAVA-SCRIPT MATEMATIK BOOSTER: Skruer hjulets radius op fra 150 til 210 til mobil/download!
+    const CX = 355, CY = 290, MAX_R = 210, total = d1.metrics.length, angle = (2 * Math.PI) / total;
 
-    // 1. Spindelvævets baggrunds-ringe
-    let markup = [37.5, 75, 112.5, 150].map(r => {
+    // 1. Spindelvævets baggrunds-ringe (Overskriver de hårde værdier til at matche den nye MAX_R på 210)
+    let markup = [52.5, 105, 157.5, 210].map(r => {
         let points = [];
         for (let i = 0; i < total; i++) points.push(`${CX + r * Math.cos(i * angle - Math.PI/2)},${CY + r * Math.sin(i * angle - Math.PI/2)}`);
         return `<polygon points="${points.join(' ')}" class="grid-poly" />`;
     }).join('');
+
 
     // Axis spokes stråler
     d1.metrics.forEach((_, i) => {
@@ -316,8 +459,9 @@ function buildRadarVektorSpiderweb(d1, d2) {
         markup += `<line x1="${CX}" y1="${CY}" x2="${CX + MAX_R * Math.cos(a)}" y2="${CY + MAX_R * Math.sin(a)}" class="grid-line" />`;
     });
 
-    // 2. RENDERING AF SPILLER-BANERNE (pl-b / pl-p) OG NODER
-    const generatePlayerPathMarkup = (data, polyClass, nodeClass) => {
+    
+    // 2. RENDERING AF SPILLER-BANERNE (Nu med 100% dynamiske farvevariabler)
+    const generatePlayerPathMarkup = (data, polyColor, nodeColor) => {
         if (!data || !data.metrics) return '';
         let points = [];
         data.metrics.forEach((_, i) => {
@@ -325,56 +469,70 @@ function buildRadarVektorSpiderweb(d1, d2) {
             points.push(`${CX + r * Math.cos(a)},${CY + r * Math.sin(a)}`);
         });
         
-        let pathMarkup = `<polygon class="${polyClass}" points="${points.join(' ')}" />`;
+        // Vi erstatter klasserne med direkte stroke og fill styring fra din farvevælger
+        let pathMarkup = `<polygon points="${points.join(' ')}" style="fill: ${polyColor}0f; stroke: ${polyColor}; stroke-width: 2.2; stroke-linejoin: round;" />`;
+        
         data.metrics.forEach((_, i) => {
             const r = ((data.percentiles[i] || 0) / 100) * MAX_R, a = i * angle - Math.PI / 2;
-            pathMarkup += `<circle class="${nodeClass}" cx="${CX + r * Math.cos(a)}" cy="${CY + r * Math.sin(a)}" r="4.5" />`;
+            pathMarkup += `<circle cx="${CX + r * Math.cos(a)}" cy="${CY + r * Math.sin(a)}" r="4.5" style="fill: ${nodeColor}; stroke: #ffffff; stroke-width: 1;" />`;
         });
         return pathMarkup;
     };
 
-    if (d2 && d2.metrics) markup += generatePlayerPathMarkup(d2, 'pl-p', 'n-p');
-    markup += generatePlayerPathMarkup(d1, 'pl-b', 'n-b');
+    // Her fodrer vi motoren med dine live globale farvevariabler i stedet for statiske klasser
+    if (d2 && d2.metrics) markup += generatePlayerPathMarkup(d2, RADAR_COLOR_2, RADAR_COLOR_2);
+    markup += generatePlayerPathMarkup(d1, RADAR_COLOR_1, RADAR_COLOR_1);
 
-    // 3. 🎯 NY SKUDSIKKER METODE: ALT CENTRERES VIA DET SAMME ANCHOR-PUNKT 🎯
+    // 3. SYMMETRISK ENHEDS-CENTRERING OG ENSARTET AFSTAND TIL BOKSE
     d1.metrics.forEach((metric, i) => {
         const a = i * angle - Math.PI / 2;
         const cos = Math.cos(a), sin = Math.sin(a);
         
-        // Vi finder det præcise yderpunkt for metrikken (skubbet 32px ud fra hjulet)
         const tx = CX + (MAX_R + 32) * cos;
         const ty = CY + (MAX_R + 32) * sin;
 
         const score1 = Math.round(d1.percentiles[i] || 0);
         const score2 = d2 && d2.percentiles ? Math.round(d2.percentiles[i] || 0) : 0;
 
-        // Vi opretter en lokal SVG-gruppe, transformerer/flytter NULPUNKTET til tx,ty
-        // Nu vil alt indeni denne gruppe automatisk ligge på linje ud fra samme akse!
-        markup += `<g transform="translate(${tx}, ${ty})">`;
+        markup += `<g transform="translate(${tx}, ${ty - 4})">`;
         
-        // Teksten tvinges nu ALTID til at være midterstillet (middle) præcis på koordinat 0,0
-        markup += `<text x="0" y="0" class="ax-lbl" text-anchor="middle" dominant-baseline="central">${metric}</text>`;
+        const words = metric.split(" ");
+        let boxY = 14; 
 
-        // Boks-parret fylder samlet 54px i bredden. 
-        // Ved at sætte startkoordinatet for boks 1 til -27px, rammer midteraksen præcis på 0 (lige under ordet)
+        if (words.length >= 2) {
+            const line1 = words[0];
+            const line2 = words.slice(1).join(" ");
+            markup += `
+                <text x="0" y="-12" class="ax-lbl" text-anchor="middle" dominant-baseline="central">${line1}</text>
+                <text x="0" y="2" class="ax-lbl" text-anchor="middle" dominant-baseline="central">${line2}</text>
+            `;
+        } else {
+            markup += `<text x="0" y="-5" class="ax-lbl" text-anchor="middle" dominant-baseline="central">${metric}</text>`;
+            boxY = 11;
+        }
+
         const b1X = -27;
-        const b2X = 2; // -27 + 25px boks + 4px luft imellem dem
-        const boxY = 12; // Lægger boksene præcis 12px under teksten
+        const b2X = 2;
 
+        // 🎯 OGSÅ FIXET HER: Rammerne på de små talbokse overskriver nu CSS og trækker live-farven direkte ind
         markup += `
-                <!-- Spiller 1 Cyan Mikro-Boks (Symmetrisk centreret om 0) -->
-                <rect x="${b1X}" y="${boxY}" width="25" height="15" rx="4" class="svg-score-rect-p1" />
-                <text x="${b1X + 12.5}" y="${boxY + 7.5}" class="svg-score-text" style="fill: ${RADAR_COLOR_1};">${score1}</text>
+                <!-- Spiller 1 Mikro-Boks (Dynamisk Cyan/Valgt farve) -->
+                <rect x="${b1X}" y="${boxY}" width="25" height="15" rx="4" style="fill: ${RADAR_COLOR_1}0a; stroke: ${RADAR_COLOR_1}; stroke-width: 1;" />
+                <text x="${b1X + 12.5}" y="${boxY + 7.5}" class="svg-score-text" style="fill: ${RADAR_COLOR_1}; font-weight: 900;">${score1}</text>
                 
-                <!-- Spiller 2 Pink Mikro-Boks (Symmetrisk centreret om 0) -->
-                <rect x="${b2X}" y="${boxY}" width="25" height="15" rx="4" class="svg-score-rect-p2" />
-                <text x="${b2X + 12.5}" y="${boxY + 7.5}" class="svg-score-text" style="fill: ${RADAR_COLOR_2};">${d2 ? score2 : '-'}</text>
+                <!-- Spiller 2 Mikro-Boks (Dynamisk Pink/Valgt farve) -->
+                <rect x="${b2X}" y="${boxY}" width="25" height="15" rx="4" style="fill: ${RADAR_COLOR_2}0a; stroke: ${RADAR_COLOR_2}; stroke-width: 1;" />
+                <text x="${b2X + 12.5}" y="${boxY + 7.5}" class="svg-score-text" style="fill: ${RADAR_COLOR_2}; font-weight: 900;">${d2 ? score2 : '-'}</text>
             </g>
         `;
     });
 
     svg.innerHTML = markup + `<circle cx="${CX}" cy="${CY}" r="4" fill="#ffffff" />`;
 }
+
+
+
+
 
 function downloadRadarPNG() {
     const el = $r("radar-capture-target-area"); // Tager kun det rene diagram-kort med!

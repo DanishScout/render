@@ -64,26 +64,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
         /* 📱 RESPONSIV MOBILOPTIMERING FOR STATS-PROFIL (Når skærmen er under 480px) */
         @media (max-width: 480px) {
-            .stats-profile-card { padding: 16px !important; margin-bottom: 20px !important; gap: 14px !important; }
-            .stats-p-left { gap: 12px !important; width: 100% !important; }
-            .stats-p-names { border-left-width: 3px !important; padding-left: 10px !important; }
-            .stats-p-name { font-size: 20px !important; letter-spacing: 0px !important; }
-            .stats-p-sub { font-size: 9px !important; margin-top: 4px !important; }
+            /* Trækker profilkortet tæt sammen */
+            .stats-profile-card { padding: 10px 10px !important; margin-bottom: 12px !important; gap: 8px !important; flex-direction: column !important; align-items: flex-start !important; }
+            .stats-p-left { gap: 6px !important; width: 100% !important; }
+            .stats-p-names { border-left-width: 3px !important; padding-left: 6px !important; }
+            
+            /* Spillernavnet bevarer sin fine, læsbare størrelse */
+            .stats-p-name { font-size: 18px !important; letter-spacing: -0.5px !important; }
+            /* Gør undertitlen en smule mindre */
+            .stats-p-sub { font-size: 7.5px !important; margin-top: 1px !important; letter-spacing: 0.2px !important; }
 
-            /* Tvinger højre side af profilkortet (Club, Age, Mins) i et rent 2-kolonne layout på mobilen */
-            .stats-p-right { grid-template-columns: repeat(2, 1fr) !important; width: 100% !important; gap: 8px !important; }
-            .stats-meta-box { padding: 8px !important; }
-            .stats-meta-val { font-size: 10px !important; }
-            .stats-meta-lbl { font-size: 8px !important; }
+            /* 🎯 ULTRA-RETTELSE 1: Tvinger Club, Age og Mins side om side på én linje på mobil */
+            .stats-p-right { display: flex !important; flex-direction: row !important; width: 100% !important; gap: 4px !important; justify-content: space-between !important; }
+            .stats-meta-box { flex: 1 !important; padding: 4px 2px !important; border-radius: 5px !important; min-width: 0 !important; text-align: center !important; }
+            .stats-meta-val { font-size: 8px !important; font-weight: 800 !important; }
+            .stats-meta-lbl { font-size: 6.5px !important; margin-top: 0px !important; opacity: 0.7 !important; }
 
-            /* Justering af de store kategoriblokke og metrik-listerne */
-            .stats-cat-block { padding: 16px !important; gap: 14px !important; }
-            .stats-cat-title { font-size: 11px !important; padding-bottom: 6px !important; }
-            .stats-m-lbl { font-size: 9px !important; margin-bottom: 4px !important; }
-            .stats-m-val-text { font-size: 10px !important; }
-            .stats-m-val-text span { font-size: 9px !important; }
-            .stats-status-badge { font-size: 7.5px !important; padding: 1px 4px !important; }
-        }
+            /* Tvinger kasserne til at stå side om side i 2 brede kolonner */
+            .stats-blocks-container { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; width: 100% !important; padding: 0 !important; }
+            
+            /* Gør hver kategoriboks endnu mere kompakt */
+            .stats-cat-block { padding: 8px !important; gap: 6px !important; border-radius: 10px !important; }
+            .stats-cat-title { font-size: 8.5px !important; padding-bottom: 3px !important; margin-bottom: 0px !important; }
+            
+            /* Tvinger metrikkerne ind i 1 kolonne indeni de små kasser */
+            .stats-metrics-grid { grid-template-columns: 1fr !important; gap: 6px !important; }
+            
+            /* 🎯 ULTRA-RETTELSE 2: Skruer helt ned for alle tekstelementer i metrikkerne */
+            .stats-m-lbl { font-size: 6px !important; margin-bottom: 1px !important; letter-spacing: 0px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.8 !important; }
+            .stats-m-bar-bg { height: 2px !important; margin-bottom: 2px !important; }
+            .stats-m-val-text { font-size: 6px !important; }
+            .stats-m-val-text span { font-size: 6px !important; margin-left: 1px !important; }
+            .stats-status-badge { 
+                font-size: 5px !important; 
+                padding: 2px 4px 2px 4px !important; /* Præcis kontrol over top/bund polstring */
+                line-height: 1 !important;           /* Låser tekstens linjehøjde */
+                display: inline-flex !important;      
+                align-items: center !important;      /* Centrerer kassen vertikalt */
+                justify-content: center !important;   /* Centrerer kassen horisontalt */
+                letter-spacing: -0.2px !important; 
+                border-radius: 2px !important; 
+                height: 10px !important;             /* Fastlåser højden så html2canvas ikke gætter forkert */
+                box-sizing: border-box !important;
+            }
+
+
+
     `;
     document.head.appendChild(style);
 });

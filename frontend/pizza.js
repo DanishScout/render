@@ -370,16 +370,131 @@ document.addEventListener("DOMContentLoaded", () => {
         .chart-footer, .chart-footer-source { text-align: center; width: 100%; font-size: 11px; font-weight: 300; color: #e5e7eb; letter-spacing: .4px; padding: 0 40px; box-sizing: border-box; position: relative; z-index: 2; font-family: var(--font-family), sans-serif; }
         .chart-footer { margin-top: 1px; opacity: 0.75; }
         .chart-footer-source { margin-top: 6px; opacity: 0.5; }
+        /* 📱 ULTRA-COMPACT MOBILOPTIMERING FOR PIZZA CHART */
         @media (max-width: 480px) {
-            .header-card { padding: 6px 14px !important; margin: 0px auto 10px !important; max-width: 80% !important; }
-            .p-nm { font-size: 10px !important; margin: 0 0 4px !important; }
-            .p-sub-bar { gap: 6px !important; font-size: 8px !important; }
-            .meta-item svg { width: 9px !important; height: 9px !important; }
-            .logo-shape { width: 12px !important; height: 12px !important; }
-            .chart-footer, .chart-footer-source { font-size: 8px !important; padding: 0 20px !important; }
-            .chart-footer { margin-top: 5px !important; }
-            .chart-footer-source { margin-top: 3px !important; }
+            /* Squeezer polstring og margin på profilkortet i toppen */
+            .header-card { 
+                padding: 10px 14px !important; 
+                margin: 0px auto 12px !important; 
+                max-width: 85% !important; 
+                border-radius: 12px !important; 
+                display: flex !important;
+                justify-content: center !important; /* Centrerer hele indholdet i den store boks */
+            }
+            
+            .h-cnt {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+
+            .p-meta-right {
+                width: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: flex-start !important; /* Tvinger alt indhold til at starte præcis samme sted i venstre side */
+            }
+
+            /* Bevarer spillernavnet i din præcise mobil-størrelse */
+            .p-nm { 
+                font-size: 10px !important; 
+                margin: 0 0 4px 0 !important; /* Minimal bund-margin */
+                padding: 0 !important;
+                letter-spacing: -0.5px !important; 
+                line-height: 1.1 !important;
+                text-align: left !important;
+            }
+
+            /* Tvinger baren til at starte perfekt under navnet */
+            .tactic-line { 
+                margin: 0 0 6px 0 !important; /* Fast, ensartet afstand ned til ikonerne (6px) */
+                width: 100% !important;
+                display: block !important;
+            }
+            
+            /* 🎯 SKRUER NED FOR LIGA, POSITION OG MINUTTER - linet perfekt op */
+            .p-sub-bar { 
+                display: flex !important;
+                align-items: center !important; /* Centrerer hele rækken på en snor */
+                justify-content: flex-start !important; 
+                gap: 5px !important; 
+                font-size: 4px !important; 
+                letter-spacing: 0.2px !important; 
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                line-height: 1 !important; /* Nulstiller standard linjehøjde */
+            }
+
+            .meta-item {
+                display: flex !important;
+                align-items: center !important; /* Tvinger ikonet og teksten til at have nøjagtig samme midterakse */
+                justify-content: center !important;
+                gap: 3px !important; 
+                line-height: 1 !important; /* Låser tekstens højde vertikalt */
+            }
+
+            .meta-item span {
+                display: inline-block !important;
+                line-height: 1 !important; /* Sikrer at selve bogstaverne ikke har luft over/under sig */
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .meta-item svg { 
+                width: 6px !important; 
+                height: 6px !important; 
+                stroke-width: 2.2 !important; 
+                display: block !important; /* Fjerner standard inline-støj fra browseren */
+            }
+
+            .logo-shape { 
+                width: 8px !important; 
+                height: 8px !important; 
+                padding: 0px !important; 
+                display: flex !important;
+                align-items: center !important; /* Centrerer klublogoet indeni den runde cirkel */
+                justify-content: center !important;
+            }
+
+
+            .club-crest-small {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: contain !important;
+            }
+
+            .pipe-divider { 
+                font-size: 6px !important; 
+                opacity: 0.5 !important; 
+                line-height: 1 !important;
+                display: flex !important;
+                align-items: center !important;
+            }
+            
+            #pizza-svg-element { margin: -10px auto 0 !important; }
+            
+            /* 🎯 SKRUER NED FOR DE TO FOOTER-LINJER I BUNDEN */
+            .chart-footer, .chart-footer-source { 
+                padding: 0 15px !important; 
+                line-height: 1.3 !important;
+            }
+            /* Linjen med 'percentile rank vs...' */
+            .chart-footer { 
+                font-size: 4px !important; 
+                margin-top: 8px !important; 
+                font-weight: 400 !important;
+                opacity: 0.75 !important;
+            }
+            /* Linjen med 'Generated via...' */
+            .chart-footer-source { 
+                font-size: 4px !important; 
+                margin-top: 2px !important; 
+                font-weight: 300 !important;
+                opacity: 0.45 !important;
+            }
         }
+
+
     `;
     document.head.appendChild(style);
     
