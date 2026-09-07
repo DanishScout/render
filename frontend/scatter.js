@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
             letter-spacing: 1.5px !important; 
             text-transform: uppercase !important; 
             font-family: 'Gabarito', sans-serif;
-            opacity: 0.5 !important; /* Dæmpet for et mere integreret look */
+            opacity: 0.3 !important; /* Dæmpet for et mere integreret look */
             text-shadow: 0 0 10px rgba(255,255,255,0.1);
         }
 
@@ -113,6 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .sc-tt-stat-lbl { color: #94a3b8; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
         .sc-tt-stat-val { font-weight: 800; color: #f59e0b !important; font-size: 12px; text-shadow: 0 0 8px rgba(245,158,11,0.2); }
 
+        /* 📱 RESPONSIV MOBILOPTIMERING FOR SCATTER PLOT (Når skærmen er under 480px) */
         /* 📱 RESPONSIV MOBILOPTIMERING FOR SCATTER PLOT (Når skærmen er under 480px) */
         @media (max-width: 480px) {
             .scatter-chart-card { padding: 16px 12px !important; border-radius: 14px !important; }
@@ -137,6 +138,11 @@ document.addEventListener("DOMContentLoaded", () => {
             .sc-tt-name { font-size: 12px !important; }
             .sc-tt-meta { font-size: 9px !important; }
             .sc-tt-stat-lbl, .sc-tt-stat-val { font-size: 10px !important; }
+
+            /* 🎯 MOBILSTURING: Skalerer 'MINUTES PLAYED' teksten og pilen ned til mobil/download */
+            .scatter-colorbar-text-fix { 
+                font-size: 4px !important; 
+            }
         }
     `;
     document.head.appendChild(style);
