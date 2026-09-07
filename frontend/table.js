@@ -23,53 +23,75 @@ const $t = id => document.getElementById(id);
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
-        .table-blocks-container { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 950px; margin: 0 auto; padding: 0 10px; box-sizing: border-box; }
+        .table-blocks-container { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 950px; margin: 0 auto; padding: 0 10px; box-sizing: border-box; }
         
-        /* 🎯 LEADERBOARD OVER-OVERSKRIFT: Definerer kolonnerne én gang for alle øverst! */
-        .table-scouting-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 25px; font-family: 'Gabarito', sans-serif; font-size: 10.5px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 2px solid rgba(255,255,255,0.05); margin-bottom: 5px; box-sizing: border-box; }
-        .table-sc-hdr-left { display: flex; align-items: center; gap: 20px; }
-        .table-sc-hdr-right { display: flex; align-items: center; gap: 25px; flex-grow: 1; justify-content: flex-end; max-width: 500px; padding-right: 65px; box-sizing: border-box; }
+        /* 🎯 APPSYNKRONISERING: Skruer markant op for lysstyrken, så overskrifterne står helt rent og tydeligt i appen */
+        .table-scouting-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 10px 20px; 
+            font-family: 'Gabarito', sans-serif; 
+            font-size: 11px; 
+            font-weight: 900;          /* Maksimal tykkelse */
+            color: #ffffff !important; /* KRIDHVID: Tvinger teksten til at være ultra-synlig i appen */
+            text-transform: uppercase; 
+            letter-spacing: 1.5px; 
+            border-bottom: 2px solid rgba(255,255,255,0.08); 
+            margin-bottom: 3px; 
+            box-sizing: border-box; 
+        }
+
+        .table-sc-hdr-left { 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+        }
+
+        /* Låser bredden på højre side af headeren til præcis 500px ligesom spillerkortene */
+        .table-sc-hdr-right { 
+            display: flex; 
+            align-items: center; 
+            gap: 25px; 
+            flex-grow: 1; 
+            justify-content: flex-end; 
+            max-width: 500px; 
+            padding-right: 0px !important; /* Nulstillet for at sikre perfekt symmetri */
+            box-sizing: border-box; 
+        }
+
         
-        /* 🎯 THE SPLIT CARD: Det store, rå, mørke profilkort til din Top 10 1:1 */
-        .table-leaderboard-card { background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important; border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 16px 25px; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; gap: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: transform 0.15s ease; }
+        /* 🎯 ULTRA-KOMPAKT KORT: Polstring skåret fra 16px helt ned til 10px vertikalt */
+        .table-leaderboard-card { background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important; border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; gap: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: transform 0.15s ease; }
         .table-leaderboard-card:hover { transform: translateX(3px); border-color: rgba(255,255,255,0.08); }
         
-        /* Venstre felt */
         .table-row-left { display: flex; align-items: center; gap: 20px; }
-        .table-row-rank { font-size: 22px; font-weight: 900; color: #f59e0b; width: 35px; text-align: center; text-shadow: 0 0 12px rgba(245,158,11,0.25); }
         
-        /* Logo ramme */
-        .table-row-logo-box { width: 44px; height: 44px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 3px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .table-row-crest { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: contain; 
-            opacity: 0; 
-            transition: opacity 0.25s ease-in-out; 
-        }
+        /* 🎯 LIMEGRØN FINISERING: Rank-nummeret følger nu den neongrønne klubfarve live */
+        .table-row-rank { font-size: 20px; font-weight: 900; color: var(--accent-purple); width: 35px; text-align: center; text-shadow: 0 0 12px rgba(168,85,247,0.25); }
         
-        /* Denne klasse smides på via JavaScript, i det sekund billedet er hentet */
-        .table-row-crest.logo-loaded { 
-            opacity: 1 !important; 
-        }
-
+        .table-row-logo-box { width: 40px; height: 44px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 3px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .table-row-crest { width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.25s ease-in-out; }
+        .table-row-crest.logo-loaded { opacity: 1 !important; }
         
         .table-row-names { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-        .table-row-player-name { font-size: 15px; font-weight: 900; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .table-row-subtext { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .table-row-player-name { font-size: 14px; font-weight: 900; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .table-row-subtext { font-size: 10.5px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        /* Højre felt */
         .table-row-right { display: flex; align-items: center; gap: 25px; flex-grow: 1; justify-content: flex-end; max-width: 500px; box-sizing: border-box; }
-        .table-row-meta-val-pos { font-size: 12px; font-weight: 800; color: #00f0ff; text-transform: uppercase; width: 50px; text-align: center; }
-        .table-row-meta-val-age { font-size: 13px; font-weight: 700; color: #94a3b8; width: 55px; text-align: center; }
-        .table-row-meta-val-mins { font-size: 13px; font-weight: 700; color: #94a3b8; width: 65px; text-align: center; }
+        
+        /* 🎯 STRØMLINING: Positionen mister sin blå farve og flugter nu 100% med de øvrige meta-tal */
+        .table-row-meta-val-pos { font-size: 12.5px !important; font-weight: 700; color: #94a3b8 !important; text-transform: uppercase; width: 50px; text-align: center; }
+        .table-row-meta-val-age { font-size: 12.5px !important; font-weight: 700; color: #94a3b8 !important; width: 55px; text-align: center; }
+        .table-row-meta-val-mins { font-size: 12.5px !important; font-weight: 700; color: #94a3b8 !important; width: 65px; text-align: center; }
 
-        /* Lysende Performance bjælke */
-        .table-row-bar-container { display: flex; flex-direction: column; width: 140px; }
+        /* 🎯 LØSNING: BJÆLKE OG TAL INTEGRERET TIL ÉN SAMLET VERTIKAL ENHED */
+        .table-row-bar-container { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 140px; }
         .table-row-bar-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.04); border-radius: 10px; overflow: hidden; }
         .table-row-bar-fill { height: 100%; background: var(--accent-purple); border-radius: 10px; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        .table-row-score-value { font-size: 16px; font-weight: 900; color: #f59e0b; width: 65px; text-align: right; text-shadow: 0 0 10px rgba(245,158,11,0.2); }
+        /* 🎯 LIMEGRØN FINISERING: Tal-scoren ligger nu over baren, er centreret, og lyser limegrønt */
+        .table-row-score-value { font-size: 14px; font-weight: 900; color: var(--accent-purple); width: 100%; text-align: center; text-shadow: 0 0 10px rgba(168,85,247,0.2); line-height: 1; }
 
         /* Skuffe-layout elementer */
         .table-drawer-group { display: flex; flex-direction: column; gap: 4px; width: 100%; box-sizing: border-box; margin-bottom: 4px; }
@@ -79,35 +101,104 @@ document.addEventListener("DOMContentLoaded", () => {
         .table-drawer-checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; color: var(--text-primary); transition: opacity 0.15s; }
         .table-drawer-input-row { display: flex; align-items: center; gap: 10px; width: 100%; }
 
-        /* 📱 RESPONSIV MOBILOPTIMERING FOR LEADERBOARD TABLE (Når skærmen er under 480px) */
+
+        /* 📱 ULTRA-COMPACT MOBILOPTIMERING V3 (DEN ULTIMATIVE COMPRESSION) */
+                /* 📱 ULTRA-COMPACT MOBILOPTIMERING V5 (MAX PLADS TIL SPILLERNAVNET) */
+                /* 📱 ULTRA-COMPACT MOBILOPTIMERING V6 (THE FINISHED BALANCED LOOK) */
         @media (max-width: 480px) {
-            /* Skjuler tabel-headeren på mobil, da kortene omstruktureres vertikalt */
-            .table-scouting-header { display: none !important; }
+            /* Gør mobil-overskrifterne ultra-små så de flugter med det nye tætte layout */
+            .table-scouting-header { 
+                display: flex !important; 
+                padding: 4px 10px !important; 
+                font-size: 7px !important; 
+                letter-spacing: 0.5px !important;
+                margin-bottom: 2px !important;
+                border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+            }
+            .table-sc-hdr-left { gap: 6px !important; }
+            .table-sc-hdr-left div:last-child { padding-left: 18px !important; } 
             
-            .table-blocks-container { gap: 10px !important; padding: 0 4px !important; }
+            .table-sc-hdr-right { 
+                max-width: 100% !important; 
+                justify-content: flex-end !important;
+                padding-right: 0px !important;
+                gap: 0px !important;
+            }
+            .table-sc-hdr-right div:nth-child(1),
+            .table-sc-hdr-right div:nth-child(2),
+            .table-sc-hdr-right div:nth-child(3) { display: none !important; } 
+            .table-sc-hdr-right div:nth-child(4) { width: 45px !important; text-align: center !important; } /* Justeret til den nye bælkebredde */
+
+            /* Tætpakket ydre container */
+            .table-blocks-container { gap: 4px !important; padding: 0 4px !important; }
             
-            /* Gør selve kortet fleksibelt og stabler indholdet i to rækker */
-            .table-leaderboard-card { flex-direction: column !important; align-items: flex-start !important; padding: 12px !important; gap: 10px !important; border-radius: 12px !important; }
+            /* Det super-komprimerede spillerkort */
+            .table-leaderboard-card { 
+                flex-direction: row !important; 
+                flex-wrap: nowrap !important;
+                align-items: center !important; 
+                justify-content: space-between !important; 
+                padding: 5px 8px !important; 
+                gap: 6px !important; 
+                border-radius: 6px !important; 
+            }
             
-            .table-row-left { width: 100% !important; gap: 12px !important; }
-            .table-row-rank { font-size: 16px !important; width: 24px !important; }
-            .table-row-logo-box { width: 34px !important; height: 34px !important; border-radius: 8px !important; }
-            .table-row-player-name { font-size: 13px !important; }
-            .table-row-subtext { font-size: 10px !important; }
+            /* Venstre felt presses maksimalt sammen */
+            .table-row-left { gap: 6px !important; flex-grow: 1 !important; min-width: 0 !important; }
             
-            /* Højre side (dataene) omdannes til en sekundær linje under navnet */
-            .table-row-right { width: 100% !important; max-width: 100% !important; justify-content: space-between !important; padding-left: 36px !important; box-sizing: border-box; gap: 0px !important; }
+            /* Rank og mini-logo */
+            .table-row-rank { font-size: 11px !important; width: 16px !important; text-shadow: none !important; font-weight: 800 !important; }
+            .table-row-logo-box { width: 20px !important; height: 20px !important; border-radius: 4px !important; padding: 1px !important; }
             
-            /* Metadata-punkter linet pænt op side om side */
-            .table-row-meta-val-pos, .table-row-meta-val-age, .table-row-meta-val-mins { font-size: 10.5px !important; width: auto !important; text-align: left !important; }
-            .table-row-meta-val-pos::after { content: ' •'; color: #475569; }
-            .table-row-meta-val-age::after { content: ' •'; color: #475569; }
+            /* Navne-beholderen */
+            .table-row-names { gap: 0px !important; min-width: 0 !important; flex-grow: 1 !important; }
             
-            /* Skjuler performance-baren på mobil for at spare plads og bevare fokus på det rene tal */
-            .table-row-bar-container { display: none !important; }
+            /* 🎯 EKSTRA KRYMPET NAVN: Skruet ned til 8.5px, så det harmonerer perfekt og har maksimal plads */
+            .table-row-player-name { 
+                font-size: 7.5px !important; 
+                letter-spacing: -0.2px !important;
+                white-space: nowrap !important;
+                overflow: visible !important; 
+                text-overflow: clip !important;
+            }
             
-            .table-row-score-value { font-size: 14px !important; width: auto !important; text-align: right !important; font-weight: 900 !important; }
+            /* 🎯 EKSTRA KRYMPET INFO: Infolinjen gøres super fin og diskret (6.5px) under navnet */
+            .table-row-subtext { 
+                font-size: 6px !important; 
+                letter-spacing: -0.1px !important; 
+                color: #475569 !important; 
+            }
+            
+            /* Højre side (Bjælken) presses helt ud mod kanten */
+            .table-row-right { 
+                width: auto !important; 
+                max-width: none !important; 
+                justify-content: flex-end !important; 
+                padding-left: 0px !important; 
+                gap: 0px !important; 
+                flex-shrink: 0 !important; 
+            }
+            .table-row-right .table-row-meta-val-pos,
+            .table-row-right .table-row-meta-val-age,
+            .table-row-right .table-row-meta-val-mins { display: none !important; } 
+            
+            /* 🎯 SKÅRET REELT IND: Sat ned fra 55px til kun 45px for minimal og elegant fylde på mobilen */
+            .table-row-bar-container { 
+                display: flex !important; 
+                width: 45px !important; 
+                gap: 1px !important;
+                margin-left: 0px !important;
+                flex-shrink: 0 !important;
+            }
+            .table-row-bar-bg { height: 2px !important; }
+            
+            /* Score-tallet tilpasses den nye micro-bjælke */
+            .table-row-score-value { font-size: 9px !important; width: 100% !important; text-shadow: none !important; font-weight: 800 !important; }
+
+            .tb-pc-meta-only { display: none !important; }
+            .tb-mobile-meta-only { display: inline !important; }
         }
+
     `;
     document.head.appendChild(style);
 });
@@ -293,8 +384,15 @@ async function buildTableLeaderboardEngine() {
         .sort((a, b) => (b.metrics[TABLE_SELECTED_METRIC] || 0) - (a.metrics[TABLE_SELECTED_METRIC] || 0))
         .slice(0, 10);
 
+        // ==========================================================================
+    // PER 90 - TABLE.JS - RETTET DEL 4 AF 4 (SAMMENSMELTET PERFORMANCE OG TAL)
+    // ==========================================================================
+        // ==========================================================================
+    // PER 90 - TABLE.JS - RETTET DEL 4 AF 4 (PERFEKT LINIERET KRIDHVID HEADER)
+    // ==========================================================================
     const highestScore = top10.length > 0 ? (top10[0].metrics[TABLE_SELECTED_METRIC] || 1) : 1;
 
+    // 🎯 LØSNING: Overskrifterne har nu præcis samme bredder og text-align som selve data-kortene!
     let markup = `
         <div class="table-scouting-header">
             <div class="table-sc-hdr-left">
@@ -305,13 +403,14 @@ async function buildTableLeaderboardEngine() {
                 <div style="width:50px; text-align:center;">Pos.</div>
                 <div style="width:55px; text-align:center;">Age</div>
                 <div style="width:65px; text-align:center;">Min.</div>
-                <div style="width:140px; padding-left:25px;">Performance</div>
-                <div style="width:65px; text-align:right;">${TABLE_SELECTED_METRIC}</div>
+                <!-- Viser nu udelukkende det rene metric navn (f.eks. GOALS) centreret over bjælkeenheden -->
+                <div style="width:140px; text-align:center;">${TABLE_SELECTED_METRIC}</div>
             </div>
         </div>
     `;
 
     markup += top10.map((p, idx) => {
+
         const val = p.metrics[TABLE_SELECTED_METRIC] || 0;
         const barWidthPct = highestScore > 0 ? (val / highestScore) * 100 : 0;
         const imgId = `tb-crest-${idx}-${p.player_name.replace(/[^a-zA-Z0-9]/g, '')}`;
@@ -331,20 +430,23 @@ async function buildTableLeaderboardEngine() {
 
                 <div class="table-row-right">
                     <div class="table-row-meta-val-pos">${p.position}</div>
-                    <div class="table-row-meta-val-age">${p.age} År</div>
+                    <div class="table-row-meta-val-age">${p.age}</div>
                     <div class="table-row-meta-val-mins">${p.mins_played}</div>
+                    
+                    <!-- 🎯 SAMMENSMELTET ENHED: Talværdien er nu rykket ind i samme container og centreret over baren -->
                     <div class="table-row-bar-container">
+                        <div class="table-row-score-value">${val.toFixed(2)}</div>
                         <div class="table-row-bar-bg">
                             <div class="table-row-bar-fill" style="width: ${barWidthPct}%;"></div>
                         </div>
                     </div>
-                    <div class="table-row-score-value">${val.toFixed(2)}</div>
                 </div>
             </div>
         `;
     }).join('');
 
     container.innerHTML = markup;
+
 
     // Asynkron hentning af base64-logoer 1:1 fra pizza-logikken
         // ==========================================================================
