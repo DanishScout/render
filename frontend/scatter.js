@@ -33,7 +33,21 @@ const $sc = id => document.getElementById(id);
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
-        .scatter-chart-card { background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important; padding: 30px; border-radius: 20px; width: 100%; max-width: 1100px; margin: 0 auto; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); box-sizing: border-box; position: relative; }
+        /* 🎯 FIX FOR PC-DOWNLOAD: Ændret til flexbox-centrering, så download-motoren centrerer perfekt på store skærme */
+        .scatter-chart-card { 
+            background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important; 
+            padding: 30px; 
+            border-radius: 20px; 
+            width: 100%; 
+            max-width: 770px; /* Låser bredden præcist, så diagrammet har perfekt luft til siderne */
+            margin: 0 auto !important; 
+            border: 1px solid rgba(255,255,255,0.05); 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); 
+            box-sizing: border-box; 
+            position: relative; 
+            display: block !important; /* Tvinger block-format i stedet for flex */
+        }
+
         
         /* 🎯 Den opdaterede Quick-Highlight Toolbar med integrerede menuer */
         .scatter-quick-toolbar { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; width: 100%; max-width: 1100px; margin: 0 auto 25px; padding: 0 10px; box-sizing: border-box; }
@@ -51,11 +65,14 @@ document.addEventListener("DOMContentLoaded", () => {
         .sc-drawer-checkbox-box { background: #07030c; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 11px; max-height: 160px; overflow-y: auto; }
         .sc-drawer-checkbox-label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 12.5px; color: var(--text-primary); transition: opacity 0.2s; }
         
-        /* SVG-koordinat grafik */
-        #scatter-svg-canvas { display: block; margin: 0 auto; overflow: visible; max-width: 100%; height: auto; }
+        /* SVG-koordinat grafik: Ændret til responsive widths, som forhindrer tom støj i venstre side på PC-download */
+        #scatter-svg-canvas { display: block; margin: 0 auto; overflow: visible; width: 100%; max-width: 730px; height: auto; }
         .scatter-grid-line { stroke: rgba(255,255,255,0.04); stroke-width: 1; }
         .scatter-axis-line { stroke: rgba(255,255,255,0.15); stroke-width: 1.5; }
-        .scatter-axis-lbl { font-size: 10.5px; fill: #94a3b8; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; font-family: 'Gabarito', sans-serif; }
+        
+        /* 🎯 NYT: De nye aksetitler på kanten af plottet slås fast i et flot, råt og super læsbart format */
+        .scatter-axis-lbl { font-size: 11px; fill: #94a3b8; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; font-family: 'Gabarito', sans-serif; }
+
         
         .scatter-player-text-label { font-size: 9px; font-weight: 700; fill: #fff; font-family: 'Gabarito', sans-serif; pointer-events: none; filter: drop-shadow(0px 1px 2px rgba(0,0,0,1)); }
         .scatter-node-dot { stroke-width: 1.2; stroke: rgba(255,255,255,0.4); cursor: pointer; transition: r 0.12s ease, opacity 0.12s ease; }
@@ -313,19 +330,24 @@ function toggleScatterQuickHighlight(key) {
 // PER 90 - SCATTER.JS - DEL 5A AF 5 (ROUNDED AXES & MINUTES COLOR ENGINE)
 // ==========================================================================
 
+// ==========================================================================
+// PER 90 - SCATTER.JS - RETTET DEL 5A AF 5 (PERFEKT CENTRERING & TITEL ENGINE)
+// ==========================================================================
+
 function buildScatterPlotVektorEngine() {
     const svg = $sc("scatter-svg-canvas"); if (!svg || !SCATTER_GLOBAL_DATA) return;
     svg.innerHTML = "";
 
+    // 🎯 SIKRER TITLEN: Vi gennemtvinger din faste, flotte hovedtitel øverst i kortet
     const titleContainer = $sc("scatter-dynamic-vs-title");
-    if (titleContainer) titleContainer.innerText = `${SCATTER_X_AXIS} vs. ${SCATTER_Y_AXIS}`;
+    if (titleContainer) titleContainer.innerText = "SCATTER PLOT";
 
-    const padding = { top: 30, right: 40, bottom: 60, left: 65 };
+    // 🎯 PERFEKT CENTRERING: Vi balancerer venstre og højre padding fuldstændig ens (55px / 55px), så plottet sidder præcis i midten
+    const padding = { top: 40, right: 55, bottom: 65, left: 55 }; 
     const width = 730, height = 500;
     const graphWidth = width - padding.left - padding.right;
     const graphHeight = height - padding.top - padding.bottom;
 
-    // 1. MULTI-SELECT ARRAY-FILTRERING FOR LIGA, NATIONALITET OG POSITION 🎯
     const filteredPlayers = SCATTER_GLOBAL_DATA.players.filter(p => {
         if (SCATTER_FILTERS.leagues.length > 0 && !SCATTER_FILTERS.leagues.includes(p.league)) return false;
         if (SCATTER_FILTERS.nationalities.length > 0 && !SCATTER_FILTERS.nationalities.includes(p.nationality)) return false;
@@ -345,12 +367,20 @@ function buildScatterPlotVektorEngine() {
     let minMinsGlobal = Math.min(...filteredPlayers.map(p => p.mins_played));
     let maxMinsGlobal = Math.max(...filteredPlayers.map(p => p.mins_played));
 
-    if ($sc("scatter-live-colorbar")) {
-        $sc("scatter-live-colorbar").style.display = "flex";
-        $sc("scatter-colorbar-max-text").innerText = `${maxMinsGlobal}m`;
+    // 🎯 SIKRER RENT COLORBAR LOOK: Giver den dit præcise pil-design uden talstøj
+    const colorbar = $sc("scatter-live-colorbar");
+    if (colorbar) {
+        colorbar.style.display = "flex";
+        colorbar.style.flexDirection = "column";
+        colorbar.style.alignItems = "center";
+        colorbar.style.gap = "6px";
+        colorbar.style.marginTop = "25px";
+        colorbar.innerHTML = `
+            <div class="scatter-colorbar-gradient"></div>
+            <span style="font-size: 9px; color: #475569; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; font-family: 'Gabarito', sans-serif;">MINUTES PLAYED &rarr;</span>
+        `;
     }
 
-    // 2. MATEMATISK RETTELSE: Udregner pæne, helt runde akseintervaller (fx 0.20 eller 0.35) [10]
     const roundToNiceInterval = (val, roundUp) => {
         if (val === 0) return 0;
         const factor = val > 10 ? 5 : (val > 1 ? 0.5 : 0.05);
@@ -364,7 +394,6 @@ function buildScatterPlotVektorEngine() {
     const getXPixel = v => padding.left + ((v - minX) / (maxX - minX)) * graphWidth;
     const getYPixel = v => padding.top + graphHeight - ((v - minY) / (maxY - minY)) * graphHeight;
 
-    // 3. MINUTTER FARVEMOTOR: Går fra Mørkeblå -> Lilla -> Lys Cyan [10]
     const getMinutesColor = (m) => {
         const pct = (m - minMinsGlobal) / (maxMinsGlobal - minMinsGlobal || 1);
         if (pct < 0.5) {
@@ -381,20 +410,34 @@ function buildScatterPlotVektorEngine() {
         const xVal = minX + (i / 4) * (maxX - minX), yVal = minY + (i / 4) * (maxY - minY);
         const px = getXPixel(xVal), py = getYPixel(yVal);
         markup += `<line x1="${px}" y1="${padding.top}" x2="${px}" y2="${padding.top + graphHeight}" class="scatter-grid-line" style="stroke-dasharray:3,3;" />`;
-        markup += `<line x1="${padding.left}" y1="${py}" x2="${padding.left + graphWidth}" y2="${py}" class="scatter-grid-line" style="stroke-dasharray:3,3;" />`;
+        markup += `<line x1="${padding.left}" y1="${padding.top + graphHeight - (i/4)*graphHeight}" x2="${padding.left + graphWidth}" y2="${padding.top + graphWidth}" class="scatter-grid-line" style="stroke-dasharray:3,3;" />`;
     }
 
+    // Akserammer
     markup += `<line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${padding.top + graphHeight}" class="scatter-axis-line" />`;
     markup += `<line x1="${padding.left}" y1="${padding.top + graphHeight}" x2="${padding.left + graphWidth}" y2="${padding.top + graphHeight}" class="scatter-axis-line" />`;
 
-    markup += `<text x="${padding.left}" y="${padding.top + graphHeight + 16}" fill="#475569" font-size="10" text-anchor="middle">${minX.toFixed(2)}</text>`;
-    markup += `<text x="${padding.left + graphWidth}" y="${padding.top + graphHeight + 16}" fill="#475569" font-size="10" text-anchor="middle">${maxX.toFixed(2)}</text>`;
-    markup += `<text x="${padding.left - 8}" y="${padding.top + graphHeight}" fill="#475569" font-size="10" text-anchor="end" dominant-baseline="middle">${minY.toFixed(2)}</text>`;
-    markup += `<text x="${padding.left - 8}" y="${padding.top}" fill="#475569" font-size="10" text-anchor="end" dominant-baseline="middle">${maxY.toFixed(2)}</text>`;
+    // Aksernes talværdier
+    markup += `<text x="${padding.left}" y="${padding.top + graphHeight + 16}" fill="#475569" font-size="10" text-anchor="middle" font-family="'Gabarito', sans-serif" font-weight="700">${minX.toFixed(2)}</text>`;
+    markup += `<text x="${padding.left + graphWidth}" y="${padding.top + graphHeight + 16}" fill="#475569" font-size="10" text-anchor="middle" font-family="'Gabarito', sans-serif" font-weight="700">${maxX.toFixed(2)}</text>`;
+    markup += `<text x="${padding.left - 8}" y="${padding.top + graphHeight}" fill="#475569" font-size="10" text-anchor="end" dominant-baseline="middle" font-family="'Gabarito', sans-serif" font-weight="700">${minY.toFixed(2)}</text>`;
+    markup += `<text x="${padding.left - 8}" y="${padding.top}" fill="#475569" font-size="10" text-anchor="end" dominant-baseline="middle" font-family="'Gabarito', sans-serif" font-weight="700">${maxY.toFixed(2)}</text>`;
 
-    // Kalder næste trin (Del 5b) for at færdiggøre prikkerne og tooltippet
+    // 🎯 PERFEKTE AKSETITLER: Placeres og lines op symmetrisk ud fra den nye midterakse
+    // X-AKSE TITEL (Præcis centreret horisontalt)
+    const xLabelX = padding.left + graphWidth / 2;
+    const xLabelY = height - 12; 
+    markup += `<text x="${xLabelX}" y="${xLabelY}" class="scatter-axis-lbl" text-anchor="middle">${SCATTER_X_AXIS}</text>`;
+
+    // Y-AKSE TITEL (Rykket ind på x=16 og centreret på midteraksen, så den ikke svæver ude til venstre)
+    const yLabelX = 16;
+    const yLabelY = padding.top + graphHeight / 2;
+    markup += `<text x="${yLabelX}" y="${yLabelY}" class="scatter-axis-lbl" text-anchor="middle" transform="rotate(-90, ${yLabelX}, ${yLabelY})">${SCATTER_Y_AXIS}</text>`;
+
     continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPixel, getYPixel, getMinutesColor);
 }
+
+
 // ==========================================================================
 // PER 90 - SCATTER.JS - DEL 5B AF 5 (NODE DOT ENGINE & YELLOW-GLOW TOOLTIP)
 // ==========================================================================
