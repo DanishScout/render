@@ -1,5 +1,5 @@
 // ==========================================================================
-// PER 90 - RADAR.JS - RETTET DEL 1 AF 4 (ISOLERET LOKAL CSS MED RESPONSIV LOGIK)
+// PER 90 - RADAR.JS - DEL 1 AF 6 (MASTER CONFIG & SEMANTISK TABEL-CSS)
 // ==========================================================================
 
 const AVAILABLE_RADAR_METRICS = [
@@ -20,186 +20,146 @@ let RADAR_COLOR_1 = "#00f0ff", RADAR_COLOR_2 = "#d946ef";
 
 const $r = id => document.getElementById(id);
 
-// 🎯 LOKALISERET STYLE INJECTION: Nu med fuld kontrol over mobil-looket!
+// 🎨 CORE DESIGN INJECTION (SEMANTISKE TABELKANALER - RESPONSIVT SIKRET OVERALT)
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
         #view-radar .wrap { max-width: 100%; margin: auto; padding: 10px; background: #0B1220; display: flex; flex-direction: column; align-items: center; }
         #view-radar .chart-container { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); padding: 30px; border-radius: 20px; width: 100%; max-width: 710px; margin: 10px auto; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); box-sizing: border-box; }
-        #view-radar .h-cnt { position: relative; display: flex; flex-direction: row; height: 110px; margin-bottom: 35px; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); background: rgba(15, 23, 42, 0.6); }
-        #view-radar .p-panel { flex: 1; width: 50%; display: flex; flex-direction: column; justify-content: center; padding: 0 25px; z-index: 1; overflow: hidden; box-sizing: border-box; }
-        #view-radar .p-panel.left { align-items: flex-start; background: linear-gradient(135deg, rgba(0,240,255,0.08) 0%, rgba(0,0,0,0) 80%); }
-        #view-radar .p-panel.right { align-items: flex-end; text-align: right; background: linear-gradient(315deg, rgba(217,70,239,0.08) 0%, rgba(0,0,0,0) 80%); }
-        #view-radar .h-divider { position: absolute; left: 50%; top: 10%; bottom: 10%; width: 1px; background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.35), transparent); transform: translateX(-50%); z-index: 2; }
         
-        #view-radar .p-nm { font-size: 15px; font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 2px; opacity: 0.95; z-index: 2; }
-        #view-radar .b-tx { color: #00f0ff; text-shadow: 0 0 15px rgba(0,240,255,0.3); } 
-        #view-radar .p-tx { color: #d946ef; text-shadow: 0 0 15px rgba(217,70,239,0.3); }
-        #view-radar .p-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; z-index: 2; }
-        #view-radar .info-tag { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); color: #f1f5f9; letter-spacing: 0.5px; text-transform: uppercase; }
-        #view-radar .left .info-tag { border-left: 2px solid #00f0ff; }
-        #view-radar .right .info-tag { border-right: 2px solid #d946ef; }
+        /* 🌐 SEMANTISK TOP-PANEL: Tabellen tvinger en perfekt 50/50 fordeling uden overlap */
+        .radar-header-table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            table-layout: fixed !important;
+            margin-bottom: 35px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(15, 23, 42, 0.6);
+        }
+        
+        .radar-header-table td {
+            padding: 15px 25px !important;
+            vertical-align: middle;
+            box-sizing: border-box;
+        }
+        
+        .radar-header-table .td-left {
+            text-align: left !important;
+            background: linear-gradient(135deg, rgba(0,240,255,0.08) 0%, rgba(0,0,0,0) 80%);
+            border-right: 1px solid rgba(255,255,255,0.08);
+        }
+        
+        .radar-header-table .td-right {
+            text-align: right !important;
+            background: linear-gradient(315deg, rgba(217,70,239,0.08) 0%, rgba(0,0,0,0) 80%);
+        }
+
+        #view-radar .p-nm { font-size: 15px; font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 2px; opacity: 0.95; }
+        #view-radar .p-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+        .radar-header-table .td-right .p-row { justify-content: flex-end; }
+        
+        #view-radar .info-tag { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); color: #f1f5f9; letter-spacing: 0.5px; text-transform: uppercase; display: inline-block; white-space: nowrap; }
+        .radar-header-table .td-left .info-tag { border-left: 2px solid #00f0ff; }
+        .radar-header-table .td-right .info-tag { border-right: 2px solid #d946ef; }
         
         #radar-svg-element { display: block; margin: 0 auto; overflow: visible; max-width: 100%; height: auto; }
         #view-radar .grid-poly { fill: rgba(255,255,255,0.005); stroke: rgba(255,255,255,0.1); }
         #view-radar .grid-line { stroke: rgba(255,255,255,0.075); stroke-dasharray: 4,4; }
         #view-radar .ax-lbl { font-size: 10px; fill: #94a3b8; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; font-family: 'Gabarito', sans-serif; }
-        #view-radar .pl-b { fill: rgba(0,240,255,0.06); stroke: #00f0ff; stroke-width: 2.2; stroke-linejoin: round; }
-        #view-radar .pl-p { fill: rgba(217,70,239,0.06); stroke: #d946ef; stroke-width: 2.2; stroke-linejoin: round; }
-        #view-radar .n-b { fill: #00f0ff; opacity: 0.9; stroke: #ffffff; stroke-width: 1; } 
-        #view-radar .n-p { fill: #d946ef; opacity: 0.9; stroke: #ffffff; stroke-width: 1; }
-        #view-radar .chart-footer { text-align: center; width: 100%; margin-top: 25px; font-size: 12px; opacity: 0.25; font-family: 'Gabarito', sans-serif; }
-        #view-radar .chart-footer-source { text-align: center; width: 100%; margin-top: 6px; font-size: 12px; opacity: 0.25; font-family: 'Gabarito', sans-serif; }
+        
+        /* SEMANTISK FOOTER-TABEL */
+        .radar-footer-table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin-top: 25px;
+            font-family: 'Gabarito', sans-serif;
+            opacity: 0.25;
+            font-size: 12px;
+            text-align: center;
+        }
+        .radar-footer-table td { padding: 3px 0 !important; }
 
-        #view-radar .svg-score-rect-p1 { fill: rgba(0, 240, 255, 0.04); stroke: #00f0ff; stroke-width: 1; }
-        #view-radar .svg-score-rect-p2 { fill: rgba(217, 70, 239, 0.04); stroke: #d946ef; stroke-width: 1; }
         #view-radar .svg-score-text { font-size: 10px; font-weight: 700; font-family: 'Gabarito', sans-serif; dominant-baseline: central; text-anchor: middle; }
 
-        @media (max-width: 480px) {
-            /* Squeezer selve hovedkortets polstring */
-            #view-radar .chart-container { 
-                padding: 10px 10px !important; 
-                width: 100% !important; 
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 5px !important;
-                align-items: center !important; /* Låser den perfekte horisontale akse */
-            }
-            
-            /* Gør topbjælken ultra-lav og sikrer fuld bredde */
-            #view-radar .h-cnt { 
-                height: auto !important; 
-                min-height: 42px !important; 
-                padding: 6px 0 !important; 
-                margin-bottom: 5px !important; 
-                border-radius: 8px !important;
-                width: 100% !important;
-                display: flex !important;
-            }
-            
-            #view-radar .p-panel { 
-                padding: 0 4px !important; /* 🎯 Reduceret fra 10px for at give kritisk friplads horisontalt */
-                justify-content: center !important;
-                background: none !important; 
-                width: 50% !important;
-            }
-            
-            #view-radar .p-panel.left { 
-                align-items: flex-start !important;
-                filter: drop-shadow(0 0 12px rgba(0,240,255,0.15));
-            }
-            #view-radar .p-panel.right { 
-                align-items: flex-end !important;
-                text-align: right !important;
-                filter: drop-shadow(0 0 12px rgba(217,70,239,0.15));
-            }
-            
-            /* Gør spillernavnene super små og kompakte */
-            #view-radar .p-nm { 
-                font-size: 4.5px !important; 
-                letter-spacing: 0.2px !important; 
-                line-height: 1.1 !important; 
-                margin: 0 0 3px 0 !important;
-            }
-            
-            /* Tvinger tags til at stå side om side i en glidende række */
-            #view-radar .p-row { 
-                display: flex !important;
-                flex-direction: row !important;
-                align-items: center !important;
-                gap: 3.5px !important; 
-                margin-top: 0px !important; 
-                flex-wrap: nowrap !important;
-                line-height: 1 !important;
-            }
-            
-            /* Genskaber dine farvede, mørke info-tags i miniatureformat */
-            #view-radar .info-tag { 
-                font-size: 3px !important; 
-                padding: 1px 3px 2px 3px !important; /* 🎯 EKSPORT-FIX: Tilføjer 2px i bunden for at give plads til bogstaverne */
-                border-radius: 2px !important;
-                background: rgba(255,255,255,0.06) !important; 
-                color: #f1f5f9 !important; 
-                letter-spacing: 0px !important;
-                text-transform: uppercase !important;
-                border: none !important;
-                white-space: nowrap !important;
-                
-                /* 🎯 VERTIKAL OPTIMERING FOR HTML2CANVAS */
-                display: inline-flex !important;      /* Skiftet fra inline-block til inline-flex */
-                align-items: center !important;       /* Centrerer teksten fuldstændig midt i boksen */
-                justify-content: center !important;
-                line-height: 1.2 !important;          /* 🎯 Hævet en smule fra 1 så browseren ikke klipper baselinjen */
-                width: max-content !important;
-                box-sizing: border-box !important;
-            }
-
-            
-            /* 🎯 SWEET SPOT ELEVERET: Vi skruer bredden helt op til 100% og bruger negativ margin til at blæse hjulet op i størrelse */
-            #radar-svg-element { 
-                display: block !important;
-                width: 100% !important;         
-                max-width: 100% !important;
-                height: auto !important;
-                max-height: 580px !important;   
-                margin: 5px auto !important;    
-                transform: none !important;     /* Fjerner den drillende scale helt */
-                overflow: visible !important;
-            }
-            
-            /* Metrik-navne (f.eks. Goals, Assists) slås fast i en flot, stor og læsbar størrelse */
-            #view-radar .ax-lbl { 
-                font-size: 12px !important;    
-                font-weight: 900 !important;    
-                letter-spacing: 0.3px !important; 
-            }
-            
-            /* Tal-værdierne indeni mikro-boksene gøres tydelige */
-            #view-radar .svg-score-text { 
-                font-size: 11px !important;      
-                font-weight: 900 !important;
-            }
-
-
-            /* 🎯 ULTRA-KLEMTE FOOTER LINJER: Lægger sig helt op ad hinanden */
-            #view-radar .chart-footer, #view-radar .chart-footer-source { 
-                font-size: 4px !important; 
-                padding: 0 !important;          /* 1. Nulstiller al polstring */
-                margin: 0 !important;           /* 2. Nulstiller alle standard-mellemrum */
-                line-height: 1.0 !important;    /* 3. Låser tekstens højde til det absolut minimale */
-                text-align: center !important;
-                width: 100% !important;
-            }
-            
-            #view-radar .chart-footer { 
-                margin-top: 10px !important;    /* Styrer luften FRA diagrammet og NED til linje 1 */
-                opacity: 0.5 !important;
-            }
-            
-            #view-radar .chart-footer-source { 
-                margin-top: -2px !important;   /* 4. NEGATIV MARGIN: Trækker linje 2 FYSISKT OP i linje 1 */
-                opacity: 0.4 !important;
-            }
-
-
-
-
+        /* 📱 TABLET- OG MOBILOPTIMERING V5 */
+        @media (max-width: 1025px) {
+            #view-radar .chart-container { padding: 15px 15px !important; }
+            .radar-header-table { margin-bottom: 15px !important; }
+            .radar-header-table td { padding: 10px 12px !important; }
+            #view-radar .p-nm { font-size: 11px !important; letter-spacing: 1px !important; }
+            #view-radar .info-tag { font-size: 8.5px !important; padding: 1px 4px !important; }
+            #view-radar .ax-lbl { font-size: 11px !important; font-weight: 900 !important; }
+            #view-radar .svg-score-text { font-size: 11px !important; font-weight: 900 !important; }
+            .radar-footer-table { font-size: 10px !important; margin-top: 15px !important; }
         }
+
+        /* 📱 MOBILTELEFONER (Samsung S8+, iPhones under 480px) */
+                /* 📱 MOBILTELEFONER (Samsung S8+, iPhones under 480px) */
+        @media (max-width: 480px) {
+            /* Skruer ned for polstringen, så teksten ikke presses ind mod midten */
+            .radar-header-table td { 
+                padding: 6px 12px !important; 
+            }
+            
+            /* Tvinger højre side til at højreorientere ABSOLUT alt indhold i cellen */
+            .radar-header-table .td-right {
+                text-align: right !important;
+            }
+            
+            /* 🎯 REPARATION: Tvinger selve h2-navnet i højre side helt ud til kanten */
+            .radar-header-table .td-right .p-nm {
+                text-align: right !important;
+                width: 100% !important;
+                display: block !important;
+            }
+            
+            /* Gør spillernavnene mindre på telefoner, så de ikke pakker eller overlapper */
+            #view-radar .p-nm { 
+                font-size: 10.5px !important; 
+                letter-spacing: 0.5px !important; 
+                line-height: 1.2 !important;
+            }
+            
+            /* Sørger for at rækken af tags bryder pænt eller pakker tæt i højre/venstre side */
+            #view-radar .p-row { 
+                gap: 5px !important; 
+                margin-top: 5px !important;
+                display: flex !important;
+                flex-wrap: wrap !important; /* Lader tags pakke i to rækker hvis liga-avnet er for langt */
+                width: 100% !important;
+            }
+            
+            /* Tvinger venstresidens tags til venstre og højresidens tags helt ud til højre */
+            .radar-header-table .td-left .p-row { justify-content: flex-start !important; }
+            .radar-header-table .td-right .p-row { justify-content: flex-end !important; }
+            
+            /* Nedskalerer de mørke info-tags så der reelt er plads til lange navne som VEIKKAUSLIIGA */
+            #view-radar .info-tag { 
+                font-size: 7.5px !important; 
+                padding: 2px 5px !important;
+                letter-spacing: 0px !important;
+            }
+            
+            /* 🎯 REPARATION: Fører dine elskede farvestreger tilbage på mobil, præcis som på PC */
+            .radar-header-table .td-left .info-tag { border-left: 2px solid #00f0ff !important; border-right: none !important; }
+            .radar-header-table .td-right .info-tag { border-right: 2px solid #d946ef !important; border-left: none !important; }
+            
+            .radar-footer-table { font-size: 8px !important; }
+        }
+
 
     `;
     document.head.appendChild(style);
 });
-
-
 // ==========================================================================
-// PER 90 - RADAR.JS - DEL 2 AF 4 (FRONTEND VISNING & SETTINGS DRAWER)
+// PER 90 - RADAR.JS - DEL 2 AF 6 (FRONTEND VISNING & DRAWER INITIALISERING)
 // ==========================================================================
 
 async function initRadarView(container) {
     container.innerHTML = `
         <section id="view-radar" class="content-view active">
-            
-            <!-- 🎯 DIT STORE IKON OG IDENTISKE HOVED-OVER-SKRIFT ER TILBAGE 1:1 🎯 -->
             <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-circle-nodes" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
                 <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Radar Chart</span>
@@ -209,7 +169,6 @@ async function initRadarView(container) {
                 <button class="open-drawer-btn" onclick="openGlobalDrawer()">Customize Radar <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
             </div>
             
-            <!-- DET VISUELLE BILLEDE-CONTAINER OMRÅDE -->
             <div class="wrap" id="radar-chart-only"></div>
         </section>
     `;
@@ -275,19 +234,6 @@ function buildAndAppendRadarDrawer() {
     initCustomRadarSelectors();
 }
 
-function toggleRadarDropdown(type) {
-    const p1Opt = $r("radar-player1-options"), p2Opt = $r("radar-player2-options");
-    if (p1Opt && type !== 'player1') p1Opt.style.display = "none";
-    if (p2Opt && type !== 'player2') p2Opt.style.display = "none";
-    if (type === 'player1' && p1Opt) {
-        p1Opt.style.display = p1Opt.style.display === "none" ? "block" : "none";
-        if (p1Opt.style.display === "block") { resetRadarPlayerSearch('p1'); setTimeout(() => $r("radar-p1-search")?.focus(), 50); }
-    } else if (type === 'player2' && p2Opt) {
-        p2Opt.style.display = p2Opt.style.display === "none" ? "block" : "none";
-        if (p2Opt.style.display === "block") { resetRadarPlayerSearch('p2'); setTimeout(() => $r("radar-p2-search")?.focus(), 50); }
-    }
-}
-
 function toggleRadarCheckboxDropdown() {
     const cb = $r("radar-checkboxes-container");
     if (cb) cb.style.display = ["none", ""].includes(cb.style.display) ? "flex" : "none";
@@ -295,244 +241,25 @@ function toggleRadarCheckboxDropdown() {
     if (p1) p1.style.display = "none"; if (p2) p2.style.display = "none";
 }
 // ==========================================================================
-// PER 90 - RADAR.JS - DEL 3 AF 4 (SPLIT CARD & LIVE JOGA BONITO KNAP)
-// ==========================================================================
-
-// ==========================================================================
-// 🎯 DYNAMISK FARVEOPDATERING: Gendan manglende funktion til live farveskift
-// ==========================================================================
-function updateRadarColors(playerNum) {
-    if (playerNum === 1) {
-        const input1 = $r("radar-color1-input");
-        if (input1) {
-            RADAR_COLOR_1 = input1.value;
-            // Skifter spillernavnets tekstfarve i toppen live
-            const name1 = document.querySelector("#view-radar .p-panel.left .p-nm");
-            if (name1) name1.style.color = RADAR_COLOR_1;
-        }
-    } else if (playerNum === 2) {
-        const input2 = $r("radar-color2-input");
-        if (input2) {
-            RADAR_COLOR_2 = input2.value;
-            // Skifter sammenligningsspillerens tekstfarve i toppen live
-            const name2 = document.querySelector("#view-radar .p-panel.right .p-nm");
-            if (name2) name2.style.color = RADAR_COLOR_2;
-        }
-    }
-    
-    // Kalder din eksisterende filter-ændring, som genopbygger SVG-diagrammet med de nye farver!
-    onRadarFilterChange();
-}
-                                 
-
-async function onRadarFilterChange() {
-    if (!RADAR_PLAYER_1) return;
-    const checkboxes = document.querySelectorAll('#radar-checkboxes-container input[type="checkbox"]');
-    const selected = [...checkboxes].filter(cb => cb.checked).map(cb => cb.value);
-    const selectText = $r("radar-metrics-select-text");
-    if (selectText) {
-        selectText.innerText = selected.length === checkboxes.length ? "All metrics chosen" :
-                               selected.length === 0 ? "No metrics chosen" : `${selected.length}/${checkboxes.length} chosen`;
-    }
-    const lowMetrics = selected.length < 3;
-    if ($r("radar-warning-overlay")) $r("radar-warning-overlay").style.display = lowMetrics ? "flex" : "none";
-    if (!lowMetrics) await loadRadarChartDataWithFilters(RADAR_PLAYER_1, RADAR_PLAYER_2, selected);
-}
-
-// 🎯 GLOBAL CACHE & TIMERS TIL RADAR.JS (Gør søgningen øjeblikkelig for Player 1 & 2)
-let RADAR_CACHED_P1_ITEMS = null;
-let RADAR_CACHED_P2_ITEMS = null;
-let RADAR_SEARCH_DEBOUNCE_TIMER = null;
-
-function filterRadarPlayerList(type) {
-    // ⏱️ DEBOUNCE: Nulstil timeren hvis brugeren stadig taster løs
-    clearTimeout(RADAR_SEARCH_DEBOUNCE_TIMER);
-
-    // Vent 150ms efter sidste tastetryk før vi ændrer i layoutet
-    RADAR_SEARCH_DEBOUNCE_TIMER = setTimeout(() => {
-        const filter = $r(`radar-${type}-search`)?.value.toLowerCase();
-        if (filter === undefined) return;
-        
-        // Vælg den rigtige cache baseret på om det er p1 eller p2 der søges i
-        if (type === 'p1' && !RADAR_CACHED_P1_ITEMS) {
-            RADAR_CACHED_P1_ITEMS = document.querySelectorAll("#radar-p1-items-container .custom-option-item");
-        } else if (type === 'p2' && !RADAR_CACHED_P2_ITEMS) {
-            RADAR_CACHED_P2_ITEMS = document.querySelectorAll("#radar-p2-items-container .custom-option-item");
-        }
-        
-        const cachedItems = (type === 'p1') ? RADAR_CACHED_P1_ITEMS : RADAR_CACHED_P2_ITEMS;
-        let matchesFound = 0;
-        
-        // 🚀 EFFEKTIV LOOP: Søger i hukommelsen og viser maksimalt 30 elementer ad gangen
-        for (let i = 0; i < cachedItems.length; i++) {
-            const item = cachedItems[i];
-            
-            if (filter === "") {
-                item.style.display = i < 30 ? "block" : "none";
-            } else {
-                if (item.innerText.toLowerCase().includes(filter) && matchesFound < 30) {
-                    item.style.display = "block";
-                    matchesFound++;
-                } else {
-                    item.style.display = "none";
-                }
-            }
-        }
-    }, 150);
-}
-
-function resetRadarPlayerSearch(type) {
-    if ($r(`radar-${type}-search`)) { 
-        $r(`radar-${type}-search`).value = ""; 
-        
-        // Genopbyg cachen og nulstil visningen til kun at vise de første 30 spillere
-        if (type === 'p1') {
-            RADAR_CACHED_P1_ITEMS = document.querySelectorAll("#radar-p1-items-container .custom-option-item");
-            for (let i = 0; i < RADAR_CACHED_P1_ITEMS.length; i++) {
-                RADAR_CACHED_P1_ITEMS[i].style.display = i < 30 ? "block" : "none";
-            }
-        } else {
-            RADAR_CACHED_P2_ITEMS = document.querySelectorAll("#radar-p2-items-container .custom-option-item");
-            for (let i = 0; i < RADAR_CACHED_P2_ITEMS.length; i++) {
-                RADAR_CACHED_P2_ITEMS[i].style.display = i < 30 ? "block" : "none";
-            }
-        }
-    }
-}
-
-function toggleRadarDropdown(type) {
-    const p1Opt = $r("radar-player1-options"), p2Opt = $r("radar-player2-options");
-    if (p1Opt && type !== 'player1') p1Opt.style.display = "none";
-    if (p2Opt && type !== 'player2') p2Opt.style.display = "none";
-    
-    if (type === 'player1' && p1Opt) {
-        const isOpening = p1Opt.style.display === "none" || p1Opt.style.display === "";
-        p1Opt.style.display = isOpening ? "block" : "none";
-        if (isOpening) { 
-            resetRadarPlayerSearch('p1'); 
-            setTimeout(() => $r("radar-p1-search")?.focus(), 50); 
-        }
-    } else if (type === 'player2' && p2Opt) {
-        const isOpening = p2Opt.style.display === "none" || p2Opt.style.display === "";
-        p2Opt.style.display = isOpening ? "block" : "none";
-        if (isOpening) { 
-            resetRadarPlayerSearch('p2'); 
-            setTimeout(() => $r("radar-p2-search")?.focus(), 50); 
-        }
-    }
-}
-
-
-async function initCustomRadarSelectors() {
-    try {
-        const players = await fetch(`${API_BASE_URL}/api/pizza/players`).then(r => r.json());
-        if (players.length > 1 && $r("radar-p1-items-container") && $r("radar-p2-items-container")) {
-            RADAR_PLAYER_1 = players[0]; RADAR_PLAYER_2 = players[1]; 
-            $r("radar-p1-selected-text").innerText = RADAR_PLAYER_1;
-            $r("radar-p2-selected-text").innerText = RADAR_PLAYER_2;
-            
-            $r("radar-p1-items-container").innerHTML = players.map(p => `<div class="custom-option-item ${p === RADAR_PLAYER_1 ? 'selected-active' : ''}" onclick="selectRadarItem('player1', '${p.replace(/'/g, "\\\\'")}')">${p}</div>`).join('');
-            $r("radar-p2-items-container").innerHTML = players.map(p => `<div class="custom-option-item ${p === RADAR_PLAYER_2 ? 'selected-active' : ''}" onclick="selectRadarItem('player2', '${p.replace(/'/g, "\\\\'")}')">${p}</div>`).join('');
-        }
-        await onRadarFilterChange();
-    } catch (e) { console.error("Fejl under indlæsning:", e); }
-}
-
-async function selectRadarItem(type, value) {
-    if (type === 'player1') { RADAR_PLAYER_1 = value; $r("radar-p1-selected-text").innerText = value; }
-    else if (type === 'player2') { RADAR_PLAYER_2 = value; $r("radar-p2-selected-text").innerText = value; }
-    const optEl = $r(`radar-${type}-options`); if (optEl) optEl.style.display = "none";
-    await onRadarFilterChange();
-}
-
-async function onRadarPlayerChange() { onRadarFilterChange(); }
-
-function buildCategorizedRadarMetrics() {
-    const container = $r("radar-checkboxes-container"); if (!container) return;
-    const colors = { "Shooting": "#ff007f", "Passing": "#00ffd5", "Possession": "#ffb700", "Defending": "#00ff66" };
-    const defaults = ["Goals", "Assists", "Successful Dribbles", "Tackles Won %"];
-    container.innerHTML = Object.entries(RADAR_CATEGORIES).map(([cat, metrics]) => {
-        const c = colors[cat] || "var(--accent-purple)";
-        const body = Object.values(metrics).map(m => {
-            const checked = defaults.includes(m);
-            return `<label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; color: var(--text-primary); transition: opacity 0.2s; opacity: ${checked ? 1 : 0.35};"><input type="checkbox" value="${m}" ${checked ? "checked" : ""} onchange="this.parentElement.style.opacity = this.checked ? '1' : '0.35'; onRadarFilterChange();" style="accent-color: ${c}; cursor: pointer;">${m}</label>`;
-        }).join('');
-        return `<div style="margin-bottom: 12px;"><div style="font-size: 11px; color: ${c}; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid ${c}44; padding-bottom: 4px; margin-bottom: 6px;">${cat}</div><div style="display: flex; flex-direction: column; gap: 6px; padding-left: 4px;">${body}</div></div>`;
-    }).join('');
-}
-
-async function loadRadarChartDataWithFilters(p1, p2, metricsList) {
-    try {
-        let p1Url = `${API_BASE_URL}/api/radar?player=${encodeURIComponent(p1)}&compare_pos=`;
-        let p2Url = `${API_BASE_URL}/api/radar?player=${encodeURIComponent(p2)}&compare_pos=`;
-        metricsList.forEach(m => { p1Url += `&metrics=${encodeURIComponent(m)}`; p2Url += `&metrics=${encodeURIComponent(m)}`; });
-        
-        const [d1, d2] = await Promise.all([ fetch(p1Url).then(r => r.json()), fetch(p2Url).then(r => r.json()).catch(() => null) ]);
-        const chartContainer = $r("radar-chart-only"); if (!chartContainer) return;
-
-        chartContainer.innerHTML = `
-            <div class="chart-container" id="radar-capture-target-area">
-                <div class="h-cnt">
-                    <div class="p-panel left">
-                        <h2 class="p-nm b-tx" style="color: ${RADAR_COLOR_1};">${d1.player_name}</h2>
-                        <div class="p-row">
-                            <span class="info-tag" style="border-left: 1px solid ${RADAR_COLOR_1} !important;">${d1.player_pos || 'N/A'}</span>
-                            <span class="info-tag" style="border-left: 1px solid ${RADAR_COLOR_1} !important;">${d1.mins_played || 0} MIN.</span>
-                            <span class="info-tag" style="border-left: 1px solid ${RADAR_COLOR_1} !important;">${d1.league || 'N/A'}</span>
-                        </div>
-                    </div>
-                    <div class="h-divider"></div>
-                    <div class="p-panel right">
-                        <h2 class="p-nm p-tx" style="color: ${RADAR_COLOR_2};">${d2 && d2.player_name ? d2.player_name : 'No Compare'}</h2>
-                        <div class="p-row">
-                            <span class="info-tag" style="border-right: 1px solid ${RADAR_COLOR_2} !important;">${d2 ? d2.player_pos : 'N/A'}</span>
-                            <span class="info-tag" style="border-right: 1px solid ${RADAR_COLOR_2} !important;">${d2 ? d2.mins_played : 0} MIN.</span>
-                            <span class="info-tag" style="border-right: 1px solid ${RADAR_COLOR_2} !important;">${d2 ? d2.league : 'N/A'}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <svg width="710" height="600" viewBox="0 0 710 600" id="radar-svg-element"></svg>
-
-                <div class="chart-footer" style="margin-top: 35px;">Percentile Spiderweb Comparison</div>
-                <div class="chart-footer-source">Generated via per-90.streamlit.app</div>
-            </div>
-            
-            <!-- 🎯 DIT NYE NEONGRØNNE JOGA BONITO DOWNLOAD KNAP LAYOUT 🎯 -->
-            <div style="display: flex; justify-content: center; margin-top: 24px;">
-                <button onclick="downloadRadarPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; transition: opacity 0.2s;">Download as PNG</button>
-            </div>
-        `;
-        
-        buildRadarVektorSpiderweb(d1, d2);
-    } catch (e) { console.error("Radar motorfejl:", e); }
-}
-// ==========================================================================
-// PER 90 - RADAR.JS - DEL 4 AF 4 (SKUDSIKKER SVG GRUPPE CENTRERING)
+// PER 90 - RADAR.JS - DEL 3 AF 6 (SPIDERWEB VEKTOR-MATEMATIK)
 // ==========================================================================
 
 function buildRadarVektorSpiderweb(d1, d2) {
     const svg = $r("radar-svg-element"); if (!svg) return;
     
-    // 🎯 JAVA-SCRIPT MATEMATIK BOOSTER: Skruer hjulets radius op fra 150 til 210 til mobil/download!
     const CX = 355, CY = 290, MAX_R = 210, total = d1.metrics.length, angle = (2 * Math.PI) / total;
 
-    // 1. Spindelvævets baggrunds-ringe (Overskriver de hårde værdier til at matche den nye MAX_R på 210)
     let markup = [52.5, 105, 157.5, 210].map(r => {
         let points = [];
         for (let i = 0; i < total; i++) points.push(`${CX + r * Math.cos(i * angle - Math.PI/2)},${CY + r * Math.sin(i * angle - Math.PI/2)}`);
         return `<polygon points="${points.join(' ')}" class="grid-poly" />`;
     }).join('');
 
-
-    // Axis spokes stråler
     d1.metrics.forEach((_, i) => {
         const a = i * angle - Math.PI / 2;
         markup += `<line x1="${CX}" y1="${CY}" x2="${CX + MAX_R * Math.cos(a)}" y2="${CY + MAX_R * Math.sin(a)}" class="grid-line" />`;
     });
 
-    
-    // 2. RENDERING AF SPILLER-BANERNE (Nu med 100% dynamiske farvevariabler)
     const generatePlayerPathMarkup = (data, polyColor, nodeColor) => {
         if (!data || !data.metrics) return '';
         let points = [];
@@ -541,7 +268,6 @@ function buildRadarVektorSpiderweb(d1, d2) {
             points.push(`${CX + r * Math.cos(a)},${CY + r * Math.sin(a)}`);
         });
         
-        // Vi erstatter klasserne med direkte stroke og fill styring fra din farvevælger
         let pathMarkup = `<polygon points="${points.join(' ')}" style="fill: ${polyColor}0f; stroke: ${polyColor}; stroke-width: 2.2; stroke-linejoin: round;" />`;
         
         data.metrics.forEach((_, i) => {
@@ -551,11 +277,9 @@ function buildRadarVektorSpiderweb(d1, d2) {
         return pathMarkup;
     };
 
-    // Her fodrer vi motoren med dine live globale farvevariabler i stedet for statiske klasser
     if (d2 && d2.metrics) markup += generatePlayerPathMarkup(d2, RADAR_COLOR_2, RADAR_COLOR_2);
     markup += generatePlayerPathMarkup(d1, RADAR_COLOR_1, RADAR_COLOR_1);
 
-    // 3. SYMMETRISK ENHEDS-CENTRERING OG ENSARTET AFSTAND TIL BOKSE
     d1.metrics.forEach((metric, i) => {
         const a = i * angle - Math.PI / 2;
         const cos = Math.cos(a), sin = Math.sin(a);
@@ -586,13 +310,10 @@ function buildRadarVektorSpiderweb(d1, d2) {
         const b1X = -27;
         const b2X = 2;
 
-        // 🎯 OGSÅ FIXET HER: Rammerne på de små talbokse overskriver nu CSS og trækker live-farven direkte ind
         markup += `
-                <!-- Spiller 1 Mikro-Boks (Dynamisk Cyan/Valgt farve) -->
                 <rect x="${b1X}" y="${boxY}" width="25" height="15" rx="4" style="fill: ${RADAR_COLOR_1}0a; stroke: ${RADAR_COLOR_1}; stroke-width: 1;" />
                 <text x="${b1X + 12.5}" y="${boxY + 7.5}" class="svg-score-text" style="fill: ${RADAR_COLOR_1}; font-weight: 900;">${score1}</text>
                 
-                <!-- Spiller 2 Mikro-Boks (Dynamisk Pink/Valgt farve) -->
                 <rect x="${b2X}" y="${boxY}" width="25" height="15" rx="4" style="fill: ${RADAR_COLOR_2}0a; stroke: ${RADAR_COLOR_2}; stroke-width: 1;" />
                 <text x="${b2X + 12.5}" y="${boxY + 7.5}" class="svg-score-text" style="fill: ${RADAR_COLOR_2}; font-weight: 900;">${d2 ? score2 : '-'}</text>
             </g>
@@ -601,13 +322,206 @@ function buildRadarVektorSpiderweb(d1, d2) {
 
     svg.innerHTML = markup + `<circle cx="${CX}" cy="${CY}" r="4" fill="#ffffff" />`;
 }
+// ==========================================================================
+// PER 90 - RADAR.JS - DEL 4 AF 6 (FARVESTYRING & FILTER LOGIK)
+// ==========================================================================
 
+function updateRadarColors(playerNum) {
+    if (playerNum === 1) {
+        const input1 = $r("radar-color1-input");
+        if (input1) {
+            RADAR_COLOR_1 = input1.value;
+            const name1 = document.querySelector(".radar-header-table .td-left .p-nm");
+            if (name1) name1.style.color = RADAR_COLOR_1;
+        }
+    } else if (playerNum === 2) {
+        const input2 = $r("radar-color2-input");
+        if (input2) {
+            RADAR_COLOR_2 = input2.value;
+            const name2 = document.querySelector(".radar-header-table .td-right .p-nm");
+            if (name2) name2.style.color = RADAR_COLOR_2;
+        }
+    }
+    onRadarFilterChange();
+}
 
+async function onRadarFilterChange() {
+    if (!RADAR_PLAYER_1) return;
+    const checkboxes = document.querySelectorAll('#radar-checkboxes-container input[type="checkbox"]');
+    const selected = [...checkboxes].filter(cb => cb.checked).map(cb => cb.value);
+    const selectText = $r("radar-metrics-select-text");
+    if (selectText) {
+        selectText.innerText = selected.length === checkboxes.length ? "All metrics chosen" :
+                               selected.length === 0 ? "No metrics chosen" : `${selected.length}/${checkboxes.length} chosen`;
+    }
+    const lowMetrics = selected.length < 3;
+    if ($r("radar-warning-overlay")) $r("radar-warning-overlay").style.display = lowMetrics ? "flex" : "none";
+    if (!lowMetrics) await loadRadarChartDataWithFilters(RADAR_PLAYER_1, RADAR_PLAYER_2, selected);
+}
+// ==========================================================================
+// PER 90 - RADAR.JS - DEL 5 AF 6 (CACHET SPILLERSØGNING)
+// ==========================================================================
 
+let RADAR_CACHED_P1_ITEMS = null;
+let RADAR_CACHED_P2_ITEMS = null;
+let RADAR_SEARCH_DEBOUNCE_TIMER = null;
 
+function filterRadarPlayerList(type) {
+    clearTimeout(RADAR_SEARCH_DEBOUNCE_TIMER);
+    RADAR_SEARCH_DEBOUNCE_TIMER = setTimeout(() => {
+        const filter = $r(`radar-${type}-search`)?.value.toLowerCase();
+        if (filter === undefined) return;
+        
+        if (type === 'p1' && !RADAR_CACHED_P1_ITEMS) {
+            RADAR_CACHED_P1_ITEMS = document.querySelectorAll("#radar-p1-items-container .custom-option-item");
+        } else if (type === 'p2' && !RADAR_CACHED_P2_ITEMS) {
+            RADAR_CACHED_P2_ITEMS = document.querySelectorAll("#radar-p2-items-container .custom-option-item");
+        }
+        
+        const cachedItems = (type === 'p1') ? RADAR_CACHED_P1_ITEMS : RADAR_CACHED_P2_ITEMS;
+        let matchesFound = 0;
+        
+        for (let i = 0; i < cachedItems.length; i++) {
+            const item = cachedItems[i];
+            if (filter === "") {
+                item.style.display = i < 30 ? "block" : "none";
+            } else {
+                if (item.innerText.toLowerCase().includes(filter) && matchesFound < 30) {
+                    item.style.display = "block";
+                    matchesFound++;
+                } else {
+                    item.style.display = "none";
+                }
+            }
+        }
+    }, 150);
+}
+
+function resetRadarPlayerSearch(type) {
+    if ($r(`radar-${type}-search`)) { 
+        $r(`radar-${type}-search`).value = ""; 
+        if (type === 'p1') {
+            RADAR_CACHED_P1_ITEMS = document.querySelectorAll("#radar-p1-items-container .custom-option-item");
+            for (let i = 0; i < RADAR_CACHED_P1_ITEMS.length; i++) {
+                RADAR_CACHED_P1_ITEMS[i].style.display = i < 30 ? "block" : "none";
+            }
+        } else {
+            RADAR_CACHED_P2_ITEMS = document.querySelectorAll("#radar-p2-items-container .custom-option-item");
+            for (let i = 0; i < RADAR_CACHED_P2_ITEMS.length; i++) {
+                RADAR_CACHED_P2_ITEMS[i].style.display = i < 30 ? "block" : "none";
+            }
+        }
+    }
+}
+// ==========================================================================
+// PER 90 - RADAR.JS - DEL 6 AF 6 (UI DROPDOWNS & DATAMOTOR VIA TABEL)
+// ==========================================================================
+
+function toggleRadarDropdown(type) {
+    const p1Opt = $r("radar-player1-options"), p2Opt = $r("radar-player2-options");
+    if (p1Opt && type !== 'player1') p1Opt.style.display = "none";
+    if (p2Opt && type !== 'player2') p2Opt.style.display = "none";
+    
+    if (type === 'player1' && p1Opt) {
+        const isOpening = p1Opt.style.display === "none" || p1Opt.style.display === "";
+        p1Opt.style.display = isOpening ? "block" : "none";
+        if (isOpening) { resetRadarPlayerSearch('p1'); setTimeout(() => $r("radar-p1-search")?.focus(), 50); }
+    } else if (type === 'player2' && p2Opt) {
+        const isOpening = p2Opt.style.display === "none" || p2Opt.style.display === "";
+        p2Opt.style.display = isOpening ? "block" : "none";
+        if (isOpening) { resetRadarPlayerSearch('p2'); setTimeout(() => $r("radar-p2-search")?.focus(), 50); }
+    }
+}
+
+async function initCustomRadarSelectors() {
+    try {
+        const players = await fetch(`${API_BASE_URL}/api/pizza/players`).then(r => r.json());
+        if (players.length > 1 && $r("radar-p1-items-container") && $r("radar-p2-items-container")) {
+            RADAR_PLAYER_1 = players[0]; RADAR_PLAYER_2 = players[1]; 
+            $r("radar-p1-selected-text").innerText = RADAR_PLAYER_1;
+            $r("radar-p2-selected-text").innerText = RADAR_PLAYER_2;
+            
+            $r("radar-p1-items-container").innerHTML = players.map(p => `<div class="custom-option-item ${p === RADAR_PLAYER_1 ? 'selected-active' : ''}" onclick="selectRadarItem('player1', '${p.replace(/'/g, "\\\\'")}')">${p}</div>`).join('');
+            $r("radar-p2-items-container").innerHTML = players.map(p => `<div class="custom-option-item ${p === RADAR_PLAYER_2 ? 'selected-active' : ''}" onclick="selectRadarItem('player2', '${p.replace(/'/g, "\\\\'")}')">${p}</div>`).join('');
+        }
+        await onRadarFilterChange();
+    } catch (e) { console.error("Fejl under indlæsning:", e); }
+}
+
+async function selectRadarItem(type, value) {
+    if (type === 'player1') { RADAR_PLAYER_1 = value; $r("radar-p1-selected-text").innerText = value; }
+    else if (type === 'player2') { RADAR_PLAYER_2 = value; $r("radar-p2-selected-text").innerText = value; }
+    const optEl = $r(`radar-${type}-options`); if (optEl) optEl.style.display = "none";
+    await onRadarFilterChange();
+}
+
+function buildCategorizedRadarMetrics() {
+    const container = $r("radar-checkboxes-container"); if (!container) return;
+    const colors = { "Shooting": "#ff007f", "Passing": "#00ffd5", "Possession": "#ffb700", "Defending": "#00ff66" };
+    const defaults = ["Goals", "Assists", "Successful Dribbles", "Tackles Won %"];
+    container.innerHTML = Object.entries(RADAR_CATEGORIES).map(([cat, metrics]) => {
+        const c = colors[cat] || "var(--accent-purple)";
+        const body = Object.values(metrics).map(m => {
+            const checked = defaults.includes(m);
+            return `<label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; color: var(--text-primary); transition: opacity 0.2s; opacity: ${checked ? 1 : 0.35};"><input type="checkbox" value="${m}" ${checked ? "checked" : ""} onchange="this.parentElement.style.opacity = this.checked ? '1' : '0.35'; onRadarFilterChange();" style="accent-color: ${c}; cursor: pointer;">${m}</label>`;
+        }).join('');
+        return `<div style="margin-bottom: 12px;"><div style="font-size: 11px; color: ${c}; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid ${c}44; padding-bottom: 4px; margin-bottom: 6px;">${cat}</div><div style="display: flex; flex-direction: column; gap: 6px; padding-left: 4px;">${body}</div></div>`;
+    }).join('');
+}
+
+async function loadRadarChartDataWithFilters(p1, p2, metricsList) {
+    try {
+        let p1Url = `${API_BASE_URL}/api/radar?player=${encodeURIComponent(p1)}&compare_pos=`;
+        let p2Url = `${API_BASE_URL}/api/radar?player=${encodeURIComponent(p2)}&compare_pos=`;
+        metricsList.forEach(m => { p1Url += `&metrics=${encodeURIComponent(m)}`; p2Url += `&metrics=${encodeURIComponent(m)}`; });
+        
+        const [d1, d2] = await Promise.all([ fetch(p1Url).then(r => r.json()), fetch(p2Url).then(r => r.json()).catch(() => null) ]);
+        const chartContainer = $r("radar-chart-only"); if (!chartContainer) return;
+
+        chartContainer.innerHTML = `
+            <div class="chart-container" id="radar-capture-target-area">
+                
+                <!-- 🎯 SEMANTISK TOPBJÆLKE: Låser spiller 1 og 2 i en perfekt, urokkelig tabel-struktur -->
+                <table class="radar-header-table">
+                    <tr>
+                        <td class="td-left">
+                            <h2 class="p-nm" style="color: ${RADAR_COLOR_1};">${d1.player_name}</h2>
+                            <div class="p-row">
+                                <span class="info-tag">${d1.player_pos || 'N/A'}</span>
+                                <span class="info-tag">${d1.mins_played || 0} MIN.</span>
+                                <span class="info-tag">${d1.league || 'N/A'}</span>
+                            </div>
+                        </td>
+                        <td class="td-right">
+                            <h2 class="p-nm" style="color: ${RADAR_COLOR_2};">${d2 && d2.player_name ? d2.player_name : 'No Compare'}</h2>
+                            <div class="p-row">
+                                <span class="info-tag">${d2 ? d2.player_pos : 'N/A'}</span>
+                                <span class="info-tag">${d2 ? d2.mins_played : 0} MIN.</span>
+                                <span class="info-tag">${d2 ? d2.league : 'N/A'}</span>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                
+                <svg width="710" height="600" viewBox="0 0 710 600" id="radar-svg-element"></svg>
+
+                <table class="radar-footer-table">
+                    <tr><td>Percentile Spiderweb Comparison</td></tr>
+                    <tr><td style="opacity:0.6;">Generated via per-90.streamlit.app</td></tr>
+                </table>
+            </div>
+            
+            <div style="display: flex; justify-content: center; margin-top: 24px;">
+                <button onclick="downloadRadarPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px; transition: opacity 0.2s;">Download as PNG</button>
+            </div>
+        `;
+        
+        buildRadarVektorSpiderweb(d1, d2);
+    } catch (e) { console.error("Radar motorfejl:", e); }
+}
 
 function downloadRadarPNG() {
-    const el = $r("radar-capture-target-area"); // Tager kun det rene diagram-kort med!
+    const el = $r("radar-capture-target-area");
     html2canvas(el, { scale: 4, backgroundColor: "#0B1220", useCORS: true, logging: false }).then(canvas => {
         const link = document.createElement("a"); link.download = `radar_comparison.png`;
         link.href = canvas.toDataURL("image/png"); link.click();
@@ -619,4 +533,3 @@ document.addEventListener("click", e => {
     if (!e.target.closest('#radar-player2-wrapper')) { const p = $r("radar-player2-options"); if(p) p.style.display = "none"; }
     if (!e.target.closest('.multiselect')) { const cb = $r("radar-checkboxes-container"); if(cb) cb.style.display = "none"; }
 });
-

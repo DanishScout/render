@@ -1,5 +1,5 @@
 // ==========================================================================
-// PER 90 - PIZZA.JS - DEL 1 AF 4 (LAYOUT OG INITIALISERING)
+// PER 90 - PIZZA.JS - DEL 1 AF 6 (MASTER CONFIG & SEMANTISK TABEL-CSS)
 // ==========================================================================
 
 const AVAILABLE_PIZZA_METRICS = [
@@ -22,11 +22,116 @@ if (typeof window.pizzaChartInstance === 'undefined') window.pizzaChartInstance 
 const $ = id => document.getElementById(id);
 const toggleDisplay = (el, show) => el && (el.style.display = show ? "block" : "none");
 
-/**
- * Genererer og skyder hele Pizza-fanens visuelle filter-struktur direkte ind i appen.
- */
+// RUNTIME CSS INJECTION (SEMANTISKE TABEL-KANALER FOR PERFEKT MODERNE LOOK)
+document.addEventListener("DOMContentLoaded", () => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .custom-option-item { padding: 10px 14px; color: #f3f1f6; cursor: pointer; font-size: 14px; transition: all 0.15s ease; font-family: 'Gabarito', sans-serif; }
+        .custom-option-item:hover { background-color: rgba(168, 85, 247, 0.25) !important; color: #ffffff !important; padding-left: 18px; }
+        .custom-option-item.selected-active { background-color: var(--accent-purple) !important; color: #ffffff !important; }
+        
+        #chart-only { position: relative; padding: 15px 15px 35px; border-radius: 24px; width: 100%; max-width: 710px; border: 1px solid rgba(0,240,255,.08); box-shadow: 0 30px 60px -15px #000, inset 0 1px 0 rgba(255,255,255,.05); box-sizing: border-box; opacity: .85; overflow: hidden; background: #0B1220; display: flex; flex-direction: column; align-items: center; margin: 20px auto !important; font-family: 'Gabarito', sans-serif; color: #e5e7eb; }
+        #chart-only::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(#0f172a, #020617); z-index: 0; border-radius: 24px; }
+        
+        /* 🌐 THE MAIN PROFILE CARD AS A TABLE: Urokkelig samling af navne og data */
+        .pizza-header-profile-table {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 575px;
+            margin: 15px auto 25px;
+            background: transparent;
+            border: 1px solid rgba(0, 240, 255, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+            border-collapse: collapse !important;
+        }
+        
+        .pizza-header-profile-table td {
+            padding: 20px 25px !important;
+            box-sizing: border-box;
+            vertical-align: middle;
+        }
+
+        .p-nm { font-size: 27px; font-weight: 900; margin: 0 0 10px; text-transform: uppercase; letter-spacing: -.5px; color: #fff; text-align: left; }
+        .tactic-line { width: 100%; height: 2px; margin-bottom: 12px; display: block; }
+        
+        /* 🎯 SLAVELÅSTE HORISONTALE METADATA KANALER VIA TABEL */
+        .pizza-meta-subtable {
+            width: auto !important;
+            border-collapse: collapse !important;
+        }
+        .pizza-meta-subtable td {
+            padding: 0 7px !important;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #fff;
+            white-space: nowrap;
+        }
+        .pizza-meta-subtable td:first-child { padding-left: 0 !important; }
+        
+        .meta-item-box { display: flex; align-items: center; gap: 6px; }
+        .meta-item-box svg { opacity: .6; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; width: 15px; height: 15px; }
+        .logo-shape { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: rgba(0,240,255,0.1); border-radius: 50%; padding: 2px; box-sizing: border-box; }
+        .club-crest-small { width: 100%; height: 100%; object-fit: contain; }
+        .data-val { color: #94a3b8; font-weight: 600; }
+        .pipe-divider-cell { color: rgba(0,240,255,.2) !important; font-size: 14px; text-align: center; }
+
+        #pizza-svg-element { display: block; margin: -15px auto 0; overflow: visible; max-width: 100%; height: auto; position: relative; z-index: 1; }
+        .grid-circle { fill: none; stroke: rgba(255,255,255,.08); }
+        .grid-line { stroke: rgba(255,255,255,.06); }
+        .ax-lbl { font-size: 13px; fill: #94a3b8; font-weight: 700; letter-spacing: .5px; text-shadow: none; }
+        .slice-b { stroke-width: 1.75; stroke-linejoin: round; }
+        .box-bg-rect { fill: #0B1220 !important; }
+        .tx-b { font-size: 11px; font-weight: 900; fill: inherit !important; }
+        
+        /* 🎯 CENTRAL STYRET METADATA FOOTER */
+        .pizza-footer-table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            margin-top: 5px;
+            font-family: 'Gabarito', sans-serif;
+        }
+        .pizza-footer-table td { padding: 2px 40px !important; font-size: 11px; font-weight: 400; color: #e5e7eb; letter-spacing: .4px; box-sizing: border-box; }
+        .pizza-footer-table .footer-line-top { opacity: 0.75; }
+        .pizza-footer-table .footer-line-bottom { opacity: 0.45; }
+
+        /* 📱 TABLET- OG MOBILOPTIMERING V5 */
+        @media (max-width: 1025px) {
+            .pizza-header-profile-table td { padding: 12px 16px !important; }
+            .p-nm { font-size: 18px !important; margin-bottom: 6px !important; }
+            .tactic-line { margin-bottom: 8px !important; }
+            .pizza-meta-subtable td { font-size: 10.5px !important; padding: 0 5px !important; }
+            .meta-item-box svg { width: 12px !important; height: 12px !important; }
+            .logo-shape { width: 16px !important; height: 16px !important; }
+            .ax-lbl { font-size: 11px !important; }
+            .pizza-footer-table td { font-size: 10px !important; padding: 1px 20px !important; }
+        }
+
+        @media (max-width: 480px) {
+            .pizza-header-profile-table { max-width: 90% !important; margin: 0 auto 10px !important; border-radius: 12px !important; }
+            .pizza-header-profile-table td { padding: 8px 12px !important; }
+            .p-nm { font-size: 11px !important; margin-bottom: 4px !important; letter-spacing: -0.3px !important; }
+            .tactic-line { margin-bottom: 6px !important; }
+            .pizza-meta-subtable td { font-size: 8px !important; padding: 0 4px !important; }
+            .meta-item-box svg { width: 8.5px !important; height: 8.5px !important; stroke-width: 2.2 !important; }
+            .logo-shape { width: 11px !important; height: 11px !important; }
+            .pipe-divider-cell { font-size: 9px !important; }
+            .pizza-footer-table td { font-size: 8px !important; }
+        }
+    `;
+    document.head.appendChild(style);
+});
+// ==========================================================================
+// PER 90 - PIZZA.JS - DEL 2 AF 6 (HTML INITIALISERING & SETTINGS DRAWER UI)
+// ==========================================================================
+
 async function initPizzaView(container) {
-    // 1. GENERER GRAFIK-BEHOLDEREN (Smid den i det dynamiske midterområde)
     container.innerHTML = `
         <section id="view-pizza" class="content-view active">
             <div class="chart-header-container">
@@ -38,7 +143,6 @@ async function initPizzaView(container) {
                 <button class="open-drawer-btn" onclick="openGlobalDrawer()">Customize Chart <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
             </div>
 
-            <!-- BEHOLDER TIL DET ORIGINALE DIAGRAM-KORT -->
             <div id="chart-only"></div>
             
             <div class="download" style="display: flex; justify-content: center; margin-top: 24px;">
@@ -47,56 +151,43 @@ async function initPizzaView(container) {
         </section>
     `;
 
-    // 2. RYD OP: Fjern en eventuel gammel skuffe fra skærmen, hvis man har skiftet fane frem og tilbage
     const gammelDrawer = document.querySelector('.filter-drawer');
     if (gammelDrawer) gammelDrawer.remove();
 
-    // 3. GENERER INDSTILLINGS-SKUFFEN (Skyd den direkte ind i bunden af BODY, så den slipper for blur!)
     const drawerDiv = document.createElement('div');
     drawerDiv.className = 'filter-drawer';
     drawerDiv.innerHTML = `
-        <div class="drawer-header">
-            <span class="drawer-title">Chart Settings</span>
-            <button class="close-drawer-btn" onclick="closeGlobalDrawer()">✕</button>
-        </div>
+        <div class="drawer-header"><span class="drawer-title">Chart Settings</span><button class="close-drawer-btn" onclick="closeGlobalDrawer()">✕</button></div>
         <div class="filter-panel" style="display: flex; flex-direction: column; gap: 20px; width: 100%;">
             
-            <!-- Dropdown 1: Spiller -->
             <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; width: 100%; position: relative;">
                 <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Select player</label>
                 <div class="custom-select-wrapper" id="custom-player-wrapper" style="position: relative; width: 100%;">
                     <div class="custom-select-trigger" onclick="toggleCustomDropdown('player')" style="background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                        <span id="custom-player-selected-text">Indlæser...</span>
-                        <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
+                        <span id="custom-player-selected-text">Indlæser...</span><i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
                     </div>
                     <div class="custom-options-list" id="custom-player-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; max-height: 250px; overflow-y: auto; z-index: 120;">
-                        <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid var(--border-color); z-index: 130;">
-                            <input type="text" id="player-search-input" oninput="filterPlayerList()" placeholder="Search..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none;" onclick="event.stopPropagation();">
-                        </div>
+                        <div style="position: sticky; top: 0; background: #07030c; padding: 8px; border-bottom: 1px solid var(--border-color); z-index: 130;"><input type="text" id="player-search-input" oninput="filterPlayerList()" placeholder="Search..." style="width: 100%; background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 10px; border-radius: 4px; font-size: 13px; outline: none;" onclick="event.stopPropagation();"></div>
                         <div id="custom-player-items-container"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Dropdown 2: Position -->
             <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; width: 100%; position: relative;">
                 <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Compare against</label>
                 <div class="custom-select-wrapper" id="custom-pos-wrapper" style="position: relative; width: 100%;">
                     <div class="custom-select-trigger" onclick="toggleCustomDropdown('pos')" style="background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                        <span id="custom-pos-selected-text">Indlæser...</span>
-                        <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
+                        <span id="custom-pos-selected-text">Indlæser...</span><i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
                     </div>
                     <div class="custom-options-list" id="custom-pos-options" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--accent-purple); border-radius: 6px; max-height: 250px; overflow-y: auto; z-index: 120;"></div>
                 </div>
             </div>
 
-            <!-- Dropdown 3: Metrikker -->
             <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; width: 100%; position: relative;">
                 <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Select Metrics</label>
                 <div class="multiselect" style="position: relative; width: 100%;">
                     <div class="selectBox" onclick="toggleCheckboxDropdown()" style="background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                        <span id="metrics-select-text">Vælg parametre...</span>
-                        <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
+                        <span id="metrics-select-text">Vælg parametre...</span><i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>
                     </div>
                     <div id="checkboxes-container" style="display: none; position: absolute; top: 105%; left: 0; right: 0; background: #07030c; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; flex-direction: column; gap: 12px; max-height: 300px; overflow-y: auto; z-index: 120;"></div>
                 </div>
@@ -105,13 +196,44 @@ async function initPizzaView(container) {
     `;
     document.body.appendChild(drawerDiv);
 
-    // 4. KØR START-LOGIK
     buildCategorizedMetrics();
     await initCustomPizzaSelectors();
 }
-
 // ==========================================================================
-// PER 90 - PIZZA.JS - DEL 2 AF 4 (LOGIK OG DROPDOWNS)
+// PER 90 - PIZZA.JS - DEL 3 AF 6 (PIZZA VEKTOR-MATEMATIK TEGNING)
+// ==========================================================================
+
+function buildPizzaVektorChart(data, selectedColor) {
+    const svg = $("pizza-svg-element"); if (!svg) return;
+    const CX = 355, CY = 285, MAX_R = 230, total = data.metrics.length, angle = (2 * Math.PI) / total;
+    const catColors = { "Shooting": "#ff007f", "Passing": "#00ffd5", "Possession": "#ffb700", "Defending": "#00ff66" };
+    
+    let markup = [57.5, 115, 172.5, 230].map(r => `<circle cx="${CX}" cy="${CY}" r="${r}" class="grid-circle" ${r === 230 ? 'style="stroke:rgba(255,255,255,.08);"' : ''} />`).join('');
+
+    data.metrics.forEach((metric, i) => {
+        const rawScore = data.percentiles[i], score = Math.round(rawScore), currentR = (rawScore / 100) * 230;
+        const sA = (i * angle) - Math.PI / 2, eA = sA + angle, midA = sA + angle / 2;
+        const cos = Math.cos(midA), sin = Math.sin(midA);
+
+        let cat = Object.keys(PIZZA_CATEGORIES).find(k => Object.values(PIZZA_CATEGORIES[k]).includes(metric)) || "Shooting";
+        const c = catColors[cat] || selectedColor;
+
+        if (currentR > 0) {
+            markup += `<path d="M ${CX} ${CY} L ${CX + currentR * Math.cos(sA)} ${CY + currentR * Math.sin(sA)} A ${currentR} ${currentR} 0 ${angle > Math.PI ? 1 : 0} 1 ${CX + currentR * Math.cos(eA)} ${CY + currentR * Math.sin(eA)} Z" class="slice-b" fill="${c}26" stroke="${c}" filter="drop-shadow(0 0 6px ${c}26)" />`;
+        }
+        markup += `<line x1="${CX}" y1="${CY}" x2="${CX + 230 * Math.cos(sA)}" y2="${CY + 230 * Math.sin(sA)}" class="grid-line" />`;
+        
+        let anchor = cos > 0.2 ? "start" : cos < -0.2 ? "end" : "middle";
+        markup += `<text x="${CX + 258 * cos}" y="${CY + 250 * sin}" class="ax-lbl" style="font-family: 'Gabarito', sans-serif;" text-anchor="${anchor}" dominant-baseline="middle" fill="#94a3b8">${metric}</text>`;
+
+        if (score > 15) {
+            markup += `<g><rect x="${CX + currentR * cos - 13}" y="${CY + currentR * sin - 7}" width="26" height="14" rx="3" class="box-bg-rect" stroke="${c}" stroke-width="1.5" /><text x="${CX + currentR * cos}" y="${CY + currentR * sin}" class="tx-b" style="font-family: 'Gabarito', sans-serif; fill: ${c} !important;" text-anchor="middle" dominant-baseline="central">${score}</text></g>`;
+        }
+    });
+    svg.innerHTML = markup + `<circle cx="${CX}" cy="${CY}" r="12" fill="#FFFFFF" />`;
+}
+// ==========================================================================
+// PER 90 - PIZZA.JS - DEL 4 AF 6 (FILTER LOGIK & CACHET SPILLERSØGNING)
 // ==========================================================================
 
 async function onPizzaFilterChange() {
@@ -128,15 +250,11 @@ async function onPizzaFilterChange() {
     if (!lowMetrics) await loadPizzaChartDataWithFilters(CURRENT_SELECTED_PLAYER, CURRENT_SELECTED_POS, selected);
 }
 
-// 🎯 GLOBAL CACHE & TIMERS TIL PIZZA.JS (Gør spillersøgningen øjeblikkelig)
 let PIZZA_CACHED_PLAYER_ITEMS = null;
 let PIZZA_SEARCH_DEBOUNCE_TIMER = null;
 
 function filterPlayerList() {
-    // ⏱️ DEBOUNCE: Nulstil timeren hvis brugeren stadig taster løs
     clearTimeout(PIZZA_SEARCH_DEBOUNCE_TIMER);
-
-    // Vent 150ms efter sidste tastetryk før vi ændrer i layoutet
     PIZZA_SEARCH_DEBOUNCE_TIMER = setTimeout(() => {
         const filter = $("player-search-input")?.value.toLowerCase();
         if (filter === undefined) return;
@@ -146,11 +264,8 @@ function filterPlayerList() {
         }
         
         let matchesFound = 0;
-        
-        // 🚀 EFFEKTIV LOOP: Søger i hukommelsen og viser maksimalt 30 elementer ad gangen
         for (let i = 0; i < PIZZA_CACHED_PLAYER_ITEMS.length; i++) {
             const item = PIZZA_CACHED_PLAYER_ITEMS[i];
-            
             if (filter === "") {
                 item.style.display = i < 30 ? "block" : "none";
             } else {
@@ -168,14 +283,15 @@ function filterPlayerList() {
 function resetPlayerSearch() {
     if ($("player-search-input")) { 
         $("player-search-input").value = ""; 
-        
-        // Genopbyg cachen og nulstil visningen til de første 30 spillere
         PIZZA_CACHED_PLAYER_ITEMS = document.querySelectorAll("#custom-player-items-container .custom-option-item");
         for (let i = 0; i < PIZZA_CACHED_PLAYER_ITEMS.length; i++) {
             PIZZA_CACHED_PLAYER_ITEMS[i].style.display = i < 30 ? "block" : "none";
         }
     }
 }
+// ==========================================================================
+// PER 90 - PIZZA.JS - DEL 5 AF 6 (UI DROPDOWNS & SELECTOR API SYNC)
+// ==========================================================================
 
 function toggleCustomDropdown(type) {
     const pOpt = $("custom-player-options"), posOpt = $("custom-pos-options");
@@ -183,11 +299,7 @@ function toggleCustomDropdown(type) {
         const isOpening = pOpt?.style.display === "none" || pOpt?.style.display === "";
         if (pOpt) pOpt.style.display = isOpening ? "block" : "none"; 
         if (posOpt) posOpt.style.display = "none";
-        
-        if (isOpening) { 
-            resetPlayerSearch(); 
-            setTimeout(() => $("player-search-input")?.focus(), 50); 
-        }
+        if (isOpening) { resetPlayerSearch(); setTimeout(() => $("player-search-input")?.focus(), 50); }
     } else if (type === 'pos') {
         if (posOpt) posOpt.style.display = posOpt.style.display === "none" ? "block" : "none";
         if (pOpt) pOpt.style.display = "none";
@@ -200,7 +312,6 @@ function toggleCheckboxDropdown() {
     const pOpt = $("custom-player-options"), posOpt = $("custom-pos-options");
     if (pOpt) pOpt.style.display = "none"; if (posOpt) posOpt.style.display = "none";
 }
-
 
 async function initCustomPizzaSelectors() {
     try {
@@ -230,7 +341,6 @@ async function selectCustomItem(type, value) {
     $(`custom-${type}-selected-text`).innerText = value;
     const optEl = $(`custom-${type}-options`); if (optEl) optEl.style.display = "none";
     document.querySelectorAll(`#custom-${type}-options .custom-option-item`).forEach(el => el.classList.toggle('selected-active', el.innerText === value));
-    
     if (isPlayer) await onPizzaPlayerChange(); else onPizzaFilterChange();
 }
 
@@ -250,7 +360,7 @@ async function onPizzaPlayerChange() {
     onPizzaFilterChange();
 }
 // ==========================================================================
-// PER 90 - PIZZA.JS - DEL 3 AF 4 (HEADER-GENERERING OG VEKTOR-TRIGGER)
+// PER 90 - PIZZA.JS - DEL 6 AF 6 (DATAMOTOR VIA TABEL & EXPORT)
 // ==========================================================================
 
 function buildCategorizedMetrics() {
@@ -280,11 +390,11 @@ async function loadPizzaChartDataWithFilters(playerName, comparePos, metricsList
         const chartContainer = $("chart-only"); if (!chartContainer) return;
         const sColor = apiResponse.selected_color || "#00f0ff", leagueVal = apiResponse.league || "N/A";
 
-        // 🎯 RETTET: Dit originale, præcise header-design genopbygget 1:1 🎯
+        // 🎯 RADIKAL TABEL OPBYGNING: Låser profilkortet og footeren i urokkelige mekaniske kanaler
         chartContainer.innerHTML = `
-            <div class="header-card">
-                <div class="h-cnt">
-                    <div class="p-meta-right">
+            <table class="pizza-header-profile-table">
+                <tr>
+                    <td>
                         <h2 class="p-nm">${apiResponse.player_name}</h2>
                         <svg class="tactic-line" viewBox="0 0 100 2" preserveAspectRatio="none">
                             <defs>
@@ -296,70 +406,51 @@ async function loadPizzaChartDataWithFilters(playerName, comparePos, metricsList
                             </defs>
                             <rect width="100" height="2" fill="url(#lineGrad)" />
                         </svg>
-                        <div class="p-sub-bar">
-                            <div class="meta-item">
-                                <div class="logo-shape" style="border: 1px solid ${sColor}">
-                                    <img class="club-crest-small" src="${logoBase64}" />
-                                </div>
-                                <span class="data-val">${leagueVal}</span>
-                            </div>
-                            <span class="pipe-divider">|</span>
-                            <div class="meta-item">
-                                <svg viewBox="0 0 24 24" style="stroke: ${sColor}"><path d="M20.38 3.46L16 2a4 4 0 0 0-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l1.08 5.4A2 2 0 0 0 5.3 12.5H7v7a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-7h1.7a2 2 0 0 0 1.94-1.41l1.08-5.4a2 2 0 0 0-1.34-2.23z"/></svg>
-                                <span class="data-val">${CURRENT_SELECTED_POS}</span>
-                            </div>
-                            <span class="pipe-divider">|</span>
-                            <div class="meta-item">
-                                <svg viewBox="0 0 24 24" style="stroke: ${sColor}"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                <span class="data-val">${apiResponse.mins_played || 0} MIN.</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        
+                        <table class="pizza-meta-subtable">
+                            <tr>
+                                <td>
+                                    <div class="meta-item-box">
+                                        <div class="logo-shape" style="border: 1px solid ${sColor}">
+                                            <img class="club-crest-small" src="${logoBase64}" />
+                                        </div>
+                                        <span class="data-val">${leagueVal}</span>
+                                    </div>
+                                </td>
+                                <td class="pipe-divider-cell">|</td>
+                                <td>
+                                    <div class="meta-item-box">
+                                        <svg viewBox="0 0 24 24" style="stroke: ${sColor}"><path d="M20.38 3.46L16 2a4 4 0 0 0-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l1.08 5.4A2 2 0 0 0 5.3 12.5H7v7a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-7h1.7a2 2 0 0 0 1.94-1.41l1.08-5.4a2 2 0 0 0-1.34-2.23z"/></svg>
+                                        <span class="data-val">${CURRENT_SELECTED_POS}</span>
+                                    </div>
+                                </td>
+                                <td class="pipe-divider-cell">|</td>
+                                <td>
+                                    <div class="meta-item-box">
+                                        <svg viewBox="0 0 24 24" style="stroke: ${sColor}"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        <span class="data-val">${apiResponse.mins_played || 0} MIN.</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+
             <div id="pizza-warning-overlay" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 6, 18, 0.9); border-radius: 12px; justify-content: center; align-items: center; z-index: 150;">
                 <div style="color: #ff007f; font-weight: 700; text-align: center;">CHOOSE AT LEAST 3 METRICS</div>
             </div>
+            
             <svg viewBox="0 0 710 570" id="pizza-svg-element"></svg>
-            <div class="chart-footer" style="font-family: var(--font-family), sans-serif;">${apiResponse.player_name}'s percentile rank vs. ${leagueVal} ${CURRENT_SELECTED_POS}s</div>
-            <div class="chart-footer-source" style="font-family: var(--font-family), sans-serif;">Generated via per-90.streamlit.app</div>
+            
+            <table class="pizza-footer-table">
+                <tr class="footer-line-top"><td>${apiResponse.player_name}'s percentile rank vs. ${leagueVal} ${CURRENT_SELECTED_POS}s</td></tr>
+                <tr class="footer-line-bottom"><td>Generated via per-90.streamlit.app</td></tr>
+            </table>
         `;
         
         buildPizzaVektorChart(apiResponse, sColor);
     } catch (e) { console.error("Interface fejl:", e); }
-}
-// ==========================================================================
-// PER 90 - PIZZA.JS - DEL 4 AF 4 (MATEMATISK TEGNING OG ORIGINALT LOOK)
-// ==========================================================================
-
-function buildPizzaVektorChart(data, selectedColor) {
-    const svg = $("pizza-svg-element"); if (!svg) return;
-    const CX = 355, CY = 285, MAX_R = 230, total = data.metrics.length, angle = (2 * Math.PI) / total;
-    const catColors = { "Shooting": "#ff007f", "Passing": "#00ffd5", "Possession": "#ffb700", "Defending": "#00ff66" };
-    
-    let markup = [57.5, 115, 172.5, 230].map(r => `<circle cx="${CX}" cy="${CY}" r="${r}" class="grid-circle" ${r === 230 ? 'style="stroke:rgba(255,255,255,.08);"' : ''} />`).join('');
-
-    data.metrics.forEach((metric, i) => {
-        const rawScore = data.percentiles[i], score = Math.round(rawScore), currentR = (rawScore / 100) * 230;
-        const sA = (i * angle) - Math.PI / 2, eA = sA + angle, midA = sA + angle / 2;
-        const cos = Math.cos(midA), sin = Math.sin(midA);
-
-        let cat = Object.keys(PIZZA_CATEGORIES).find(k => Object.values(PIZZA_CATEGORIES[k]).includes(metric)) || "Shooting";
-        const c = catColors[cat] || selectedColor;
-
-        if (currentR > 0) {
-            markup += `<path d="M ${CX} ${CY} L ${CX + currentR * Math.cos(sA)} ${CY + currentR * Math.sin(sA)} A ${currentR} ${currentR} 0 ${angle > Math.PI ? 1 : 0} 1 ${CX + currentR * Math.cos(eA)} ${CY + currentR * Math.sin(eA)} Z" class="slice-b" fill="${c}26" stroke="${c}" filter="drop-shadow(0 0 6px ${c}26)" />`;
-        }
-        markup += `<line x1="${CX}" y1="${CY}" x2="${CX + 230 * Math.cos(sA)}" y2="${CY + 230 * Math.sin(sA)}" class="grid-line" />`;
-        
-        let anchor = cos > 0.2 ? "start" : cos < -0.2 ? "end" : "middle";
-        markup += `<text x="${CX + 258 * cos}" y="${CY + 250 * sin}" class="ax-lbl" style="font-family: var(--font-family), sans-serif;" text-anchor="${anchor}" dominant-baseline="middle" fill="#94a3b8">${metric}</text>`;
-
-        if (score > 15) {
-            markup += `<g><rect x="${CX + currentR * cos - 13}" y="${CY + currentR * sin - 7}" width="26" height="14" rx="3" class="box-bg-rect" stroke="${c}" stroke-width="1.5" /><text x="${CX + currentR * cos}" y="${CY + currentR * sin}" class="tx-b" style="font-family: var(--font-family), sans-serif; fill: ${c} !important;" text-anchor="middle" dominant-baseline="central">${score}</text></g>`;
-        }
-    });
-    svg.innerHTML = markup + `<circle cx="${CX}" cy="${CY}" r="12" fill="#FFFFFF" />`;
 }
 
 function downloadPNG() { 
@@ -380,169 +471,8 @@ window.loadPizzaChartData = function(playerName) {
     if (playerName && CURRENT_SELECTED_PLAYER !== playerName) selectCustomItem('player', playerName); else onPizzaFilterChange();
 };
 
-// RUNTIME CSS INJECTION (DIT ORIGINALE DETALJEREDE LOOK INTERGRET DIREKTE)
-document.addEventListener("DOMContentLoaded", () => {
-    const style = document.createElement('style');
-    style.innerHTML = `
-        @import url('https://googleapis.com');
-        .custom-option-item { padding: 10px 14px; color: #f3f1f6; cursor: pointer; font-size: 14px; transition: all 0.15s ease; font-family: var(--font-family), sans-serif; }
-        .custom-option-item:hover { background-color: rgba(168, 85, 247, 0.25) !important; color: #ffffff !important; padding-left: 18px; }
-        .custom-option-item.selected-active { background-color: var(--accent-purple) !important; color: #ffffff !important; }
-        #chart-only { position: relative; padding: 15px 15px 35px; border-radius: 24px; width: 100%; max-width: 710px; border: 1px solid rgba(0,240,255,.08); box-shadow: 0 30px 60px -15px #000, inset 0 1px 0 rgba(255,255,255,.05); box-sizing: border-box; opacity: .85; overflow: hidden; background: #0B1220; display: flex; flex-direction: column; align-items: center; margin: 20px auto !important; font-family: var(--font-family), sans-serif; color: #e5e7eb; }
-        #chart-only::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(#0f172a, #020617); z-index: 0; border-radius: 24px; }
-        .header-card { position: relative; z-index: 2; width: 100%; max-width: 575px; margin: 15px auto 25px; padding: 20px 25px; background: transparent; border: 1px solid rgba(0, 240, 255, 0.08); border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4); box-sizing: border-box; }
-        .h-cnt { display: flex; gap: 20px; width: 100%; box-sizing: border-box; }
-        .p-meta-right { display: flex; flex-direction: column; flex-grow: 1; }
-        .p-nm { font-size: 27px; font-weight: 900; margin: 0 0 10px; text-transform: uppercase; letter-spacing: -.5px; color: #fff; }
-        .tactic-line { width: 100%; height: 2px; margin-bottom: 12px; }
-        .p-sub-bar { display: flex; align-items: center; gap: 14px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; flex-wrap: wrap; }
-        .meta-item { display: flex; align-items: center; gap: 6px; color: #fff; }
-        .meta-item svg { opacity: .6; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; width: 15px; height: 15px; }
-        .logo-shape { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: rgba(0,240,255,0.1); border-radius: 50%; padding: 2px; box-sizing: border-box; }
-        .club-crest-small { width: 100%; height: 100%; object-fit: contain; }
-        .data-val { color: #94a3b8; font-weight: 600; }
-        .pipe-divider { color: rgba(0,240,255,.2); font-size: 14px; }
-        #pizza-svg-element { display: block; margin: -15px auto 0; overflow: visible; max-width: 100%; height: auto; position: relative; z-index: 1; }
-        .grid-circle { fill: none; stroke: rgba(255,255,255,.08); }
-        .grid-line { stroke: rgba(255,255,255,.06); }
-        .ax-lbl { font-size: 13px; fill: #94a3b8; font-weight: 700; letter-spacing: .5px; text-shadow: none; }
-        .slice-b { stroke-width: 1.75; stroke-linejoin: round; }
-        .box-bg-rect { fill: #0B1220 !important; }
-        .tx-b { font-size: 11px; font-weight: 900; fill: inherit !important; }
-        .chart-footer, .chart-footer-source { text-align: center; width: 100%; font-size: 11px; font-weight: 300; color: #e5e7eb; letter-spacing: .4px; padding: 0 40px; box-sizing: border-box; position: relative; z-index: 2; font-family: var(--font-family), sans-serif; }
-        .chart-footer { margin-top: 1px; opacity: 0.75; }
-        .chart-footer-source { margin-top: 6px; opacity: 0.5; }
-        /* 📱 ULTRA-COMPACT MOBILOPTIMERING FOR PIZZA CHART */
-        @media (max-width: 480px) {
-            /* Squeezer polstring og margin på profilkortet i toppen */
-            .header-card { 
-                padding: 10px 14px !important; 
-                margin: 0px auto 12px !important; 
-                max-width: 85% !important; 
-                border-radius: 12px !important; 
-                display: flex !important;
-                justify-content: center !important; /* Centrerer hele indholdet i den store boks */
-            }
-            
-            .h-cnt {
-                width: 100% !important;
-                justify-content: center !important;
-            }
-
-            .p-meta-right {
-                width: 100% !important;
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: flex-start !important; /* Tvinger alt indhold til at starte præcis samme sted i venstre side */
-            }
-
-            /* Bevarer spillernavnet i din præcise mobil-størrelse */
-            .p-nm { 
-                font-size: 10px !important; 
-                margin: 0 0 4px 0 !important; /* Minimal bund-margin */
-                padding: 0 !important;
-                letter-spacing: -0.5px !important; 
-                line-height: 1.1 !important;
-                text-align: left !important;
-            }
-
-            /* Tvinger baren til at starte perfekt under navnet */
-            .tactic-line { 
-                margin: 0 0 6px 0 !important; /* Fast, ensartet afstand ned til ikonerne (6px) */
-                width: 100% !important;
-                display: block !important;
-            }
-            
-            /* 🎯 SKRUER NED FOR LIGA, POSITION OG MINUTTER - linet perfekt op */
-            .p-sub-bar { 
-                display: flex !important;
-                align-items: center !important; /* Centrerer hele rækken på en snor */
-                justify-content: flex-start !important; 
-                gap: 5px !important; 
-                font-size: 4px !important; 
-                letter-spacing: 0.2px !important; 
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-                line-height: 1 !important; /* Nulstiller standard linjehøjde */
-            }
-
-            .meta-item {
-                display: flex !important;
-                align-items: center !important; /* Tvinger ikonet og teksten til at have nøjagtig samme midterakse */
-                justify-content: center !important;
-                gap: 3px !important; 
-                line-height: 1 !important; /* Låser tekstens højde vertikalt */
-            }
-
-            .meta-item span {
-                display: inline-block !important;
-                line-height: 1 !important; /* Sikrer at selve bogstaverne ikke har luft over/under sig */
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-
-            .meta-item svg { 
-                width: 6px !important; 
-                height: 6px !important; 
-                stroke-width: 2.2 !important; 
-                display: block !important; /* Fjerner standard inline-støj fra browseren */
-            }
-
-            .logo-shape { 
-                width: 8px !important; 
-                height: 8px !important; 
-                padding: 0px !important; 
-                display: flex !important;
-                align-items: center !important; /* Centrerer klublogoet indeni den runde cirkel */
-                justify-content: center !important;
-            }
-
-
-            .club-crest-small {
-                width: 100% !important;
-                height: 100% !important;
-                object-fit: contain !important;
-            }
-
-            .pipe-divider { 
-                font-size: 6px !important; 
-                opacity: 0.5 !important; 
-                line-height: 1 !important;
-                display: flex !important;
-                align-items: center !important;
-            }
-            
-            #pizza-svg-element { margin: -10px auto 0 !important; }
-            
-            /* 🎯 SKRUER NED FOR DE TO FOOTER-LINJER I BUNDEN */
-            .chart-footer, .chart-footer-source { 
-                padding: 0 15px !important; 
-                line-height: 1.3 !important;
-            }
-            /* Linjen med 'percentile rank vs...' */
-            .chart-footer { 
-                font-size: 4px !important; 
-                margin-top: 8px !important; 
-                font-weight: 400 !important;
-                opacity: 0.75 !important;
-            }
-            /* Linjen med 'Generated via...' */
-            .chart-footer-source { 
-                font-size: 4px !important; 
-                margin-top: 2px !important; 
-                font-weight: 300 !important;
-                opacity: 0.45 !important;
-            }
-        }
-
-
-    `;
-    document.head.appendChild(style);
-    
-    document.addEventListener("click", e => {
-        if (!e.target.closest('#custom-player-wrapper')) { const p = $("custom-player-options"); if(p) p.style.display = "none"; }
-        if (!e.target.closest('#custom-pos-wrapper')) { const pos = $("custom-pos-options"); if(pos) pos.style.display = "none"; }
-        if (!e.target.closest('.multiselect')) { const cb = $("checkboxes-container"); if(cb) cb.style.display = "none"; }
-    });
+document.addEventListener("click", e => {
+    if (!e.target.closest('#custom-player-wrapper')) { const p = $("custom-player-options"); if(p) p.style.display = "none"; }
+    if (!e.target.closest('#custom-pos-wrapper')) { const pos = $("custom-pos-options"); if(pos) pos.style.display = "none"; }
+    if (!e.target.closest('.multiselect')) { const cb = $("checkboxes-container"); if(cb) cb.style.display = "none"; }
 });
