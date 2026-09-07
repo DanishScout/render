@@ -117,7 +117,37 @@ document.addEventListener("DOMContentLoaded", () => {
             /* Squeezer top-rækken så navne, logo og score har plads */
             .rank-row-rank { font-size: 13px !important; width: 18px !important; }
             .rank-row-logo-box { width: 30px !important; height: 30px !important; border-radius: 6px !important; }
-            .rank-row-player-name { font-size: 12px !important; letter-spacing: 0.1px !important; }
+            /* 🎯 NAVNE-FIX: Mindre skrifttype og indbygget backup-beskæring til lange navne */
+            .rank-row-player-name { 
+                font-size: 11px !important; /* En tand mindre for at garantere plads til mellemlange navne */
+                font-weight: 900; 
+                color: #fff; 
+                margin: 0; 
+                text-transform: uppercase; 
+                letter-spacing: 0.1px !important; 
+                white-space: nowrap; 
+            }
+    
+            /* 🎯 METRIC-FIX: Fjerner al afklipning og tillader titlerne at brede sig ud */
+            .rank-bar-info { 
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center; 
+                font-size: 8.5px !important; 
+                font-weight: 800 !important; 
+                text-transform: uppercase; 
+                color: #64748b; 
+                width: 100%;
+            }
+            
+            /* Fjernet max-width og ellipsis helt herfra så ord som PASSES INTO FINAL THIRD ikke forkortes */
+            .rank-bar-info span:first-child {
+                white-space: nowrap !important;
+                overflow: visible !important;
+                text-overflow: clip !important;
+            }
+
+
             .rank-row-subtext { font-size: 9px !important; }
             .rank-row-score-value { font-size: 15px !important; }
             
@@ -372,8 +402,24 @@ function buildRankingLeaderboardEngine() {
 
     let markup = "";
 
+        // ==========================================================================
+    // PER 90 - RANKING.JS - RETTET DEL 4A (INTELLIGENT NAVNESKÆRING ENGINE)
+    // ==========================================================================
+        // ==========================================================================
+    // PER 90 - RANKING.JS - DYNAMISK TEKST-SKALERING UDEN AFKLIP
+    // ==========================================================================
     markup += top9.map((p, idx) => {
         const imgId = `rank-crest-${idx}-${p.player_name.replace(/[^a-zA-Z0-9]/g, '')}`;
+        
+        // 🎯 LØSNING: Vi beholder HELE navnet, men skruer ned for font-størrelsen live, hvis det er langt!
+        const fullPlayerName = p.player_name || "";
+        let dynamicFontSize = "11px"; 
+        
+        if (fullPlayerName.length > 24) {
+            dynamicFontSize = "8px"; // Ultra-kompakt til navne som FRANCISCO FERNANDES DA CONCEIÇÃO
+        } else if (fullPlayerName.length > 18) {
+            dynamicFontSize = "9.5px"; // Mellem-størrelse
+        }
         
         let barsHTML = '<div class="rank-metrics-grid">';
         let colorIdx = 0;
@@ -383,10 +429,11 @@ function buildRankingLeaderboardEngine() {
             const color = barColors[colorIdx % barColors.length];
             colorIdx++;
 
+            // 🎯 LØSNING: Fjernet max-width og inline-styles, der klippede ordene over!
             barsHTML += `
                 <div class="rank-bar-item">
                     <div class="rank-bar-info">
-                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 65px;">${prettyTitle}</span>
+                        <span>${prettyTitle}</span>
                         <span style="color: ${color}; font-weight:800;">${Math.round(scoreVal)}</span>
                     </div>
                     <div class="rank-bar-bg">
@@ -399,7 +446,6 @@ function buildRankingLeaderboardEngine() {
 
         return `
             <div class="rank-leaderboard-card">
-                <!-- Top række: Spiller og overordnet rolle-score -->
                 <div class="rank-card-top-row">
                     <div class="rank-row-left">
                         <div class="rank-row-rank">#${p.rank}</div>
@@ -407,14 +453,14 @@ function buildRankingLeaderboardEngine() {
                             <img id="${imgId}" class="rank-row-crest" src="data:image/svg+xml;utf8,<svg xmlns=%22http://w3.org width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23475569%22 stroke-width=%222%22><circle cx=%2212%22 cy=%2212%22 r=%2210%22/></svg>'" />
                         </div>
                         <div class="rank-row-names">
-                            <h4 class="rank-row-player-name" title="${p.player_name}">${p.player_name}</h4>
+                            <!-- 🎯 HER INJICERES DEN DYNAMISKE FONT-SIZE AUTOMATISK -->
+                            <h4 class="rank-row-player-name" style="font-size: ${dynamicFontSize} !important;" title="${p.player_name}">${fullPlayerName}</h4>
                             <div class="rank-row-subtext">${p.team}</div>
                         </div>
                     </div>
                     <div class="rank-row-score-value">${p.role_score.toFixed(1)}</div>
                 </div>
                 
-                <!-- Kompakt metadata midt i kortet -->
                 <div class="rank-card-meta-row">
                     <span class="rank-row-meta-val-pos">${p.position}</span>
                     <span>•</span>
@@ -423,11 +469,12 @@ function buildRankingLeaderboardEngine() {
                     <span>${p.mins_played}m</span>
                 </div>
                 
-                <!-- Bund række: De 6 vægtede performance-bjælker (Nu i tæt 2-kolonne grid) -->
                 ${barsHTML}
             </div>
         `;
     }).join('');
+
+
 
     container.innerHTML = markup;
 

@@ -22,94 +22,95 @@ const getSimEl = id => document.getElementById(id);
 // PER 90 - SIMILARITY.JS - DEL 2 AF 5 (ROBUST SPLIT-CARD CSS MED RESPONSIV LOGIK)
 // ==========================================================================
 
+// ==========================================================================
+// PER 90 - SIMILARITY.JS - DEL 2 AF 5 (STRØMLINET PC & MINI MOBIL CSS)
+// ==========================================================================
+
 document.addEventListener("DOMContentLoaded", () => {
-    if (document.getElementById('sim-core-styles')) return; // Undgå gen-injektion
+    if (document.getElementById('sim-core-styles')) return; 
     const style = document.createElement('style');
     style.id = 'sim-core-styles';
     style.innerHTML = `
-        .sim-blocks-container { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 950px; margin: 0 auto; padding: 0 10px; box-sizing: border-box; }
+        .sim-blocks-container { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 950px; margin: 0 auto; padding: 0 10px; box-sizing: border-box; }
         
-        /* LEADERBOARD OVER-OVERSKRIFT: Definerer kolonnerne én gang for alle øverst */
-        .sim-scouting-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 25px; font-family: 'Gabarito', sans-serif; font-size: 10.5px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 2px solid rgba(255,255,255,0.05); margin-bottom: 5px; box-sizing: border-box; }
+        /* 🎯 APPSYNKRONISERING: Kridhvide og ultra-synlige kolonneoverskrifter på pc */
+        .sim-scouting-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; font-family: 'Gabarito', sans-serif; font-size: 10.5px; font-weight: 900; color: #ffffff !important; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 2px solid rgba(255,255,255,0.08); margin-bottom: 3px; box-sizing: border-box; }
         .sim-sc-hdr-left { display: flex; align-items: center; gap: 20px; }
-        .sim-sc-hdr-right { display: flex; align-items: center; gap: 25px; flex-grow: 1; justify-content: flex-end; max-width: 500px; padding-right: 65px; box-sizing: border-box; }
+        .sim-sc-hdr-right { display: flex; align-items: center; gap: 25px; flex-grow: 1; justify-content: flex-end; max-width: 500px; padding-right: 0px !important; box-sizing: border-box; }
         
-        /* THE SPLIT CARD: Det store, rå, mørke profilkort til din Top 10 */
-        .sim-leaderboard-card { background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important; border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 16px 25px; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; gap: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: transform 0.15s ease; }
+        /* 🎯 ULTRA-KOMPAKT KORT: Polstring skåret fra 16px helt ned til 10px vertikalt på pc */
+        .sim-leaderboard-card { background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important; border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; gap: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: transform 0.15s ease; }
         .sim-leaderboard-card:hover { transform: translateX(3px); border-color: rgba(255,255,255,0.08); }
         
-        /* Venstre felt */
         .sim-row-left { display: flex; align-items: center; gap: 20px; }
-        .sim-row-rank { font-size: 22px; font-weight: 900; color: #a855f7; width: 35px; text-align: center; text-shadow: 0 0 12px rgba(168,85,247,0.25); }
         
-        /* Logo ramme */
-        .sim-row-logo-box { width: 44px; height: 44px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 3px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .sim-row-crest { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: contain; 
-            opacity: 0; 
-            transition: opacity 0.25s ease-in-out; 
-        }
+        /* 🎯 LIMEGRØN FINISERING: Rank følger jeres neongrønne klubfarve live */
+        .sim-row-rank { font-size: 20px; font-weight: 900; color: var(--accent-purple); width: 35px; text-align: center; text-shadow: 0 0 12px rgba(168,85,247,0.25); }
         
-        /* Denne klasse skydes på via JavaScript, i det sekund billedet er færdighentet */
-        .sim-row-crest.logo-loaded { 
-            opacity: 1 !important; 
-        }
-
+        .sim-row-logo-box { width: 40px; height: 44px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 3px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .sim-row-crest { width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.25s ease-in-out; }
+        .sim-row-crest.logo-loaded { opacity: 1 !important; }
         
         .sim-row-names { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-        .sim-row-player-name { font-size: 15px; font-weight: 900; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .sim-row-subtext { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sim-row-player-name { font-size: 14px; font-weight: 900; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sim-row-subtext { font-size: 10.5px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        /* Højre felt */
         .sim-row-right { display: flex; align-items: center; gap: 25px; flex-grow: 1; justify-content: flex-end; max-width: 500px; box-sizing: border-box; }
-        .sim-row-meta-val-pos { font-size: 12px; font-weight: 800; color: #00f0ff; text-transform: uppercase; width: 50px; text-align: center; }
-        .sim-row-meta-val-age { font-size: 13px; font-weight: 700; color: #94a3b8; width: 55px; text-align: center; }
-        .sim-row-meta-val-mins { font-size: 13px; font-weight: 700; color: #94a3b8; width: 65px; text-align: center; }
-
-        /* Lysende Match-bjælke */
-        .sim-row-bar-container { display: flex; flex-direction: column; width: 140px; }
-        .sim-row-bar-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.04); border-radius: 10px; overflow: hidden; }
-        .sim-row-bar-fill { height: 100%; background: linear-gradient(90deg, #a855f7 0%, #00f0ff 100%); border-radius: 10px; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        .sim-row-score-value { font-size: 16px; font-weight: 900; color: #00f0ff; width: 65px; text-align: right; text-shadow: 0 0 10px rgba(0,240,255,0.2); }
+        /* 🎯 STRØMLINING: Positionen mister sin blå farve og følger den dæmpede scout-hvid */
+        .sim-row-meta-val-pos { font-size: 12.5px !important; font-weight: 700; color: #94a3b8 !important; text-transform: uppercase; width: 50px; text-align: center; }
+        .sim-row-meta-val-age { font-size: 12.5px !important; font-weight: 700; color: #94a3b8 !important; width: 55px; text-align: center; }
+        .sim-row-meta-val-mins { font-size: 12.5px !important; font-weight: 700; color: #94a3b8 !important; width: 65px; text-align: center; }
 
-        /* 📱 RESPONSIV MOBILOPTIMERING FOR SIMILARITY FEED (Når skærmen er under 480px) */
+        /* 🎯 LEADERBOARD MATCH BJÆLKE INTEGRATION: Sammensmeltet til én vertikal enhed */
+        .sim-row-bar-container { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 140px; }
+        .sim-row-bar-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.04); border-radius: 10px; overflow: hidden; }
+        .sim-row-bar-fill { height: 100%; background: var(--accent-purple); border-radius: 10px; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sim-row-score-value { font-size: 14px; font-weight: 900; color: var(--accent-purple); width: 100%; text-align: center; text-shadow: 0 0 10px rgba(168,85,247,0.2); line-height: 1; }
+
+        /* 📱 ULTRA-COMPACT MOBILOPTIMERING V6 (THE FINISHED BALANCED LOOK) */
         @media (max-width: 480px) {
-            /* Skjuler tabeloverskriften på mobil for at forhindre støj */
-            .sim-scouting-header { display: none !important; }
+            .sim-scouting-header { display: flex !important; padding: 4px 10px !important; font-size: 7px !important; letter-spacing: 0.5px !important; margin-bottom: 2px !important; border-bottom: 1px solid rgba(255,255,255,0.05) !important; }
+            .sim-sc-hdr-left { gap: 6px !important; }
+            .sim-sc-hdr-left div:last-child { padding-left: 18px !important; } 
             
-            .sim-blocks-container { gap: 10px !important; padding: 0 4px !important; }
+            .sim-sc-hdr-right { max-width: 100% !important; justify-content: flex-end !important; padding-right: 0px !important; gap: 0px !important; }
+            .sim-sc-hdr-right div:nth-child(1), .sim-sc-hdr-right div:nth-child(2), .sim-sc-hdr-right div:nth-child(3) { display: none !important; } 
+            .sim-sc-hdr-right div:nth-child(4) { width: 45px !important; text-align: center !important; } 
+            .sim-sc-hdr-right div:nth-child(5) { display: none !important; }
+
+            .sim-blocks-container { gap: 4px !important; padding: 0 4px !important; }
+            .sim-leaderboard-card { flex-direction: row !important; flex-wrap: nowrap !important; align-items: center !important; justify-content: space-between !important; padding: 5px 8px !important; gap: 6px !important; border-radius: 6px !important; }
+            .sim-row-left { gap: 6px !important; flex-grow: 1 !important; min-width: 0 !important; }
             
-            /* Stabler spillerkortet vertikalt */
-            .sim-leaderboard-card { flex-direction: column !important; align-items: flex-start !important; padding: 12px !important; gap: 10px !important; border-radius: 12px !important; }
+            .sim-row-rank { font-size: 11px !important; width: 16px !important; text-shadow: none !important; font-weight: 800 !important; }
+            .sim-row-logo-box { width: 20px !important; height: 20px !important; border-radius: 4px !important; padding: 1px !important; }
+            .sim-row-names { gap: 0px !important; min-width: 0 !important; flex-grow: 1 !important; }
             
-            .sim-row-left { width: 100% !important; gap: 12px !important; }
-            .sim-row-rank { font-size: 16px !important; width: 24px !important; }
-            .sim-row-logo-box { width: 34px !important; height: 34px !important; border-radius: 8px !important; }
-            .sim-row-player-name { font-size: 13px !important; }
-            .sim-row-subtext { font-size: 10px !important; }
+            .sim-row-player-name { font-size: 8.5px !important; letter-spacing: -0.2px !important; white-space: nowrap !important; overflow: visible !important; text-overflow: clip !important; }
+            .sim-row-subtext { font-size: 6.5px !important; letter-spacing: -0.1px !important; color: #475569 !important; }
             
-            /* Flytter højre datapanel ind under navnet som en sekundær linje */
-            .sim-row-right { width: 100% !important; max-width: 100% !important; justify-content: space-between !important; padding-left: 36px !important; box-sizing: border-box; gap: 0px !important; }
+            .sim-row-right { width: auto !important; max-width: none !important; justify-content: flex-end !important; padding-left: 0px !important; gap: 0px !important; flex-shrink: 0 !important; }
+            .sim-row-right .sim-row-meta-val-pos, .sim-row-right .sim-row-meta-val-age, .sim-row-right .sim-row-meta-val-mins { display: none !important; } 
             
-            /* Arrangerer metadata inline med prik-separatorer */
-            .sim-row-meta-val-pos, .sim-row-meta-val-age, .sim-row-meta-val-mins { font-size: 10.5px !important; width: auto !important; text-align: left !important; }
-            .sim-row-meta-val-pos::after { content: ' •'; color: #475569; }
-            .sim-row-meta-val-age::after { content: ' •'; color: #475569; }
-            
-            /* Fjerner den lineære matchbjælke for at holde det kompakt på mobil */
-            .sim-row-bar-container { display: none !important; }
-            
-            .sim-row-score-value { font-size: 14px !important; width: auto !important; text-align: right !important; font-weight: 900 !important; }
+            .sim-row-bar-container { display: flex !important; width: 45px !important; gap: 1px !important; margin-left: 0px !important; flex-shrink: 0 !important; }
+            .sim-row-bar-bg { height: 2px !important; }
+            .sim-row-score-value { font-size: 9px !important; width: 100% !important; text-shadow: none !important; font-weight: 800 !important; }
+
+            .sim-pc-meta-only { display: none !important; }
+            .sim-mobile-meta-only { display: inline !important; }
         }
     `;
     document.head.appendChild(style);
 });
 
+
 // ==========================================================================
 // PER 90 - SIMILARITY.JS - DEL 3 AF 5 (LAYOUT & DYNAMISK SKUFFE-HTML)
+// ==========================================================================
+
+// ==========================================================================
+// PER 90 - SIMILARITY.JS - DEL 3 AF 5 (LAYOUT & NEW STATIONARY SPINNER)
 // ==========================================================================
 
 async function initSimilarityView(container) {
@@ -125,6 +126,11 @@ async function initSimilarityView(container) {
             </div>
             
             <div class="sim-blocks-container" id="sim-capture-target-area" style="padding: 15px 5px; width: 100%; box-sizing: border-box;">
+                <!-- 🎯 NY STATIONÆR INITIAL LOADER SPINNER -->
+                <div id="sim-initial-spinner" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; gap: 12px; color: #94a3b8; font-family: 'Gabarito', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; width: 100%;">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 40px; color: var(--accent-purple); height: 40px; width: 40px; display: flex; align-items: center; justify-content: center;"></i>
+                    <span>Loading...</span>
+                </div>
             </div>
         </section>
     `;
@@ -132,8 +138,6 @@ async function initSimilarityView(container) {
     if (typeof CURRENT_SELECTED_PLAYER !== 'undefined' && CURRENT_SELECTED_PLAYER) {
         SIM_TARGET_PLAYER = CURRENT_SELECTED_PLAYER;
     }
-    
-    // Tvinger appen til at hente datafeeden fra backend før skuffen åbnes
     await bootstrapSimilarityFilters();
 }
 
@@ -149,7 +153,6 @@ function buildAndAppendSimilarityDrawerHTML(playerList = []) {
         }
     }
 
-    // Udtrækker metadata asynkront fra dine indlæste liga-filer
     const allPlayerNames = [...new Set(sourceList.map(p => p.player_name || p['Player Name']).filter(Boolean).sort())];
     const leagues = [...new Set(sourceList.map(p => p.league || p.League).filter(Boolean).sort())];
     const positions = [...new Set(sourceList.map(p => p.position || p['Pos.'] || p.Position).filter(Boolean).sort())];
@@ -168,7 +171,6 @@ function buildAndAppendSimilarityDrawerHTML(playerList = []) {
     drawerDiv.innerHTML = `
         <div class="drawer-header"><span class="drawer-title">Similarity Settings</span><button class="close-drawer-btn" onclick="closeGlobalDrawer()">✕</button></div>
         <div class="filter-panel" style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-height: 85vh; overflow-y: auto;">
-            
             <div class="table-drawer-group">
                 <label class="table-drawer-label">Reference Player</label>
                 <select id="sim-opt-target" class="table-drawer-select" onchange="handleSimTargetChange()">
@@ -176,10 +178,8 @@ function buildAndAppendSimilarityDrawerHTML(playerList = []) {
                     ${playerOptions}
                 </select>
             </div>
-            
             <div class="table-drawer-group"><label class="table-drawer-label">Leagues</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(leagues, 'leagues')}</div></div>
             <div class="table-drawer-group"><label class="table-drawer-label">Positions</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(positions, 'positions')}</div></div>
-
             <div class="table-drawer-group">
                 <label class="table-drawer-label">Age (Min / Max)</label>
                 <div class="table-drawer-input-row">
@@ -194,24 +194,35 @@ function buildAndAppendSimilarityDrawerHTML(playerList = []) {
                     <input type="number" id="sim-filt-max-mins" class="table-drawer-input" value="${SIM_FILTERS.maxMins}" oninput="handleSimFilterInputChange()">
                 </div>
             </div>
-        </div>
-    `;
+        </div>`;
     document.body.appendChild(drawerDiv);
 }
+
 // ==========================================================================
 // PER 90 - SIMILARITY.JS - DEL 4 AF 5 (API DATA-FEEDER & BOOTSTRAP-MOTOR)
 // ==========================================================================
 
+// ==========================================================================
+// PER 90 - SIMILARITY.JS - DEL 4 AF 5 (FIRST PLAYER DEFAULT ENGINE)
+// ==========================================================================
+
 async function bootstrapSimilarityFilters() {
     try {
-        // Kalder tabel-data-feedet for lynhurtigt at hente og cachelagre metadata
         const res = await fetch(`${API_BASE_URL}/api/table-data?stat_type=Per 90`);
         if (res.ok) {
             const dataData = await res.json();
             if (dataData && dataData.players) {
                 window.GLOBAL_DATASET_CACHE = dataData.players;
-                buildAndAppendSimilarityDrawerHTML(dataData.players);
                 
+                // 🎯 DEFAULT PLAYER ENGINE: Hvis der ikke er valgt en spiller i forvejen, tvinger vi den første i tabellen ind
+                if (!SIM_TARGET_PLAYER && dataData.players.length > 0) {
+                    SIM_TARGET_PLAYER = dataData.players[0].player_name || dataData.players[0]['Player Name'];
+                    if (typeof CURRENT_SELECTED_PLAYER !== 'undefined') {
+                        CURRENT_SELECTED_PLAYER = SIM_TARGET_PLAYER;
+                    }
+                }
+
+                buildAndAppendSimilarityDrawerHTML(dataData.players);
                 if (SIM_TARGET_PLAYER) {
                     await loadSimilarityAPIDataFeed();
                 }
@@ -226,9 +237,7 @@ async function bootstrapSimilarityFilters() {
 
 async function loadSimilarityAPIDataFeed() {
     if (!SIM_TARGET_PLAYER) return;
-
     try {
-        // De 15 officielle grundmetrikker sendes automatisk med til backendens distance-beregner
         const officialMetrics = [
             "Goals", "npxG", "Shots On Target", "On Target %",
             "Assists", "xA", "Key Passes", "Pass Accuracy %", "Long Ball Accuracy %", "Cross Accuracy %",
@@ -263,7 +272,6 @@ async function loadSimilarityAPIDataFeed() {
 async function handleSimTargetChange() {
     const targetSelect = getSimEl("sim-opt-target");
     if (!targetSelect) return;
-    
     SIM_TARGET_PLAYER = targetSelect.value;
     if (typeof CURRENT_SELECTED_PLAYER !== 'undefined') {
         CURRENT_SELECTED_PLAYER = SIM_TARGET_PLAYER;
@@ -290,6 +298,11 @@ function handleSimCheckboxToggle(cb, key) {
     cb.parentElement.style.opacity = cb.checked ? '1' : '0.4';
     buildSimilarityLeaderboardEngine();
 }
+
+// ==========================================================================
+// PER 90 - SIMILARITY.JS - DEL 5 AF 5 (BOX LEADERBOARD MATRIX ENGINE)
+// ==========================================================================
+
 // ==========================================================================
 // PER 90 - SIMILARITY.JS - DEL 5 AF 5 (BOX LEADERBOARD MATRIX ENGINE)
 // ==========================================================================
@@ -299,7 +312,6 @@ function buildSimilarityLeaderboardEngine() {
     if (!container || !SIM_GLOBAL_DATA) return;
     container.innerHTML = "";
 
-    // Filtrering på baggrund af rullemenuerne
     const filtered = SIM_GLOBAL_DATA.similar_players.filter(p => {
         if (SIM_FILTERS.leagues.length > 0 && !SIM_FILTERS.leagues.includes(p.league)) return false;
         if (SIM_FILTERS.positions.length > 0 && !SIM_FILTERS.positions.includes(p.position)) return false;
@@ -313,11 +325,11 @@ function buildSimilarityLeaderboardEngine() {
         return;
     }
 
-    // Sorterer efter højeste Match % (Lighedsscore)
     const top10 = filtered
         .sort((a, b) => b.similarity_score - a.similarity_score)
         .slice(0, 10);
 
+    // 🎯 SNEAKY HEADER LINE-UP: Symmetriske bredder centreret på midteraksen over bjælkeenheden
     let markup = `
         <div class="sim-scouting-header">
             <div class="sim-sc-hdr-left">
@@ -328,8 +340,7 @@ function buildSimilarityLeaderboardEngine() {
                 <div style="width:50px; text-align:center;">Pos.</div>
                 <div style="width:55px; text-align:center;">Age</div>
                 <div style="width:65px; text-align:center;">Min.</div>
-                <div style="width:140px; padding-left:25px;">Similarity</div>
-                <div style="width:65px; text-align:right;">Match %</div>
+                <div style="width:140px; text-align:center;">Similarity</div>
             </div>
         </div>
     `;
@@ -343,23 +354,29 @@ function buildSimilarityLeaderboardEngine() {
                 <div class="sim-row-left">
                     <div class="sim-row-rank">#${idx + 1}</div>
                     <div class="sim-row-logo-box">
-                        <img id="${imgId}" class="sim-row-crest" src="data:image/svg+xml;utf8,<svg xmlns=%22http://w3.org width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23475569%22 stroke-width=%222%22><circle cx=%2212%22 cy=%2212%22 r=%2210%22/></svg>" />
+                        <img id="${imgId}" class="sim-row-crest" src="data:image/svg+xml;utf8,<svg xmlns=%22http://w3.org width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23475569%22 stroke-width=%222%22><circle cx=%2212%22 cy=%2212%22 r=%2210%22/></svg>'" />
                     </div>
+                    <!-- 🎯 INTEGRERET MOBIL METADATA UNDER NAVNET -->
                     <div class="sim-row-names">
                         <div class="sim-row-player-name">${p.player_name}</div>
-                        <div class="sim-row-subtext">${p.team} | ${p.league}</div>
+                        <div class="sim-row-subtext">
+                            <span class="sim-pc-meta-only">${p.team} | ${p.league}</span>
+                            <span class="sim-mobile-meta-only" style="display: none;">${p.position} • ${p.age} år • ${p.mins_played}m</span>
+                        </div>
                     </div>
                 </div>
                 <div class="sim-row-right">
                     <div class="sim-row-meta-val-pos">${p.position}</div>
                     <div class="sim-row-meta-val-age">${p.age} År</div>
                     <div class="sim-row-meta-val-mins">${p.mins_played}m</div>
+                    
+                    <!-- 🎯 SAMMENSMELTET ENHED: Procenttallet svæver nu centreret lige over baren -->
                     <div class="sim-row-bar-container">
+                        <div class="sim-row-score-value">${score.toFixed(1)}%</div>
                         <div class="sim-row-bar-bg">
                             <div class="sim-row-bar-fill" style="width: ${score}%;"></div>
                         </div>
                     </div>
-                    <div class="sim-row-score-value">${score.toFixed(1)}%</div>
                 </div>
             </div>
         `;
@@ -367,17 +384,12 @@ function buildSimilarityLeaderboardEngine() {
 
     container.innerHTML = markup;
 
-        // ==========================================================================
-    // AKTUEL OPTIMERING: GLIDENDE FADE-IN OG AUTOMATISK OPRYDNING AF TOMME BOKSE
-    // ==========================================================================
     top10.forEach(async (p, idx) => {
         const imgId = `sim-crest-${idx}-${p.player_name.replace(/[^a-zA-Z0-9]/g, '')}`;
         const imgEl = document.getElementById(imgId);
         if (!imgEl) return;
-
         const containerBox = imgEl.parentElement;
 
-        // Hvis holdet mangler et gyldigt ID, fjerner vi logorammen med det samme for et rent udtryk
         if (!p.team_id || p.team_id === "nan" || p.team_id === "None") {
             if (containerBox) containerBox.style.display = "none";
             return;
@@ -386,13 +398,9 @@ function buildSimilarityLeaderboardEngine() {
         try {
             const res = await fetch(`${API_BASE_URL}/api/logo/${p.team_id}`).then(r => r.json());
             if (res.logo_base64) {
-                // Sørg for først at fjerne gennemsigtigheden, når base64-strengen reelt er færdigbygget i DOM'en
-                imgEl.onload = () => {
-                    imgEl.classList.add('logo-loaded');
-                };
+                imgEl.onload = () => { imgEl.classList.add('logo-loaded'); };
                 imgEl.src = res.logo_base64;
             } else {
-                // Hvis API'et ikke returnerer et gyldigt billede, rydder vi op
                 if (containerBox) containerBox.style.display = "none";
             }
         } catch (e) {
@@ -400,5 +408,5 @@ function buildSimilarityLeaderboardEngine() {
             if (containerBox) containerBox.style.display = "none";
         }
     });
-
 }
+

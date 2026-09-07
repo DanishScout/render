@@ -27,38 +27,39 @@ document.addEventListener("DOMContentLoaded", () => {
         .filters-scroll-window { display: flex; flex-direction: column; max-height: 480px; overflow-y: auto; }
         .filters-compact-card { display: grid; align-items: center; padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.02); }
         .filters-compact-card:hover { background: rgba(255,255,255,0.02); }
-        .filters-c-cell { display: flex; flex-direction: column; justify-content: center; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 15px; }
+        .filters-c-cell { display: flex; flex-direction: column; justify-content: center; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .filters-c-player-name { font-size: 13.5px; font-weight: 800; color: #fff; text-transform: uppercase; }
         .filters-c-subtext { font-size: 10.5px; color: #64748b; font-weight: 600; text-transform: uppercase; }
-        .filters-c-val-pos { font-size: 11px; font-weight: 800; color: #00f0ff; text-transform: uppercase; text-align: center; }
-        .filters-c-val-age, .filters-c-val-mins { font-size: 12px; height: 700; color: #94a3b8; text-align: center; }
-        .filters-c-val-metric { font-size: 12.5px; font-weight: 900; color: #f59e0b; text-align: right; padding-right: 10px; }
-        .filters-hdr-metric { justify-content: flex-end; padding-right: 10px; }
+        
+        /* 🎯 LØSNING: Position mister sin blå farve og flugter 100% med alder og minutter */
+        .filters-c-val-pos { font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; text-align: center; }
+        .filters-c-val-age, .filters-c-val-mins { font-size: 12px; font-weight: 700; color: #94a3b8; text-align: center; }
+        
+        /* Symmetriske metrik-kolonner placeret tæt på hinanden */
+        .filters-c-val-metric { font-size: 12.5px; font-weight: 900; color: #f59e0b; text-align: center; }
+        .filters-hdr-metric { justify-content: center; }
+        
         .filters-data-viewport-wrapper::-webkit-scrollbar { height: 6px; width: 5px; }
         .filters-data-viewport-wrapper::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
 
-        /* 📱 RESPONSIV MOBILOPTIMERING FOR SPREADSHEET ENGINE (Når skærmen er under 480px) */
+        /* 📱 RESPONSIV MOBILOPTIMERING FOR SPREADSHEET ENGINE */
         @media (max-width: 480px) {
             .filters-main-layout { padding: 0 4px !important; gap: 14px !important; }
-            #filters-live-counter { font-size: 11px !important; }
             
-            /* Gør tabelrækkerne og headeren mere kompakte i højden for bedre overblik på mobilen */
             .filters-scouting-header { padding: 10px 12px !important; font-size: 9.5px !important; }
             .filters-compact-card { padding: 10px 12px !important; }
             
-            /* Squeezer padding i cellerne så kolonnerne rykker tættere sammen */
-            .filters-c-cell { padding-right: 8px !important; }
+            .filters-c-cell { padding-right: 0px !important; }
             .filters-c-player-name { font-size: 11.5px !important; }
             .filters-c-subtext { font-size: 9px !important; }
             
-            .filters-c-val-pos { font-size: 10px !important; }
+            .filters-c-val-pos { font-size: 10.5px !important; }
             .filters-c-val-age, .filters-c-val-mins { font-size: 10.5px !important; }
-            .filters-c-val-metric { font-size: 11px !important; padding-right: 4px !important; }
-            .filters-hdr-metric { padding-right: 4px !important; }
+            .filters-c-val-metric { font-size: 11px !important; }
             
-            /* Gør rulle-vinduet mindre, så det ikke sluger hele mobilskærmen */
             .filters-scroll-window { max-height: 350px !important; }
         }
+
     `;
     document.head.appendChild(style);
 });
@@ -87,6 +88,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.head.appendChild(style);
 });
 
+// ==========================================================================
+// PER 90 - FILTERS.JS - DEL 2 AF 5 (STATIONÆR SPINNER INTERFACE)
+// ==========================================================================
+
 async function initFiltersView(container) {
     container.innerHTML = `
         <section id="view-filters" class="content-view active" style="padding-top: 10px;">
@@ -98,15 +103,22 @@ async function initFiltersView(container) {
                 <button class="open-drawer-btn" onclick="openGlobalDrawer()">Configure Metrics & Sliders <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
             </div>
             <div class="filters-main-layout">
-                <div class="filters-counter-badge" id="filters-live-counter">Match count: <span class="filters-counter-highlight">0</span> spillere</div>
                 <div class="filters-data-viewport-wrapper">
-                    <div class="filters-dynamic-grid-container" id="filters-master-grid-canvas"></div>
+                    <div class="filters-dynamic-grid-container" id="filters-master-grid-canvas">
+                        <!-- 🎯 LØSNING: Flot, stationær loader-spinner, der kun roterer roligt om sit eget centrum via fa-spin -->
+                        <div id="filters-initial-spinner" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; gap: 12px; color: #94a3b8; font-family: 'Gabarito', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">
+                            <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 40px; color: var(--accent-purple); height: 40px; width: 40px; display: flex; align-items: center; justify-content: center;"></i>
+                            <span>Loading...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
     `;
     await loadFiltersAPIDataFeed();
 }
+
+
 // ==========================================================================
 // PER 90 - FILTERS.JS - DEL 3 AF 5 (DRAWER DASHBOARD PANEL BUILDER)
 // ==========================================================================
@@ -250,15 +262,23 @@ function handleDualSliderMovement(el, m, type) {
 // PER 90 - FILTERS.JS - DEL 5 AF 5 (INTERACTIVE SPREADSHEET ENGINE)
 // ==========================================================================
 
+// ==========================================================================
+// PER 90 - FILTERS.JS - DEL 5A AF 5 (DYNAMISK SYMMETRISK GRID FILTER)
+// ==========================================================================
+
 function runAdvancedFilteringEngine() {
-    const canvas = $f("filters-master-grid-canvas"), badge = $f("filters-live-counter");
-    if (!canvas || !FILTERS_GLOBAL_DATA) return;
+    const canvas = $f("filters-master-grid-canvas"); if (!canvas || !FILTERS_GLOBAL_DATA) return;
+
+    // 🎯 LØSNING: Fjerner loading spinneren med det samme, når data er klar
+    const spinner = document.getElementById("filters-initial-spinner");
+    if (spinner) spinner.remove();
 
     const activeM = Object.keys(FILTERS_METRIC_SLIDERS).filter(m => FILTERS_METRIC_SLIDERS[m].enabled);
-    let gridLayout = "240px 60px 70px 80px";
-    activeM.forEach(() => { gridLayout += " 130px"; });
+    
+    // 🎯 LØSNING: Vi låser alle datakolonner til præcis 75px hver (Symmetrisk og ensartet afstand efter Min)
+    let gridLayout = "240px 75px 75px 75px";
+    activeM.forEach(() => { gridLayout += " 75px"; });
 
-    // 1. Filtrering live i datasættet baseret på skuffens indstillinger
     let filtered = FILTERS_GLOBAL_DATA.players.filter(p => {
         if (FILTERS_META.leagues.length > 0 && !FILTERS_META.leagues.includes(p.league)) return false;
         if (FILTERS_META.nationalities.length > 0 && !FILTERS_META.nationalities.includes(p.nationality)) return false;
@@ -273,45 +293,67 @@ function runAdvancedFilteringEngine() {
         return true;
     });
 
-    if (badge) badge.innerHTML = `Match count: <span class="filters-counter-highlight">${filtered.length}</span> spillere`;
+    // Match count badge-linjen er fjernet helt herfra!
     if (filtered.length === 0) {
         canvas.innerHTML = `<div style="text-align:center; padding:40px; color:#64748b; font-size:12px; font-weight:700;">INGEN MATCHES DETEKTERET</div>`;
         return;
     }
 
-    // 2. 🎯 LIVE INTERAKTIV SORTERINGS-MATRIX
     filtered.sort((a, b) => {
         let valA = FILTERS_SORT.type === "meta" ? a[FILTERS_SORT.key] : (a.metrics[FILTERS_SORT.key] || 0.0);
         let valB = FILTERS_SORT.type === "meta" ? b[FILTERS_SORT.key] : (b.metrics[FILTERS_SORT.key] || 0.0);
         return FILTERS_SORT.desc ? valB - valA : valA - valB;
     });
 
-    // Hjælpefunktion til at tegne den rigtige sorterings-pil og active class på overskriften
     const getSortIndicator = (colKey) => {
         if (FILTERS_SORT.key !== colKey) return `<i class="fa-solid fa-sort" style="opacity:0.3; font-size:9px;"></i>`;
         return FILTERS_SORT.desc ? ` ▼` : ` ▲`;
     };
     const getSortClass = (colKey) => FILTERS_SORT.key === colKey ? "active-sort" : "";
 
-    // 3. GENERER KLIKBARE COLUMNS HEADERS DYNAMISK
+    // Symmetrisk header med ensartede, midterstillede bredder
+    // 🎯 LØSNING: Alle overskrifter (Pos, Age, Min, Metrics) kører nu med text-content centrering ligesom data-kortene
     let headerHTML = `
         <div class="filters-scouting-header" style="grid-template-columns: ${gridLayout};">
-            <div>Player</div>
-            <div style="text-align:center;">Pos.</div>
-            <div style="text-align:center;" class="filters-sort-trigger ${getSortClass('age')}" onclick="setFiltersSortColumn('age','meta')">Age${getSortIndicator('age')}</div>
-            <div style="text-align:center;" class="filters-sort-trigger ${getSortClass('mins_played')}" onclick="setFiltersSortColumn('mins_played','meta')">Min.${getSortIndicator('mins_played')}</div>
+            <div style="text-align: left;">Player</div>
+            <div style="text-align: center; width: 100%; display: block;">Pos.</div>
+            <div style="justify-content: center; width: 100%;" class="filters-sort-trigger ${getSortClass('age')}" onclick="setFiltersSortColumn('age','meta')">Age${getSortIndicator('age')}</div>
+            <div style="justify-content: center; width: 100%;" class="filters-sort-trigger ${getSortClass('mins_played')}" onclick="setFiltersSortColumn('mins_played','meta')">Min.${getSortIndicator('mins_played')}</div>
             ${activeM.map(m => `
-                <div class="filters-sort-trigger filters-hdr-metric ${getSortClass(m)}" onclick="setFiltersSortColumn('${m}','metric')">
+                <div style="justify-content: center; width: 100%;" class="filters-sort-trigger filters-hdr-metric ${getSortClass(m)}" onclick="setFiltersSortColumn('${m}','metric')">
                     ${m}${getSortIndicator(m)}
                 </div>
             `).join('')}
         </div>
     `;
 
-    // 4. RENDER CELLER MED VÆRDIER PER SPILLER
+
+    // Udløser næste brik (Del 5B) for at generere rækkerne
+    continueBuildingFiltersRows(canvas, headerHTML, filtered, activeM, gridLayout);
+}
+
+
+// ==========================================================================
+// PER 90 - FILTERS.JS - DEL 5B AF 5 (ROWS & SPREADSHEET VIEWPORT INJECTION)
+// ==========================================================================
+
+function continueBuildingFiltersRows(canvas, headerHTML, filtered, activeM, gridLayout) {
+    // Symmetriske rækker centreret perfekt under de nye overskrifter
     let rowsHTML = filtered.map(p => {
         const mCells = activeM.map(m => `<div class="filters-c-cell filters-c-val-metric">${(p.metrics[m] || 0.0).toFixed(2)}</div>`).join('');
-        return `<div class="filters-compact-card" style="grid-template-columns: ${gridLayout};"><div class="filters-c-cell"><div class="filters-c-player-name">${p.player_name}</div><div class="filters-c-subtext">${p.team} | ${p.league}</div></div><div class="filters-c-cell filters-c-val-pos">${p.position}</div><div class="filters-c-cell filters-c-val-age">${p.age} År</div><div class="filters-c-cell filters-c-val-mins">${p.mins_played}m</div>${mCells}</div>`;
+        return `
+            <div class="filters-compact-card" style="grid-template-columns: ${gridLayout};">
+                <div class="filters-c-cell">
+                    <div class="filters-c-player-name">${p.player_name}</div>
+                    <div class="filters-c-subtext">${p.team} | ${p.league}</div>
+                </div>
+                <!-- Position flugter nu 100% harmonisk med alder og minutter uden den blå farve -->
+                <div class="filters-c-cell filters-c-val-pos">${p.position}</div>
+                <div class="filters-c-cell filters-c-val-age">${p.age} År</div>
+                <div class="filters-c-cell filters-c-val-mins">${p.mins_played}m</div>
+                ${mCells}
+            </div>
+        `;
     }).join('');
 
     canvas.innerHTML = headerHTML + `<div class="filters-scroll-window">${rowsHTML}</div>`;
@@ -331,3 +373,4 @@ function handleFiltersCheckboxToggle(cb, key) {
     cb.parentElement.style.opacity = cb.checked ? '1' : '0.4'; runAdvancedFilteringEngine();
 }
 function onFiltersFilterChange() { runAdvancedFilteringEngine(); }
+
