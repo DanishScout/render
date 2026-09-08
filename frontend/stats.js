@@ -407,14 +407,99 @@ async function onStatsFilterChange() {
     } catch (e) { console.error("Fejl under hentning af profil-data:", e); }
 }
 
+// ==========================================================================
+// ==========================================================================
+// PER 90 - STATS.JS - 1024X924 FORMAT-LÅST DOWNLOAD MOTOR
+// ==========================================================================
+
+// ==========================================================================
+// PER 90 - STATS.JS - 1024PX BREDDELÅST DOWNLOAD MOTOR (FULDT INTEGRERET)
+// ==========================================================================
+
+// ==========================================================================
+// PER 90 - STATS.JS - 1024PX DESKTOP GRID ENFORCED DOWNLOAD MOTOR
+// ==========================================================================
+
 function downloadPlayerStatsPNG() {
-    const el = $s("stats-capture-target-area"); if (!el) return;
-    html2canvas(el, { scale: 4, backgroundColor: "#0B1220", useCORS: true, logging: false }).then(canvas => {
-        const link = document.createElement("a"); 
-        link.download = `player_stats_${STATS_CURRENT_PLAYER.replace(/\s+/g, '_')}.png`;
-        link.href = canvas.toDataURL("image/png"); link.click();
+    const originalEl = $s("stats-capture-target-area"); if (!originalEl) return;
+    
+    // 1. Lav en fuldstændig identisk kopi af hele dit diagram-område
+    const clone = originalEl.cloneNode(true);
+    
+    // 2. 🎯 Tildel et unikt download-ID, så vi kan styre det med særskilt CSS
+    clone.id = "stats-download-clone";
+    
+    // 3. FORMAT-LÅS: Vi låser bredden til 1024px og lader højden tilpasse sig automatisk
+    Object.assign(clone.style, {
+        position: "absolute",
+        left: "-9999px",
+        top: "-9999px",
+        width: "1024px",         /* Tvinger PC-bredde */
+        minWidth: "1024px",
+        maxWidth: "1024px",
+        height: "auto",         
+        minHeight: "auto",
+        maxHeight: "none",
+        boxSizing: "border-box",
+        padding: "30px",
+        overflow: "visible"
     });
+    
+    // 4. 🚀 MASTER TRICKET: Opret en midlertidig CSS-regel i baggrunden.
+    // Den tvinger kasserne til 2 kolonner (2x3) og nulstiller mobil-teksterne KUN indeni download-billedet!
+    const overrideStyle = document.createElement("style");
+    overrideStyle.innerHTML = `
+        /* Tvinger altid det store 2-kolonne master layout */
+        #stats-download-clone .stats-blocks-container { 
+            display: grid !important; 
+            grid-template-columns: repeat(2, 1fr) !important; 
+            gap: 25px !important; 
+            width: 100% !important;
+        }
+        /* Tvinger hver kategoriboks til at bruge de store PC-størrelser */
+        #stats-download-clone .stats-cat-block { padding: 25px !important; gap: 20px !important; border-radius: 20px !important; }
+        #stats-download-clone .stats-cat-title { font-size: 13px !important; padding-bottom: 10px !important; margin-bottom: 5px !important; }
+        
+        /* Tvinger metrikkerne indeni kasserne til at stå side om side (2 kolonner) */
+        #stats-download-clone .stats-metrics-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 20px !important; }
+        
+        /* Genskaber de store, lækre PC-skrifttyper og barer i billedet */
+        #stats-download-clone .stats-m-lbl { font-size: 10px !important; margin-bottom: 6px !important; opacity: 0.9 !important; }
+        #stats-download-clone .stats-m-bar-bg { height: 4px !important; margin-bottom: 6px !important; }
+        #stats-download-clone .stats-m-val-text { font-size: 11px !important; }
+        #stats-download-clone .stats-m-val-text span { font-size: 10px !important; margin-left: 2px !important; }
+        #stats-download-clone .stats-status-badge { font-size: 8.5px !important; padding: 1px 5px !important; border-radius: 4px !important; height: auto !important; display: inline-block !important; }
+    `;
+    
+    // Skyd både kopien og sær-reglerne ind i browseren
+    document.body.appendChild(clone);
+    document.body.appendChild(overrideStyle);
+    
+    // 5. Vent 60ms på at browseren har transformeret og foldet det rå PC-gitter ud
+    setTimeout(() => {
+        html2canvas(clone, { 
+            scale: 3,                 /* Knivskarp 4K-agtig printopløsning */
+            backgroundColor: "#0B1220", 
+            useCORS: true, 
+            logging: false 
+        }).then(canvas => {
+            // 6. Download det færdige billede, som nu med statsgaranti er i 2x3 PC-format
+            const link = document.createElement("a"); 
+            link.download = `player_stats_${STATS_CURRENT_PLAYER.replace(/\s+/g, '_')}.png`;
+            link.href = canvas.toDataURL("image/png"); 
+            link.click();
+            
+            // 7. Rengøring: Slet både kopien og sær-reglerne, så din app kører videre som før
+            clone.remove();
+            overrideStyle.remove();
+        }).catch(e => {
+            console.error("Fejl under tvunget PC-download:", e);
+            clone.remove();
+            overrideStyle.remove();
+        });
+    }, 60);
 }
+
 
 document.addEventListener("click", e => {
     if (!e.target.closest('#stats-player-wrapper')) { const p = $s("stats-player-options"); if(p) p.style.display = "none"; }
