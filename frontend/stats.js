@@ -89,7 +89,29 @@ document.addEventListener("DOMContentLoaded", () => {
         .stats-m-val-text { font-size: 11px; font-weight: 800; color: #fff; }
         .stats-m-val-text span { color: #475569; font-weight: 600; font-size: 10px; margin-left: 2px; }
         
-        .stats-status-badge { font-size: 8.5px; font-weight: 900; padding: 1px 5px; border-radius: 4px; letter-spacing: 0.5px; text-transform: uppercase; display: inline-block !important; }
+  
+        .stats-status-badge { 
+            font-size: 8.5px; 
+            font-weight: 900; 
+            padding: 0 6px !important; 
+            border-radius: 4px; 
+            text-transform: uppercase; 
+            
+            /* 🎯 SKIFT: Vi fjerner flexbox og lader line-height styre den lodrette centrering slavelignende */
+            display: inline-block !important; 
+            text-align: center !important; 
+            
+            height: 15px !important;       /* Fast højde */
+            line-height: 15px !important;  /* Præcis samme værdi som højden tvinger teksten i midten vertikalt */
+            box-sizing: border-box !important;
+            
+            /* Bevarer den perfekte bogstav- og tekstkontrol fra før */
+            letter-spacing: 0.5px !important;
+            -webkit-text-size-adjust: 100% !important;
+            text-rendering: geometricPrecision !important;
+        }
+
+
         
         .fill-elite { background: #22c55e !important; }
         .fill-good { background: #60a5fa !important; }
@@ -381,7 +403,7 @@ function filterStatsPlayerList() {
     }, 150);
 }
 // ==========================================================================
-// PER 90 - STATS.JS - DEL 6 AF 6 (STATE HANDLERS & EXPORT SYSTEM)
+// PER 90 - STATS.JS - DEL 6 AF 6 (STATE HANDLERS & KOMPLET DOWNLOAD MOTOR)
 // ==========================================================================
 
 async function selectStatsPlayer(val) {
@@ -407,26 +429,13 @@ async function onStatsFilterChange() {
     } catch (e) { console.error("Fejl under hentning af profil-data:", e); }
 }
 
-// ==========================================================================
-// ==========================================================================
-// PER 90 - STATS.JS - 1024X924 FORMAT-LÅST DOWNLOAD MOTOR
-// ==========================================================================
-
-// ==========================================================================
-// PER 90 - STATS.JS - 1024PX BREDDELÅST DOWNLOAD MOTOR (FULDT INTEGRERET)
-// ==========================================================================
-
-// ==========================================================================
-// PER 90 - STATS.JS - 1024PX DESKTOP GRID ENFORCED DOWNLOAD MOTOR
-// ==========================================================================
-
 function downloadPlayerStatsPNG() {
     const originalEl = $s("stats-capture-target-area"); if (!originalEl) return;
     
     // 1. Lav en fuldstændig identisk kopi af hele dit diagram-område
     const clone = originalEl.cloneNode(true);
     
-    // 2. 🎯 Tildel et unikt download-ID, så vi kan styre det med særskilt CSS
+    // 2. Tildel et unikt download-ID, så vi kan styre det med særskilt CSS
     clone.id = "stats-download-clone";
     
     // 3. FORMAT-LÅS: Vi låser bredden til 1024px og lader højden tilpasse sig automatisk
@@ -434,7 +443,7 @@ function downloadPlayerStatsPNG() {
         position: "absolute",
         left: "-9999px",
         top: "-9999px",
-        width: "1024px",         /* Tvinger PC-bredde */
+        width: "1024px",         
         minWidth: "1024px",
         maxWidth: "1024px",
         height: "auto",         
@@ -445,51 +454,122 @@ function downloadPlayerStatsPNG() {
         overflow: "visible"
     });
     
-    // 4. 🚀 MASTER TRICKET: Opret en midlertidig CSS-regel i baggrunden.
-    // Den tvinger kasserne til 2 kolonner (2x3) og nulstiller mobil-teksterne KUN indeni download-billedet!
+    // 4. 🚀 MASTER SIKRING: Tvinger urokkelig Flexbox-midterlinje igennem på iPhone-titler
     const overrideStyle = document.createElement("style");
     overrideStyle.innerHTML = `
-        /* Tvinger altid det store 2-kolonne master layout */
+        /* 🎯 SIKRER MILIMETER-PRÆCIS HORISONTAL SPEJLING AF HELE TOPBJÆLKEN OVERALT */
+        #stats-download-clone .stats-profile-table-container td { 
+            padding: 30px !important; 
+        }
+        
+        /* Tvinger logoet og teksterne til altid at dele den præcis samme vandrette midterlinje */
+        #stats-download-clone .stats-p-left-tabel { 
+            display: flex !important; 
+            align-items: center !important; 
+            gap: 24px !important; 
+            width: 100% !important; 
+        }
+        
+        /* Genindfører den lodrette lilla/grønne sidestreg og centrerer teksterne lodret */
+        #stats-download-clone .stats-p-names { 
+            display: flex !important; 
+            flex-direction: column !important; 
+            justify-content: center !important; 
+            border-left: 4px solid var(--accent-purple) !important; 
+            padding-left: 14px !important; 
+            margin: 0 !important;
+            text-align: left !important; 
+            width: 100% !important;
+        }
+        
+        /* Låser navnets skrifttype og line-height, så bogstaverne ALDRIG kan glide nedad på f.eks. iPhone */
+        #stats-download-clone .stats-p-name { 
+            font-size: 34px !important; 
+            font-weight: 900 !important; 
+            line-height: 1.0 !important; 
+            letter-spacing: -0.5px !important; 
+            margin: 0 0 6px 0 !important; 
+            display: block !important;
+        }
+        
+        /* Sørger for at undertitlen følger med op i perfekt, dæmpet format */
+        #stats-download-clone .stats-p-sub { 
+            font-size: 12px !important; 
+            font-weight: 700 !important; 
+            text-transform: uppercase !important; 
+            letter-spacing: 1px !important; 
+            opacity: 0.8 !important; 
+            white-space: normal !important; 
+            width: auto !important; 
+            margin: 0 !important; 
+            line-height: 1.0 !important;
+            display: block !important;
+        }
+        
+        /* Tvinger logo-beholderen til at holde sin præcise, autoritære PC-størrelse */
+        #stats-download-clone .stats-logo-shape { 
+            width: 70px !important; 
+            height: 75px !important; 
+            border-radius: 14px !important; 
+            padding: 6px !important; 
+            display: flex !important; 
+            align-items: center !important; 
+            justify-content: center !important; 
+            flex-shrink: 0 !important;
+        }
+
+        /* 🌐 DATA-DIAGRAM: Tvinger altid det store 2-kolonne master layout */
         #stats-download-clone .stats-blocks-container { 
             display: grid !important; 
             grid-template-columns: repeat(2, 1fr) !important; 
             gap: 25px !important; 
             width: 100% !important;
         }
-        /* Tvinger hver kategoriboks til at bruge de store PC-størrelser */
         #stats-download-clone .stats-cat-block { padding: 25px !important; gap: 20px !important; border-radius: 20px !important; }
         #stats-download-clone .stats-cat-title { font-size: 13px !important; padding-bottom: 10px !important; margin-bottom: 5px !important; }
-        
-        /* Tvinger metrikkerne indeni kasserne til at stå side om side (2 kolonner) */
         #stats-download-clone .stats-metrics-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 20px !important; }
         
-        /* Genskaber de store, lækre PC-skrifttyper og barer i billedet */
-        #stats-download-clone .stats-m-lbl { font-size: 10px !important; margin-bottom: 6px !important; opacity: 0.9 !important; }
+        #stats-download-clone .stats-m-lbl { font-size: 10px !important; margin-bottom: 6px !important; opacity: 0.9 !important; letter-spacing: 0.5px !important; -webkit-text-size-adjust: 100% !important; text-rendering: geometricPrecision !important; }
         #stats-download-clone .stats-m-bar-bg { height: 4px !important; margin-bottom: 6px !important; }
         #stats-download-clone .stats-m-val-text { font-size: 11px !important; }
         #stats-download-clone .stats-m-val-text span { font-size: 10px !important; margin-left: 2px !important; }
-        #stats-download-clone .stats-status-badge { font-size: 8.5px !important; padding: 1px 5px !important; border-radius: 4px !important; height: auto !important; display: inline-block !important; }
+        
+        #stats-download-clone .stats-status-badge { 
+            font-size: 8.5px !important; 
+            font-weight: 900 !important;
+            padding: 0 6px !important; 
+            border-radius: 4px !important; 
+            display: inline-block !important; 
+            text-align: center !important; 
+            box-sizing: border-box !important;
+            letter-spacing: 0.5px !important; 
+            -webkit-text-size-adjust: 100% !important; 
+            text-rendering: geometricPrecision !important; 
+            height: 15px !important;         
+            line-height: 12.5px !important;  
+            vertical-align: middle !important; 
+            margin-top: 0 !important;        
+        }
     `;
+
     
-    // Skyd både kopien og sær-reglerne ind i browseren
     document.body.appendChild(clone);
     document.body.appendChild(overrideStyle);
     
-    // 5. Vent 60ms på at browseren har transformeret og foldet det rå PC-gitter ud
+    // 5. Vent 60ms og kør html2canvas med den urokkelige pixelRatio og scale-synkronisering
     setTimeout(() => {
         html2canvas(clone, { 
-            scale: 3,                 /* Knivskarp 4K-agtig printopløsning */
+            scale: 3,                 
+            pixelRatio: 1,            
             backgroundColor: "#0B1220", 
             useCORS: true, 
             logging: false 
         }).then(canvas => {
-            // 6. Download det færdige billede, som nu med statsgaranti er i 2x3 PC-format
             const link = document.createElement("a"); 
             link.download = `player_stats_${STATS_CURRENT_PLAYER.replace(/\s+/g, '_')}.png`;
             link.href = canvas.toDataURL("image/png"); 
             link.click();
             
-            // 7. Rengøring: Slet både kopien og sær-reglerne, så din app kører videre som før
             clone.remove();
             overrideStyle.remove();
         }).catch(e => {
@@ -499,7 +579,6 @@ function downloadPlayerStatsPNG() {
         });
     }, 60);
 }
-
 
 document.addEventListener("click", e => {
     if (!e.target.closest('#stats-player-wrapper')) { const p = $s("stats-player-options"); if(p) p.style.display = "none"; }
