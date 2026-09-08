@@ -384,11 +384,7 @@ async function buildTableLeaderboardEngine() {
         }
     });
 }
-// ==========================================================================
-// PER 90 - TABLE.JS - DEL 6 AF 6 (ISOLERET MASTER-CLONE DOWNLOAD MOTOR)
-// ==========================================================================
-
-// ==========================================================================
+/// ==========================================================================
 // PER 90 - TABLE.JS - DEL 6 AF 6 (ISOLERET MASTER-CLONE DOWNLOAD MOTOR)
 // ==========================================================================
 
@@ -467,31 +463,46 @@ function downloadTablePNG() {
             useCORS: true, 
             logging: false 
         }).then(canvas => {
-        const imgData = canvas.toDataURL("image/png");
-        
-        // 🎯 MASTER-FIX: Tjekker om brugeren sidder på en iPad eller iPhone/Safari
-        const isIPad = /Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1 || /iPad/i.test(navigator.userAgent);
-        
-        if (isIPad) {
-            // Åbner det genererede billede i et nyt faneblad, så iPad-brugeren blot kan holde fingeren nede og vælge "Gem i fotos"
-            const newWindow = window.open();
-            if (newWindow) {
-                newWindow.document.write(`<iframe src="${imgData}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+            const imgData = canvas.toDataURL("image/png");
+            
+            // 🎯 MASTER-FIX: Tjekker om brugeren sidder på en iPad eller iPhone/Safari
+            const isIPad = /Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1 || /iPad/i.test(navigator.userAgent);
+            
+            if (isIPad) {
+                // Åbner det genererede billede i et nyt faneblad, så iPad-brugeren blot kan holde fingeren nede og vælge "Gem i fotos"
+                const newWindow = window.open();
+                if (newWindow) {
+                    newWindow.document.write(`<iframe src="${imgData}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                } else {
+                    alert("Venligst tillad pop-ups for at downloade på denne iPad.");
+                }
             } else {
-                alert("Venligst tillad pop-ups for at downloade på denne iPad.");
+                // Beholder den lynhurtige direkte download til PC og normale mobiler
+                const link = document.createElement("a"); 
+                link.download = `leaderboard_top10_${TABLE_SELECTED_METRIC.replace(/\s+/g, '_')}.png`;
+                link.href = imgData; 
+                link.click();
             }
-        } else {
-            // Beholder den lynhurtige direkte download til PC og normale mobiler
-            const link = document.createElement("a"); 
-            link.download = `leaderboard_top10_${TABLE_SELECTED_METRIC.replace(/\\s+/g, '_')}.png`;
-            link.href = imgData; 
-            link.click();
-        }
-        
+            
+            hiddenContainer.remove(); 
+            overrideStyle.remove();
+        }).catch(e => { 
+            console.error("Fejl under html2canvas generering:", e);
+            hiddenContainer.remove(); 
+            overrideStyle.remove();
+        });
+    }).catch(e => {
+        console.error("Fejl under indlæsning af skrifttyper:", e);
         hiddenContainer.remove(); 
         overrideStyle.remove();
-    }).catch(e => { ... });
+    });
+} // <-- Lukker selve downloadTablePNG-funktionen helt af
 
+// Click-eventet ligger helt uafhængigt uden for funktionen
 document.addEventListener("click", e => {
-    if (!e.target.closest('#table-player-wrapper')) { const p = $t("table-player-options"); if(p) p.style.display = "none"; }
+    if (!e.target.closest('#table-player-wrapper')) { 
+        const p = $t("table-player-options"); 
+        if(p) p.style.display = "none"; 
+    }
 });
+
