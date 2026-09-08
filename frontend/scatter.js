@@ -1,5 +1,5 @@
 // ==========================================================================
-// PER 90 - SCATTER.JS - DEL 1 AF 6 (MASTER CONFIG & SEMANTISK TABEL-CSS)
+// PER 90 - SCATTER.JS - DEL 1 AF 7 (MASTER CONFIG & STATISKE PARAMETRE)
 // ==========================================================================
 
 let SCATTER_GLOBAL_DATA = null;
@@ -28,8 +28,10 @@ let SCATTER_QUICK_HIGHLIGHTS = {
 };
 
 const $sc = id => document.getElementById(id);
+// ==========================================================================
+// PER 90 - SCATTER.JS - DEL 2 AF 7 (RUNTIME DESIGN & RESPONSIV SCATTER-CSS)
+// ==========================================================================
 
-// 🎨 CORE DESIGN INJECTION (SEMANTISKE TABELKANALER - RESPONSIVT SIKRET OVERALT)
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
@@ -69,31 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .scatter-player-text-label { font-size: 9px; font-weight: 700; fill: #fff; font-family: 'Gabarito', sans-serif; pointer-events: none; filter: drop-shadow(0px 1px 2px rgba(0,0,0,1)); }
         .scatter-node-dot { stroke-width: 1.2; stroke: rgba(255,255,255,0.4); cursor: pointer; transition: r 0.12s ease, opacity 0.12s ease; }
         .scatter-node-dot:hover { r: 8.5 !important; opacity: 1 !important; stroke: #ffffff; }
-        
-        /* 🌐 SEMANTISK COLORBAR-TABEL: Låser farveskalaen og teksten helt fast uden slør */
-        .scatter-colorbar-table {
-            width: 100% !important;
-            border-collapse: collapse !important;
-            margin-top: 20px;
-            font-family: 'Gabarito', sans-serif;
-            font-size: 11px;
-            color: #64748b;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
 
-        /* Klasse til at styre minuttallene på hver side af baren */
-        .scatter-colorbar-mins-text {
-            color: #64748b;
-            font-weight: 600;
-        }
-
-        .scatter-colorbar-table td { padding: 4px 0 !important; vertical-align: middle; }
-        .scatter-colorbar-gradient { width: 250px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #1e3a8a 0%, #a21caf 50%, var(--accent-purple) 100%) !important; border: 1px solid rgba(255,255,255,0.05); margin: 0 auto; }
-        .scatter-colorbar-text-fix { font-size: 11px !important; color: #ffffff !important; font-weight: 900 !important; letter-spacing: 1.5px !important; text-transform: uppercase; opacity: 0.3 !important; text-shadow: 0 0 10px rgba(255,255,255,0.1); }
-
-        /* Gulglow Tooltip */
         .scatter-hover-tooltip { position: absolute; background: #060a12; border: 1px solid #f59e0b; border-radius: 12px; padding: 16px 20px; font-family: 'Gabarito', sans-serif; font-size: 12px; color: #fff; pointer-events: none; opacity: 0; transition: opacity 0.12s ease; z-index: 200; box-shadow: 0 20px 40px rgba(0,0,0,0.7); min-width: 240px; box-sizing: border-box; }
         .sc-tt-header-box { border-left: 3px solid #f59e0b; padding-left: 14px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
         .sc-tt-name { font-size: 15px; font-weight: 900; margin: 0; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -103,107 +81,30 @@ document.addEventListener("DOMContentLoaded", () => {
         .sc-tt-stat-lbl { color: #94a3b8; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
         .sc-tt-stat-val { font-weight: 800; color: #f59e0b !important; font-size: 12px; text-shadow: 0 0 8px rgba(245,158,11,0.2); }
 
-        /* 🌐 SEMANTISK FOOTER-TABEL: Ligesom radar og pizza */
-        .scatter-footer-table {
-            width: 100% !important;
-            border-collapse: collapse !important;
-            margin-top: 15px;
-            font-family: 'Gabarito', sans-serif;
-            text-align: center;
-        }
-        .scatter-footer-table td { padding: 2px 0 !important; font-size: 11px; font-weight: 400; color: #e5e7eb; letter-spacing: .4px; }
-        .scatter-footer-table .footer-line-top { opacity: 0.75; }
-        .scatter-footer-table .footer-line-bottom { opacity: 0.45; }
-
-        /* 📱 TABLET- OG MOBILOPTIMERING V5 */
-                /* 📱 TABLET- OG MOBILOPTIMERING V5 (MINDRE SKÆRME) */
         @media (max-width: 1025px) {
             .scatter-chart-card { padding: 20px !important; }
-            
-            /* Gør farvebjælken mere kompakt på tablets */
-            .scatter-colorbar-gradient { width: 160px !important; height: 6px !important; }
-            .scatter-colorbar-text-fix { font-size: 8px !important; }
-            
-            /* 🎯 RYKKER BUNDEN OP OG TÆTTERE SAMMEN PÅ TABLETS */
-            .scatter-colorbar-table { margin-top: 10px !important; } /* Trækker hele colorbar-tabellen tættere på plottet */
-            .scatter-colorbar-table td { padding: 1px 0 !important; } /* Mindre luft mellem bjælken og teksten under */
-            .scatter-footer-table { margin-top: 8px !important; } /* Trækker footeren tættere på minutes-teksten */
-            .scatter-footer-table td { font-size: 9px !important; }
         }
 
-        /* 📱 SMALE SMARTPHONES (Samsung S8+, iPhones under 480px) */
-                /* 📱 SMALE SMARTPHONES (Samsung S8+, iPhones under 480px) */
-                /* 📱 SMALE SMARTPHONES (iPhone 7, Samsung S8+, skærme under 480px) */
         @media (max-width: 480px) {
             .scatter-chart-card { padding: 12px 10px !important; border-radius: 12px !important; }
-            #scatter-dynamic-vs-title { font-size: 11px !important; letter-spacing: 0.5px !important; margin-bottom: 8px !important; }
             .scatter-quick-toolbar { gap: 4px !important; margin-bottom: 12px !important; }
             .scatter-quick-btn { padding: 0 8px !important; font-size: 8.5px !important; height: 28px !important; flex-grow: 1 !important; text-align: center !important; }
-            #scatter-svg-canvas { max-height: 280px !important; }
+            #scatter-svg-canvas { max-height: 380px !important; }
             .scatter-axis-lbl { font-size: 7.5px !important; letter-spacing: 0.2px !important; }
             .scatter-player-text-label { font-size: 7px !important; }
-            
-            /* Tvinger mindre margin under plottet på meget smalle skærme */
-            .scatter-colorbar-table { 
-                margin-top: 6px !important; 
-            }
-            
-            /* Farvebjælken gøres ultra-kompakt */
-            .scatter-colorbar-gradient { 
-                width: 80px !important; 
-                height: 3px !important; 
-                margin: 0 auto !important; 
-            }
-            
-            .scatter-colorbar-table td { 
-                padding: 0 !important; 
-            }
-            .scatter-colorbar-table tr:nth-child(2) td { 
-                padding-top: 3px !important; 
-            }
-            
-            /* 🎯 ULTRA-NEDSKALERING: Tvinger "MINUTES PLAYED" ned i mikroformat til f.eks. iPhone 7 */
-            .scatter-colorbar-text-fix { 
-                font-size: 4px !important; /* Ekstremt lille og urokkeligt format */
-                opacity: 0.4 !important; 
-                display: block !important;
-                line-height: 1 !important;
-                letter-spacing: 0px !important;
-                margin-top: -4px !important; 
-            }
-            
-            /* Giver footeren den præcis samme super-komprimerede højde */
-            .scatter-footer-table { 
-                margin-top: 4px !important; 
-            }
-            
-            /* 🎯 ULTRA-NEDSKALERING: Gør 'Generated via...' mikroskopisk, så de ikke lapper over */
-            .scatter-footer-table .footer-line-bottom td { 
-                font-size: 3.5px !important; /* Absolut sweetspot til ældre/smalle telefoner */
-                padding: 0 !important;
-                line-height: 1 !important;
-                opacity: 0.3 !important; 
-            }
-            
-            /* Tooltip tilpasning til micro-skærme */
             .scatter-hover-tooltip { padding: 8px 12px !important; min-width: 170px !important; }
             .sc-tt-name { font-size: 11px !important; }
         }
-
-
-
-
     `;
     document.head.appendChild(style);
 });
 // ==========================================================================
-// PER 90 - SCATTER.JS - DEL 2 AF 6 (HTML INITIALISERING & QUICK-TOOLBAR)
+// PER 90 - SCATTER.JS - DEL 3 AF 7 (HTML INITIALISERING & QUICK-TOOLBAR)
 // ==========================================================================
 
 async function initScatterView(container) {
     container.innerHTML = `
         <section id="view-scatter" class="content-view active" style="padding-top: 10px;">
-            
             <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-circle-nodes" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
                 <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Scatter Plot</span>
@@ -216,13 +117,9 @@ async function initScatterView(container) {
             <div class="scatter-quick-toolbar" id="scatter-live-quick-toolbar"></div>
             
             <div class="scatter-chart-card" id="scatter-capture-target-area">
-                <div id="scatter-dynamic-vs-title" style="text-align: center; font-size: 18px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 20px;"></div>
-                
+                <!-- 🎯 MASTER-FIX: Al tekst, titler og colorbars flyttes ind som urokkelige SVG-vektorer i denne beholder -->
                 <div class="scatter-hover-tooltip" id="scatter-live-tooltip"></div>
-                <svg width="730" height="500" viewBox="0 0 730 500" id="scatter-svg-canvas"></svg>
-                
-                <!-- MINI-COLORBAR INTEGRERET SOM EN RIGTIG TABEL I BUNDEN AF KORTET -->
-                <div id="scatter-live-colorbar-target"></div>
+                <svg width="730" height="620" viewBox="0 0 730 620" id="scatter-svg-canvas"></svg>
             </div>
 
             <div style="display: flex; justify-content: center; margin-top: 30px; width: 100%;">
@@ -230,13 +127,11 @@ async function initScatterView(container) {
             </div>
         </section>
     `;
-    
     await loadScatterAPIDataFeed();
 }
 
 function buildScatterQuickToolbarUI() {
     const bar = $sc("scatter-live-quick-toolbar"); if (!bar) return;
-    
     bar.innerHTML = `
         <label class="sc-drawer-checkbox-label" style="opacity: ${SCATTER_QUICK_HIGHLIGHTS.top10x ? 1 : 0.4}; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">
             <input type="checkbox" ${SCATTER_QUICK_HIGHLIGHTS.top10x ? "checked" : ""} onclick="toggleScatterQuickHighlight('top10x')" style="accent-color: var(--accent-purple); width: 14px; height: 14px; cursor: pointer;"> Top 10 X-Axis
@@ -253,18 +148,35 @@ function buildScatterQuickToolbarUI() {
     `;
 }
 // ==========================================================================
-// PER 90 - SCATTER.JS - DEL 3 AF 6 (SCATTER VEKTOR MOTOR & AKSER)
+// PER 90 - SCATTER.JS - DEL 4 AF 7 (SCATTER VEKTOR MOTOR & AKSER)
+// ==========================================================================
+
+// ==========================================================================
+// PER 90 - SCATTER.JS - DEL 4 AF 7 (SCATTER VEKTOR MOTOR & AKSER)
+// ==========================================================================
+
+// ==========================================================================
+// PER 90 - SCATTER.JS - DEL 4 AF 7 (RETTET VEKTOR MOTOR & AKSER)
 // ==========================================================================
 
 function buildScatterPlotVektorEngine() {
     const svg = $sc("scatter-svg-canvas"); if (!svg || !SCATTER_GLOBAL_DATA) return;
     svg.innerHTML = "";
 
-    const titleContainer = $sc("scatter-dynamic-vs-title");
-    if (titleContainer) titleContainer.innerText = `${SCATTER_X_AXIS} VS ${SCATTER_Y_AXIS}`;
+    // Titlen bages solidt ind som en urokkelig SVG-vektor i toppen af kanvassen
+    let markup = `
+        <defs>
+            <linearGradient id="scatterColorbarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#1e3a8a" />
+                <stop offset="50%" stop-color="#a21caf" />
+                <stop offset="100%" stop-color="var(--accent-purple)" />
+            </linearGradient>
+        </defs>
+        <text x="361" y="30" fill="#ffffff" font-size="18" font-weight="900" text-anchor="middle" style="font-family: 'Gabarito', sans-serif; letter-spacing: 1.5px; text-transform: uppercase;">${SCATTER_X_AXIS} VS ${SCATTER_Y_AXIS}</text>
+    `;
 
-    const padding = { top: 40, right: 55, bottom: 65, left: 55 }; 
-    const width = 730, height = 500;
+    const padding = { top: 75, right: 55, bottom: 125, left: 55 }; 
+    const width = 730, height = 620;
     const graphWidth = width - padding.left - padding.right;
     const graphHeight = height - padding.top - padding.bottom;
 
@@ -278,7 +190,7 @@ function buildScatterPlotVektorEngine() {
     });
 
     if (filteredPlayers.length === 0) {
-        svg.innerHTML = `<text x="${width/2}" y="${height/2}" fill="#64748b" text-anchor="middle" font-weight="700">INGEN MATCHER DINE FILTRE</text>`;
+        svg.innerHTML = markup + `<text x="${width/2}" y="${height/2}" fill="#64748b" text-anchor="middle" font-weight="700" style="font-family: 'Gabarito', sans-serif;">INGEN MATCHER DINE FILTRE</text>`;
         return;
     }
 
@@ -287,34 +199,22 @@ function buildScatterPlotVektorEngine() {
     let minMinsGlobal = Math.min(...filteredPlayers.map(p => p.mins_played));
     let maxMinsGlobal = Math.max(...filteredPlayers.map(p => p.mins_played));
 
-    // 🎯 SEMANTISK COLORBAR-TABEL: Nu omdannet til en fejlsikker og urokkelig tabelkanal
-    // 🎯 OPPDATERET MARKUP: Tilføjet klasser til minuttallene på siderne
-    // 🎯 GLOBAL RENSNING: Minuttal på siderne og den øverste footer-linje er nu fjernet permanent overalt
     const colorbarTarget = $sc("scatter-live-colorbar-target");
     if (colorbarTarget) {
         colorbarTarget.innerHTML = `
             <table class="scatter-colorbar-table">
                 <tr>
-                    <!-- De to tal på siderne er slettet, så kun selve colorbaren er tilbage i midten -->
-                    <td style="text-align: center; width: 100%;">
-                        <div class="scatter-colorbar-gradient"></div>
-                    </td>
+                    <td style="text-align: center; width: 100%;"><div class="scatter-colorbar-gradient"></div></td>
                 </tr>
                 <tr>
-                    <td style="text-align: center; padding-top: 8px !important;">
-                        <span class="scatter-colorbar-text-fix">MINUTES PLAYED &rarr;</span>
-                    </td>
+                    <td style="text-align: center; padding-top: 8px !important;"><span class="scatter-colorbar-text-fix">MINUTES PLAYED &rarr;</span></td>
                 </tr>
             </table>
-            
             <table class="scatter-footer-table">
-                <!-- Den øverste 'Performance Distribution' linje er fjernet helt herfra -->
                 <tr class="footer-line-bottom"><td>Generated via per-90.streamlit.app</td></tr>
             </table>
         `;
     }
-
-
 
     const calculateNiceAxisBounds = (minVal, maxVal) => {
         if (maxVal === minVal) maxVal += 1;
@@ -363,8 +263,7 @@ function buildScatterPlotVektorEngine() {
         }
     };
 
-    let markup = "";
-
+    // 🎯 Tvinger definitionen af minX/getXPixel til at ligge FØR denne løkke, så fejlen forsvinder
     for (let i = 0; i <= 4; i++) {
         const xVal = minX + (i / 4) * (maxX - minX);
         const yVal = minY + (i / 4) * (maxY - minY);
@@ -373,7 +272,6 @@ function buildScatterPlotVektorEngine() {
         
         markup += `<line x1="${px}" y1="${padding.top}" x2="${px}" y2="${padding.top + graphHeight}" class="scatter-grid-line" style="stroke-dasharray:3,3;" />`;
         markup += `<line x1="${padding.left}" y1="${py}" x2="${padding.left + graphWidth}" y2="${py}" class="scatter-grid-line" style="stroke-dasharray:3,3;" />`;
-
         markup += `<text x="${px}" y="${padding.top + graphHeight + 16}" fill="#475569" font-size="9" text-anchor="middle" font-family="'Gabarito', sans-serif" font-weight="700">${xVal.toFixed(2)}</text>`;
         markup += `<text x="${padding.left - 8}" y="${py}" fill="#475569" font-size="9" text-anchor="end" dominant-baseline="middle" font-family="'Gabarito', sans-serif" font-weight="700">${yVal.toFixed(2)}</text>`;
     }
@@ -381,18 +279,21 @@ function buildScatterPlotVektorEngine() {
     markup += `<line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${padding.top + graphHeight}" class="scatter-axis-line" />`;
     markup += `<line x1="${padding.left}" y1="${padding.top + graphHeight}" x2="${padding.left + graphWidth}" y2="${padding.top + graphHeight}" class="scatter-axis-line" />`;
 
-    const xLabelX = padding.left + graphWidth / 2;
-    const xLabelY = height - 12; 
-    markup += `<text x="${xLabelX}" y="${xLabelY}" class="scatter-axis-lbl" text-anchor="middle">${SCATTER_X_AXIS}</text>`;
+    markup += `<text x="${padding.left + graphWidth / 2}" y="${padding.top + graphHeight + 36}" fill="#94a3b8" font-weight="800" text-anchor="middle" style="font-family: 'Gabarito', sans-serif; font-size: 11px !important; letter-spacing: 1px; text-transform: uppercase;">${SCATTER_X_AXIS}</text>`;
+    markup += `<text x="16" y="${padding.top + graphHeight / 2}" fill="#94a3b8" font-weight="800" text-anchor="middle" transform="rotate(-90, 16, ${padding.top + graphHeight / 2})" style="font-family: 'Gabarito', sans-serif; font-size: 11px !important; letter-spacing: 1px; text-transform: uppercase;">${SCATTER_Y_AXIS}</text>`;
 
-    const yLabelX = 16;
-    const yLabelY = padding.top + graphHeight / 2;
-    markup += `<text x="${yLabelX}" y="${yLabelY}" class="scatter-axis-lbl" text-anchor="middle" transform="rotate(-90, ${yLabelX}, ${yLabelY})">${SCATTER_Y_AXIS}</text>`;
+    const barY = padding.top + graphHeight + 54;
+    markup += `
+        <rect x="235" y="${barY}" width="250" height="8" rx="4" fill="url(#scatterColorbarGrad)" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
+        <text x="360" y="${barY + 24}" fill="#ffffff" font-size="11" font-weight="900" text-anchor="middle" style="font-family: 'Gabarito', sans-serif; letter-spacing: 1.5px; opacity: 0.3; text-transform: uppercase;">MINUTES PLAYED &rarr;</text>
+        <text x="360" y="${barY + 60}" fill="#e5e7eb" font-size="11" font-weight="400" text-anchor="middle" style="font-family: 'Gabarito', sans-serif; letter-spacing: 0.4px; opacity: 0.45;">Generated via per-90.streamlit.app</text>
+    `;
 
     continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPixel, getYPixel, getMinutesColor);
 }
+
 // ==========================================================================
-// PER 90 - SCATTER.JS - DEL 4 AF 6 (NODE PLOTTER & YELLOW-GLOW TOOLTIP)
+// PER 90 - SCATTER.JS - DEL 5 AF 7 (NODE PLOTTER & YELLOW-GLOW TOOLTIP)
 // ==========================================================================
 
 function continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPixel, getYPixel, getMinutesColor) {
@@ -402,7 +303,6 @@ function continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPix
     filteredPlayers.forEach(p => {
         const xV = p.stats[SCATTER_X_AXIS] || 0, yV = p.stats[SCATTER_Y_AXIS] || 0;
         const cx = getXPixel(xV), cy = getYPixel(yV);
-
         const isTarget = (typeof CURRENT_SELECTED_PLAYER !== 'undefined' && CURRENT_SELECTED_PLAYER && p.player_name.toLowerCase() === CURRENT_SELECTED_PLAYER.toLowerCase());
         
         let isHighlighted = false;
@@ -415,7 +315,6 @@ function continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPix
 
         const anyHighlightActive = SCATTER_QUICK_HIGHLIGHTS.top10x || SCATTER_QUICK_HIGHLIGHTS.top10y || SCATTER_QUICK_HIGHLIGHTS.u21 || SCATTER_QUICK_HIGHLIGHTS.u19 || SCATTER_FILTERS.highlightTeam || SCATTER_FILTERS.highlightPlayer;
         const opacity = isTarget ? 1 : (isHighlighted ? 1 : (anyHighlightActive ? 0.12 : 0.45));
-        
         const nodeColor = isTarget ? "#d946ef" : getMinutesColor(p.mins_played);
         const radius = isTarget ? 6.5 : (isHighlighted ? 5.5 : 4.5);
 
@@ -433,18 +332,13 @@ function continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPix
             markup += `<text x="${cx}" y="${cy - 9}" class="scatter-player-text-label" text-anchor="middle" style="opacity: ${opacity};">${p.player_name}</text>`;
         }
     });
-
     svg.innerHTML = markup;
 }
 
 function showScatterLiveTooltip(e, name, team, league, pos, nat, age, mins, xVal, yVal) {
     const tooltip = $sc("scatter-live-tooltip"); if (!tooltip) return;
-    
     tooltip.innerHTML = `
-        <div class="sc-tt-header-box">
-            <div class="sc-tt-name">${name}</div>
-            <div class="sc-tt-meta">${team} | ${league}</div>
-        </div>
+        <div class="sc-tt-header-box"><div class="sc-tt-name">${name}</div><div class="sc-tt-meta">${team} | ${league}</div></div>
         <div class="sc-tt-body-box">
             <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">Position:</span><span class="sc-tt-stat-val" style="color:#00f0ff;">${pos}</span></div>
             <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">Nationality:</span><span class="sc-tt-stat-val" style="color:#fff;">${nat}</span></div>
@@ -454,26 +348,13 @@ function showScatterLiveTooltip(e, name, team, league, pos, nat, age, mins, xVal
             <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">${SCATTER_Y_AXIS}:</span><span class="sc-tt-stat-val">${yVal.toFixed(2)}</span></div>
         </div>
     `;
-
     tooltip.style.opacity = "1";
     const rect = $sc("scatter-capture-target-area").getBoundingClientRect();
-    
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const tooltipWidth = tooltip.offsetWidth;
-    const tooltipHeight = tooltip.offsetHeight;
-
-    let targetLeft = mouseX + 15;
-    let targetTop = mouseY + 15;
-
-    if (mouseX + tooltipWidth + 25 > rect.width) { targetLeft = mouseX - tooltipWidth - 15; }
-    if (mouseY + tooltipHeight + 25 > rect.height) { targetTop = mouseY - tooltipHeight - 15; }
-
-    if (targetLeft < 5) targetLeft = 5;
-    if (targetTop < 5) targetTop = 5;
-
-    tooltip.style.left = `${targetLeft}px`;
-    tooltip.style.top = `${targetTop}px`;
+    let targetLeft = (e.clientX - rect.left) + 15, targetTop = (e.clientY - rect.top) + 15;
+    if ((e.clientX - rect.left) + tooltip.offsetWidth + 25 > rect.width) targetLeft = (e.clientX - rect.left) - tooltip.offsetWidth - 15;
+    if ((e.clientY - rect.top) + tooltip.offsetHeight + 25 > rect.height) targetTop = (e.clientY - rect.top) - tooltip.offsetHeight - 15;
+    tooltip.style.left = `${targetLeft < 5 ? 5 : targetLeft}px`;
+    tooltip.style.top = `${targetTop < 5 ? 5 : targetTop}px`;
 }
 
 function hideScatterLiveTooltip() { 
@@ -481,7 +362,7 @@ function hideScatterLiveTooltip() {
     if (tooltip) { tooltip.style.opacity = "0"; tooltip.style.left = "-9999px"; tooltip.style.top = "-9999px"; }
 }
 // ==========================================================================
-// PER 90 - SCATTER.JS - DEL 5 AF 6 (SETTINGS DRAWER PANEL GENERATOR)
+// PER 90 - SCATTER.JS - DEL 6 AF 7 (SETTINGS DRAWER PANEL GENERATOR)
 // ==========================================================================
 
 function buildAndAppendScatterDrawerHTML() {
@@ -523,38 +404,16 @@ function buildAndAppendScatterDrawerHTML() {
     drawerDiv.innerHTML = `
         <div class="drawer-header"><span class="drawer-title">Plot Settings</span><button class="close-drawer-btn" onclick="closeGlobalDrawer()">✕</button></div>
         <div class="filter-panel" style="display: flex; flex-direction: column; gap: 14px; width: 100%; max-height: 85vh; overflow-y: auto;">
-            
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Stat Type</label><select id="sc-opt-stat-type" class="scatter-drawer-select" onchange="handleScatterConfigChange()"><option value="Per 90" ${SCATTER_STAT_TYPE === "Per 90" ? "selected" : ""}>Per 90</option><option value="Total" ${SCATTER_STAT_TYPE === "Total" ? "selected" : ""}>Total</option></select></div>
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">X Axis Metric</label><select id="sc-opt-x-axis" class="scatter-drawer-select" onchange="handleScatterConfigChange()">${xOptions}</select></div>
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Y Axis Metric</label><select id="sc-opt-y-axis" class="scatter-drawer-select" onchange="handleScatterConfigChange()">${yOptions}</select></div>
-            
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Leagues</label><div class="sc-drawer-checkbox-box">${lCheckboxes}</div></div>
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Nationalities</label><div class="sc-drawer-checkbox-box">${nCheckboxes}</div></div>
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Positions</label><div class="sc-drawer-checkbox-box">${pCheckboxes}</div></div>
-
-            <div class="scatter-drawer-group">
-                <label class="scatter-drawer-label">Age (Min / Max)</label>
-                <div class="scatter-drawer-input-row">
-                    <input type="number" id="sc-filt-min-age" class="scatter-drawer-input" value="${SCATTER_FILTERS.minAge}" oninput="handleScatterFilterInputChange()">
-                    <input type="number" id="sc-filt-max-age" class="scatter-drawer-input" value="${SCATTER_FILTERS.maxAge}" oninput="handleScatterFilterInputChange()">
-                </div>
-            </div>
-            <div class="scatter-drawer-group">
-                <label class="scatter-drawer-label">Minutes (Min / Max)</label>
-                <div class="scatter-drawer-input-row">
-                    <input type="number" id="sc-filt-min-mins" class="scatter-drawer-input" value="${SCATTER_FILTERS.minMins}" oninput="handleScatterFilterInputChange()">
-                    <input type="number" id="sc-filt-max-mins" class="scatter-drawer-input" value="${SCATTER_FILTERS.maxMins}" oninput="handleScatterFilterInputChange()">
-                </div>
-            </div>
-
-            <div class="scatter-drawer-group">
-                <label class="scatter-drawer-label">Highlight Team</label>
-                <select id="sc-toolbar-team" class="scatter-drawer-select" onchange="handleToolbarFilterChange('team')">${teamOptions}</select>
-            </div>
-            <div class="scatter-drawer-group">
-                <label class="scatter-drawer-label">Highlight Player</label>
-                <select id="sc-toolbar-player" class="scatter-drawer-select" onchange="handleToolbarFilterChange('player')">${playerOptions}</select>
-            </div>
+            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Age (Min / Max)</label><div class="scatter-drawer-input-row"><input type="number" id="sc-filt-min-age" class="scatter-drawer-input" value="${SCATTER_FILTERS.minAge}"><input type="number" id="sc-filt-max-age" class="scatter-drawer-input" value="${SCATTER_FILTERS.maxAge}"></div></div>
+            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Minutes (Min / Max)</label><div class="scatter-drawer-input-row"><input type="number" id="sc-filt-min-mins" class="scatter-drawer-input" value="${SCATTER_FILTERS.minMins}"><input type="number" id="sc-filt-max-mins" class="scatter-drawer-input" value="${SCATTER_FILTERS.maxMins}"></div></div>
+            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Highlight Team</label><select id="sc-toolbar-team" class="scatter-drawer-select" onchange="handleToolbarFilterChange('team')">${teamOptions}</select></div>
+            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Highlight Player</label><select id="sc-toolbar-player" class="scatter-drawer-select" onchange="handleToolbarFilterChange('player')">${playerOptions}</select></div>
         </div>
     `;
     document.body.appendChild(drawerDiv);
@@ -565,10 +424,10 @@ function activateScatterGridVisibility() {
     const gridLines = document.getElementById('sc-grid-density-styles') || document.createElement('style');
     gridLines.id = 'sc-grid-density-styles';
     gridLines.innerHTML = ` .scatter-grid-line { stroke: rgba(255,255,255,0.12) !important; } `;
-    if (!document.getElementById('sc-grid-density-styles')) { document.head.appendChild(gridLines); }
+    if (!document.getElementById('sc-grid-density-styles')) document.head.appendChild(gridLines);
 }
 // ==========================================================================
-// PER 90 - SCATTER.JS - DEL 6 AF 6 (API SYNC & INTERACTION HANDLING)
+// PER 90 - SCATTER.JS - DEL 7 AF 7 (API SYNC & DOWNLOAD MOTOR)
 // ==========================================================================
 
 async function loadScatterAPIDataFeed() {
@@ -576,15 +435,6 @@ async function loadScatterAPIDataFeed() {
         const res = await fetch(`${API_BASE_URL}/api/scatter-data?stat_type=${encodeURIComponent(SCATTER_STAT_TYPE)}`);
         if (res.ok) {
             SCATTER_GLOBAL_DATA = await res.json();
-            const list = SCATTER_GLOBAL_DATA.players;
-
-            if (list.length > 0) {
-                const ages = list.map(p => p.age).filter(a => a > 0);
-                const mins = list.map(p => p.mins_played).filter(m => m > 0);
-                SCATTER_FILTERS.minAge = Math.min(...ages); SCATTER_FILTERS.maxAge = Math.max(...ages);
-                SCATTER_FILTERS.minMins = Math.min(...mins); SCATTER_FILTERS.maxMins = Math.max(...mins);
-            }
-
             buildAndAppendScatterDrawerHTML();
             buildScatterQuickToolbarUI();
             buildScatterPlotVektorEngine();
@@ -621,11 +471,8 @@ function handleScatterCheckboxToggle(cb, key) {
 }
 
 function handleToolbarFilterChange(type) {
-    if (type === 'team') {
-        SCATTER_FILTERS.highlightTeam = $sc("sc-toolbar-team").value.trim().toLowerCase();
-    } else if (type === 'player') {
-        SCATTER_FILTERS.highlightPlayer = $sc("sc-toolbar-player").value.trim().toLowerCase();
-    }
+    if (type === 'team') SCATTER_FILTERS.highlightTeam = $sc("sc-toolbar-team").value.trim().toLowerCase();
+    else if (type === 'player') SCATTER_FILTERS.highlightPlayer = $sc("sc-toolbar-player").value.trim().toLowerCase();
     buildScatterPlotVektorEngine();
 }
 
@@ -636,10 +483,67 @@ function toggleScatterQuickHighlight(key) {
 }
 
 function downloadScatterPNG() {
-    const el = $sc("scatter-capture-target-area"); if (!el) return;
-    html2canvas(el, { scale: 4, backgroundColor: "#0B1220", useCORS: true, logging: false }).then(canvas => {
-        const link = document.createElement("a"); link.download = `scatter_plot_${SCATTER_X_AXIS}_vs_${SCATTER_Y_AXIS}.png`;
-        link.href = canvas.toDataURL("image/png"); link.click();
+    const originalEl = $sc("scatter-capture-target-area"); if (!originalEl) return;
+    
+    // Opretter den urokkelige pc-sandbox container i baggrunden
+    const hiddenContainer = document.createElement("div");
+    Object.assign(hiddenContainer.style, {
+        position: "absolute", left: "-9999px", top: "-9999px",
+        width: "770px", minWidth: "770px", maxWidth: "770px", height: "auto", overflow: "visible"
+    });
+    
+    const clone = originalEl.cloneNode(true);
+    clone.id = "scatter-download-clone";
+    
+    Object.assign(clone.style, {
+        width: "770px", minWidth: "770px", maxWidth: "770px",
+        height: "auto", minHeight: "auto", maxHeight: "none",
+        padding: "30px", background: "#0B1220",
+        boxSizing: "border-box", display: "block", opacity: "1"
+    });
+    
+    hiddenContainer.appendChild(clone);
+    
+    const overrideStyle = document.createElement("style");
+    overrideStyle.innerHTML = `
+        /* 🎯 RADIKAL OVERSTYRING: Fjerner alle hvide hjørner og låser vektor-størrelsen urokkeligt fast */
+        #scatter-download-clone { 
+            padding: 30px !important; 
+            border-radius: 20px !important; 
+            background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important; 
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+        #scatter-download-clone #scatter-svg-canvas { 
+            display: block !important; 
+            margin: 0 auto !important; 
+            width: 710px !important; 
+            max-width: 710px !important; 
+            height: 620px !important; 
+            max-height: 620px !important; 
+            overflow: visible !important; 
+        }
+        #scatter-download-clone .scatter-player-text-label { font-size: 9px !important; fill: #ffffff !important; }
+    `;
+    
+    document.body.appendChild(hiddenContainer);
+    document.body.appendChild(overrideStyle);
+    
+    document.fonts.ready.then(() => {
+        html2canvas(clone, { 
+            scale: 4, 
+            pixelRatio: 1, 
+            width: 770,
+            windowWidth: 770,
+            backgroundColor: "#0B1220", // 🎯 FIX: Fjerner de hvide hjørner ved at bage den mørkeblå farve ind bag radius-kanterne
+            useCORS: true, 
+            logging: false 
+        }).then(canvas => {
+            const link = document.createElement("a"); 
+            link.download = `scatter_plot_${SCATTER_X_AXIS}_vs_${SCATTER_Y_AXIS}.png`;
+            link.href = canvas.toDataURL("image/png"); link.click();
+            hiddenContainer.remove(); overrideStyle.remove();
+        }).catch(e => { console.error("Fejl under urokkelig scatter eksport:", e); hiddenContainer.remove(); overrideStyle.remove(); });
     });
 }
 

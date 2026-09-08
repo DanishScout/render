@@ -1,5 +1,5 @@
 // ==========================================================================
-// PER 90 - TABLE.JS - DEL 1 AF 4 (MASTER STATES & SEMANTISK TABEL-CSS)
+// PER 90 - TABLE.JS - DEL 1 AF 6 (MASTER CONFIG & STATISKE PARAMETRE)
 // ==========================================================================
 
 let TABLE_GLOBAL_DATA = null;
@@ -18,8 +18,10 @@ let TABLE_FILTERS = {
 };
 
 const $t = id => document.getElementById(id);
+// ==========================================================================
+// PER 90 - TABLE.JS - DEL 2 AF 6 (RUNTIME DESIGN & RESPONSIV TABEL-CSS)
+// ==========================================================================
 
-// 🎨 CORE DESIGN INJECTION (SEMANTISK TABEL - GIVER PERFEKT ALIGNMENT OVERALT)
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
@@ -42,11 +44,16 @@ document.addEventListener("DOMContentLoaded", () => {
             letter-spacing: 1.5px;
         }
 
+        /* 🎯 LIVE HEADER REPARATION: Låser overskrifterne mekanisk fast, så de aldrig kan rykke sig, når talstørrelser ændres */
         .scouting-leaderboard-table th {
-            padding: 10px 20px !important;
+            padding: 12px 20px !important;
             border-bottom: 2px solid rgba(255,255,255,0.08);
-            box-sizing: border-box;
+            box-sizing: border-box !important;
+            line-height: 14px !important;
+            height: 38px !important;
+            margin: 0 !important;
         }
+
 
         /* DET FLOTTE, MØRKE DIAGRAM-KORT (Bygget direkte på <td>-rækken) */
         .scouting-leaderboard-table tbody tr {
@@ -54,17 +61,20 @@ document.addEventListener("DOMContentLoaded", () => {
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
             transition: transform 0.15s ease;
         }
+        
+        /* 🎯 FIX: Tvinger alle interne linjer og borders væk under hover, så der ikke popper streger op */
         .scouting-leaderboard-table tbody tr:hover { 
-            transform: translateX(3px); 
+            transform: translateX(3px) !important; 
+        }
+        .scouting-leaderboard-table tbody tr:hover td {
+            border-color: transparent !important;
+            border-left: none !important;
+            border-right: none !important;
         }
 
-        .scouting-leaderboard-table tbody td {
-            padding: 10px 20px !important;
-            border-top: 1px solid rgba(255,255,255,0.04);
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            box-sizing: border-box;
-            vertical-align: middle;
-        }
+        /* 🎯 FIX: Sænket opacity på Rank efter dit ønske, så det matcher Pos, Age og Min */
+        .font-rank { font-size: 20px; font-weight: 800; color: #fff; opacity: 0.35 !important; }
+
 
         /* Afrunder hjørnerne på hvert enkelt "kort-række" */
         .scouting-leaderboard-table tbody td:first-child { border-left: 1px solid rgba(255,255,255,0.04); border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
@@ -81,8 +91,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         /* Hjælpe-klasser til formatering */
         .text-center { text-align: center !important; }
-        .font-rank { font-size: 20px; font-weight: 800; color: #fff; }
-        .font-meta { font-weight: 900; color: #fff; }
+        .font-rank { 
+            font-size: 16px !important; /* Skruet ned fra 20px for et mere strømlinet look */
+            font-weight: 800; 
+            color: #fff; 
+            opacity: 0.35 !important; 
+        }
+        
+        .font-meta { 
+            font-size: 13px !important; /* Tvunget ned i en mindre, elegant størrelse på store skærme */
+            font-weight: 900; 
+            color: #fff; 
+            opacity: 0.35 !important; 
+        }
 
         .table-row-logo-box { width: 40px; height: 44px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 3px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
         .table-row-crest { width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.25s ease-in-out; }
@@ -143,13 +164,12 @@ document.addEventListener("DOMContentLoaded", () => {
     document.head.appendChild(style);
 });
 // ==========================================================================
-// PER 90 - TABLE.JS - DEL 2 AF 4 (LAYOUT & CHECKBOX DRAWER PANEL)
+// PER 90 - TABLE.JS - DEL 3 AF 6 (VIEW INITIALISERING & DRAWER UI BUILDER)
 // ==========================================================================
 
 async function initTableView(container) {
     container.innerHTML = `
         <section id="view-table" class="content-view active" style="padding-top: 10px;">
-            
             <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
                 <i class="fa-solid fa-list-ol" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
                 <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Table</span>
@@ -159,7 +179,6 @@ async function initTableView(container) {
                 <button class="open-drawer-btn" onclick="openGlobalDrawer()">Customize Leaderboard <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
             </div>
             
-            <!-- DET NYE TABEL CAPTURE OMRÅDE -->
             <div class="table-blocks-container" id="table-capture-target-area" style="padding: 15px 5px; width: 100%; box-sizing: border-box;"></div>
 
             <div style="display: flex; justify-content: center; margin-top: 30px; width: 100%;">
@@ -167,7 +186,6 @@ async function initTableView(container) {
             </div>
         </section>
     `;
-    
     await loadTableAPIDataFeed();
 }
 
@@ -196,46 +214,19 @@ function buildAndAppendTableDrawerHTML() {
     drawerDiv.innerHTML = `
         <div class="drawer-header"><span class="drawer-title">Leaderboard Settings</span><button class="close-drawer-btn" onclick="closeGlobalDrawer()">✕</button></div>
         <div class="filter-panel" style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-height: 85vh; overflow-y: auto;">
-            
-            <div class="table-drawer-group">
-                <label class="table-drawer-label">Metric</label>
-                <select id="tb-opt-metric" class="table-drawer-select" onchange="handleTableConfigChange()">
-                    ${metricOptions}
-                </select>
-            </div>
-
-            <div class="table-drawer-group">
-                <label class="table-drawer-label">Stat Type</label>
-                <select id="tb-opt-stat-type" class="table-drawer-select" onchange="handleTableConfigChange()">
-                    <option value="Per 90" ${TABLE_STAT_TYPE === "Per 90" ? "selected" : ""}>Per 90</option>
-                    <option value="Total" ${TABLE_STAT_TYPE === "Total" ? "selected" : ""}>Total</option>
-                </select>
-            </div>
-            
+            <div class="table-drawer-group"><label class="table-drawer-label">Metric</label><select id="tb-opt-metric" class="table-drawer-select" onchange="handleTableConfigChange()">${metricOptions}</select></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Stat Type</label><select id="tb-opt-stat-type" class="table-drawer-select" onchange="handleTableConfigChange()"><option value="Per 90" ${TABLE_STAT_TYPE === "Per 90" ? "selected" : ""}>Per 90</option><option value="Total" ${TABLE_STAT_TYPE === "Total" ? "selected" : ""}>Total</option></select></div>
             <div class="table-drawer-group"><label class="table-drawer-label">Leagues</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(leagues, 'leagues')}</div></div>
             <div class="table-drawer-group"><label class="table-drawer-label">Nationalities</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(nationalities, 'nationalities')}</div></div>
             <div class="table-drawer-group"><label class="table-drawer-label">Positions</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(positions, 'positions')}</div></div>
-
-            <div class="table-drawer-group">
-                <label class="table-drawer-label">Age (Min / Max)</label>
-                <div class="table-drawer-input-row">
-                    <input type="number" id="tb-filt-min-age" class="table-drawer-input" value="${TABLE_FILTERS.minAge}" oninput="handleTableFilterInputChange()">
-                    <input type="number" id="tb-filt-max-age" class="table-drawer-input" value="${TABLE_FILTERS.maxAge}" oninput="handleTableFilterInputChange()">
-                </div>
-            </div>
-            <div class="table-drawer-group">
-                <label class="table-drawer-label">Minutes (Min / Max)</label>
-                <div class="table-drawer-input-row">
-                    <input type="number" id="tb-filt-min-mins" class="table-drawer-input" value="${TABLE_FILTERS.minMins}" oninput="handleTableFilterInputChange()">
-                    <input type="number" id="tb-filt-max-mins" class="table-drawer-input" value="${TABLE_FILTERS.maxMins}" oninput="handleTableFilterInputChange()">
-                </div>
-            </div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Age (Min / Max)</label><div class="table-drawer-input-row"><input type="number" id="tb-filt-min-age" class="table-drawer-input" value="${TABLE_FILTERS.minAge}" oninput="handleTableFilterInputChange()"><input type="number" id="tb-filt-max-age" class="table-drawer-input" value="${TABLE_FILTERS.maxAge}" oninput="handleTableFilterInputChange()"></div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Minutes (Min / Max)</label><div class="table-drawer-input-row"><input type="number" id="tb-filt-min-mins" class="table-drawer-input" value="${TABLE_FILTERS.minMins}" oninput="handleTableFilterInputChange()"><input type="number" id="tb-filt-max-mins" class="table-drawer-input" value="${TABLE_FILTERS.maxMins}" oninput="handleTableFilterInputChange()"></div></div>
         </div>
     `;
     document.body.appendChild(drawerDiv);
 }
 // ==========================================================================
-// PER 90 - TABLE.JS - DEL 3 AF 4 (API SYNC & STATE MANAGEMENT)
+// PER 90 - TABLE.JS - DEL 4 AF 6 (API SYNC & INTERACTION LOGIK)
 // ==========================================================================
 
 async function loadTableAPIDataFeed() {
@@ -259,12 +250,9 @@ async function loadTableAPIDataFeed() {
 }
 
 async function handleTableConfigChange() {
-    const metricSelect = $t("tb-opt-metric");
-    const typeSelect = $t("tb-opt-stat-type");
-
+    const metricSelect = $t("tb-opt-metric"), typeSelect = $t("tb-opt-stat-type");
     if (!metricSelect || !typeSelect) return;
-    const nytType = typeSelect.value;
-    TABLE_SELECTED_METRIC = metricSelect.value;
+    const nytType = typeSelect.value; TABLE_SELECTED_METRIC = metricSelect.value;
 
     if (nytType !== TABLE_STAT_TYPE) {
         TABLE_STAT_TYPE = nytType;
@@ -280,7 +268,6 @@ function handleTableFilterInputChange() {
     TABLE_FILTERS.maxAge = parseInt($t("tb-filt-max-age").value) || 100;
     TABLE_FILTERS.minMins = parseInt($t("tb-filt-min-mins").value) || 0;
     TABLE_FILTERS.maxMins = parseInt($t("tb-filt-max-mins").value) || 99999;
-    
     buildTableLeaderboardEngine();
 }
 
@@ -295,7 +282,7 @@ function handleTableCheckboxToggle(cb, key) {
     buildTableLeaderboardEngine();
 }
 // ==========================================================================
-// PER 90 - TABLE.JS - DEL 4 AF 4 (SEMANTISK TABEL ENGINE & CAPTURE)
+// PER 90 - TABLE.JS - DEL 5 AF 6 (TABEL-DATAMOTOR & LOGO LOGIK)
 // ==========================================================================
 
 async function buildTableLeaderboardEngine() {
@@ -322,7 +309,6 @@ async function buildTableLeaderboardEngine() {
 
     const highestScore = top10.length > 0 ? (top10[0].metrics[TABLE_SELECTED_METRIC] || 1) : 1;
 
-    // 🎯 BIOLOGISK RECTILINEAR LOCK: HTML-tabellen tvinger overskrifter og rækker i samme usårlige kanaler!
     let markup = `
         <table class="scouting-leaderboard-table">
             <thead>
@@ -373,53 +359,123 @@ async function buildTableLeaderboardEngine() {
         `;
     }).join('');
 
-    markup += `
-            </tbody>
-        </table>
-    `;
-
+    markup += `</tbody></table>`;
     container.innerHTML = markup;
 
-    // Asynkron hentning af base64-logoer 1:1 med glidende fade-in
     top10.forEach(async (p, idx) => {
         const imgId = `tb-crest-${idx}-${p.player_name.replace(/[^a-zA-Z0-9]/g, '')}`;
-        const imgEl = document.getElementById(imgId);
-        if (!imgEl) return;
-
+        const imgEl = document.getElementById(imgId); if (!imgEl) return;
         const containerBox = imgEl.parentElement;
 
         if (!p.team_id || p.team_id === "nan" || p.team_id === "None") {
-            if (containerBox) containerBox.style.display = "none";
-            return;
+            if (containerBox) containerBox.style.display = "none"; return;
         }
 
         try {
             const res = await fetch(`${API_BASE_URL}/api/logo/${p.team_id}`).then(r => r.json());
             if (res.logo_base64) {
-                imgEl.onload = () => {
-                    imgEl.classList.add('logo-loaded');
-                };
+                imgEl.onload = () => imgEl.classList.add('logo-loaded');
                 imgEl.src = res.logo_base64;
             } else {
                 if (containerBox) containerBox.style.display = "none";
             }
         } catch (e) { 
-            console.warn(`Kunne ikke hente logo for hold ID: ${p.team_id}`, e);
             if (containerBox) containerBox.style.display = "none";
         }
     });
 }
+// ==========================================================================
+// PER 90 - TABLE.JS - DEL 6 AF 6 (ISOLERET MASTER-CLONE DOWNLOAD MOTOR)
+// ==========================================================================
 
-// 🎯 FOTO-ISOLERET DOWNLOAD SYSTEM 1:1 VIA SEMANTISK TABEL 🎯
+// ==========================================================================
+// PER 90 - TABLE.JS - DEL 6 AF 6 (ISOLERET MASTER-CLONE DOWNLOAD MOTOR)
+// ==========================================================================
+
 function downloadTablePNG() {
-    const el = $t("table-capture-target-area"); if (!el) return;
-    html2canvas(el, { scale: 4, backgroundColor: "#0B1220", useCORS: true, logging: false }).then(canvas => {
-        const link = document.createElement("a"); 
-        link.download = `leaderboard_top10_${TABLE_SELECTED_METRIC.replace(/\s+/g, '_')}.png`;
-        link.href = canvas.toDataURL("image/png"); link.click();
+    const originalEl = $t("table-capture-target-area"); if (!originalEl) return;
+    
+    // Opretter den urokkelige pc-sandbox container i baggrunden
+    const hiddenContainer = document.createElement("div");
+    Object.assign(hiddenContainer.style, {
+        position: "absolute", left: "-9999px", top: "-9999px",
+        width: "950px", minWidth: "950px", maxWidth: "950px", height: "auto", overflow: "visible"
+    });
+    
+    const clone = originalEl.cloneNode(true);
+    clone.id = "table-download-clone";
+    
+    Object.assign(clone.style, {
+        width: "950px", minWidth: "950px", maxWidth: "950px",
+        height: "auto", minHeight: "auto", maxHeight: "none",
+        padding: "25px 25px 35px 25px", background: "#0B1220",
+        boxSizing: "border-box", display: "block", opacity: "1"
+    });
+    
+    hiddenContainer.appendChild(clone);
+    
+    const overrideStyle = document.createElement("style");
+    overrideStyle.innerHTML = `
+        /* Appsanktionering: Tvinger alle kolonner frem på billedet og ophæver mobile skjulere */
+        #table-download-clone .scouting-leaderboard-table { width: 100% !important; display: table !important; border-collapse: separate !important; border-spacing: 0 8px !important; }
+        #table-download-clone .scouting-leaderboard-table thead { display: table-header-group !important; }
+        #table-download-clone .scouting-leaderboard-table tr { display: table-row !important; }
+        
+        #table-download-clone .col-pos, 
+        #table-download-clone .col-age, 
+        #table-download-clone .col-min { 
+            display: table-cell !important; 
+        }
+        
+        /* 🎯 HEADER TITEL FIX: Fastlåser cellehøjden, linjehøjden og skrifttypen totalt, så overskrifterne aldrig rykker sig */
+        #table-download-clone .scouting-leaderboard-table th { 
+            padding: 12px 20px !important; 
+            font-size: 11px !important; 
+            font-weight: 900 !important; 
+            color: #ffffff !important; 
+            line-height: 14px !important;
+            height: 38px !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+        }
+        
+        #table-download-clone .scouting-leaderboard-table tbody td { padding: 12px 20px !important; font-size: 13px !important; background: none !important; }
+        
+        /* Genopbygger det mørke gradient-look på rækkerne i billedet */
+        #table-download-clone .scouting-leaderboard-table tbody tr { 
+            background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important; 
+        }
+        
+        #table-download-clone .font-rank { font-size: 20px !important; font-weight: 800 !important; color: #ffffff !important; opacity: 0.35 !important; }
+        #table-download-clone .font-meta { font-size: 13px !important; font-weight: 900 !important; color: #ffffff !important; opacity: 0.35 !important; }
+        #table-download-clone .table-row-player-name { font-size: 14px !important; font-weight: 900 !important; color: #ffffff !important; }
+        #table-download-clone .table-row-subtext { font-size: 10.5px !important; color: #64748b !important; }
+        #table-download-clone .table-row-score-value { font-size: 14px !important; font-weight: 900 !important; color: var(--accent-purple) !important; }
+        #table-download-clone .table-row-logo-box { width: 40px !important; height: 44px !important; }
+    `;
+    
+    document.body.appendChild(hiddenContainer);
+    document.body.appendChild(overrideStyle);
+    
+    document.fonts.ready.then(() => {
+        html2canvas(clone, { 
+            scale: 4, 
+            pixelRatio: 1, 
+            width: 950,
+            windowWidth: 950,
+            backgroundColor: "#0B1220", 
+            useCORS: true, 
+            logging: false 
+        }).then(canvas => {
+            const link = document.createElement("a"); 
+            link.download = `leaderboard_top10_${TABLE_SELECTED_METRIC.replace(/\\s+/g, '_')}.png`;
+            link.href = canvas.toDataURL("image/png"); link.click();
+            hiddenContainer.remove(); overrideStyle.remove();
+        }).catch(e => { console.error("Fejl under urokkelig tabel eksport:", e); hiddenContainer.remove(); overrideStyle.remove(); });
     });
 }
 
 document.addEventListener("click", e => {
     if (!e.target.closest('#table-player-wrapper')) { const p = $t("table-player-options"); if(p) p.style.display = "none"; }
 });
+
