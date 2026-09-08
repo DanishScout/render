@@ -495,4 +495,3 @@ function downloadTablePNG() {
 document.addEventListener("click", e => {
     if (!e.target.closest('#table-player-wrapper')) { const p = $t("table-player-options"); if(p) p.style.display = "none"; }
 });
-
