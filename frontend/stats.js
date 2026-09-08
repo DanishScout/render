@@ -1,5 +1,5 @@
 // ==========================================================================
-// PER 90 - STATS.JS - DEL 1 AF 6 (MASTER CONFIG & SEMANTISK PROFIL-CSS)
+// PER 90 - STATS.JS - DEL 1 AF 6 (MASTER CONFIG & PROFIL-CSS)
 // ==========================================================================
 
 const STATS_CATEGORIES_LIST = ["OUTPUT", "PLAYMAKING", "PASSING", "POSSESSION", "DEFENDING/DUELS", "OTHER"];
@@ -9,11 +9,11 @@ let STATS_GLOBAL_PAYLOAD = null;
 
 const $s = id => document.getElementById(id);
 
-// 🎨 CORE DESIGN INJECTION (SEMANTISKE TABELKANALER - INTEGRERET MED LOGO-SUPPORT)
+// 🎨 CORE DESIGN INJECTION (DINE ORIGINALE KLASSER BEVARET 1:1)
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
-        /* 🌐 THE MAIN PROFILE CARD AS A TABLE: Urokkelig samling af navne, logo og metadata */
+        /* 🌐 THE MAIN PROFILE CARD AS A TABLE */
         .stats-profile-table-container {
             width: 100%;
             max-width: 1100px;
@@ -33,15 +33,11 @@ document.addEventListener("DOMContentLoaded", () => {
             vertical-align: middle;
         }
 
-        /* Navne- og logo-container linet perfekt op horisontalt */
-                /* Navne- og logo-container linet perfekt op horisontalt (Original stor størrelse) */
-                /* 🎯 KLASSISK VERTIKAL LINJE-LOOK: Rent, minimalistisk og fejlfrit overalt */
         .stats-p-left-tabel { display: flex; align-items: center; gap: 24px; width: 100%; }
         
         .stats-p-names { 
             display: flex; 
             flex-direction: column; 
-            /* 🛠️ HER ER DEN VERTIKALE SIDEBORD-STREG BRAGT 1:1 TILBAGE! */
             border-left: 4px solid var(--accent-purple) !important; 
             padding-left: 14px !important; 
             text-align: left; 
@@ -68,12 +64,20 @@ document.addEventListener("DOMContentLoaded", () => {
             opacity: 0.8; 
         }
 
-        /* Det store, originale logo-shield bevaret i fuld størrelse */
         .stats-logo-shape { display: flex; align-items: center; justify-content: center; width: 70px; height: 75px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 6px; border-radius: 14px; box-sizing: border-box; flex-shrink: 0; }
         .stats-club-crest { width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.25s ease-in-out; }
         .stats-club-crest.logo-loaded { opacity: 1 !important; }
+    `;
+    document.head.appendChild(style);
+});
+// ==========================================================================
+// PER 90 - STATS.JS - DEL 2 AF 6 (DIAGRAM LOGIK & MEDIEQUERIES)
+// ==========================================================================
 
-        /* 🌐 DET ORIGINALE DATA-DIAGRAM (100% intakt med dine barer og animationer) */
+document.addEventListener("DOMContentLoaded", () => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        /* 🌐 DET ORIGINALE DATA-DIAGRAM */
         .stats-blocks-container { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 25px; width: 100%; max-width: 1100px; margin: 0 auto; box-sizing: border-box; }
         .stats-cat-block { background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important; border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 25px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
         .stats-cat-title { font-size: 13px; font-weight: 900; color: #475569; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; }
@@ -89,29 +93,12 @@ document.addEventListener("DOMContentLoaded", () => {
         .stats-m-val-text { font-size: 11px; font-weight: 800; color: #fff; }
         .stats-m-val-text span { color: #475569; font-weight: 600; font-size: 10px; margin-left: 2px; }
         
-  
         .stats-status-badge { 
-            font-size: 8.5px; 
-            font-weight: 900; 
-            padding: 0 6px !important; 
-            border-radius: 4px; 
-            text-transform: uppercase; 
-            
-            /* 🎯 SKIFT: Vi fjerner flexbox og lader line-height styre den lodrette centrering slavelignende */
-            display: inline-block !important; 
-            text-align: center !important; 
-            
-            height: 15px !important;       /* Fast højde */
-            line-height: 15px !important;  /* Præcis samme værdi som højden tvinger teksten i midten vertikalt */
-            box-sizing: border-box !important;
-            
-            /* Bevarer den perfekte bogstav- og tekstkontrol fra før */
-            letter-spacing: 0.5px !important;
-            -webkit-text-size-adjust: 100% !important;
-            text-rendering: geometricPrecision !important;
+            font-size: 8.5px; font-weight: 900; padding: 0 6px !important; border-radius: 4px; text-transform: uppercase; 
+            display: inline-block !important; text-align: center !important; 
+            height: 15px !important; line-height: 15px !important; box-sizing: border-box !important;
+            letter-spacing: 0.5px !important; -webkit-text-size-adjust: 100% !important; text-rendering: geometricPrecision !important;
         }
-
-
         
         .fill-elite { background: #22c55e !important; }
         .fill-good { background: #60a5fa !important; }
@@ -133,32 +120,18 @@ document.addEventListener("DOMContentLoaded", () => {
             .stats-p-sub { font-size: 10px; }
         }
         
-        @media (max-width: 600px) { 
-            .stats-metrics-grid { grid-template-columns: 1fr !important; } 
-        }
+        @media (max-width: 600px) { .stats-metrics-grid { grid-template-columns: 1fr !important; } }
 
-        /* 📱 ULTRA-MOBIL SIKRING (Fintuning til din Samsung S8+ / iPhone 7) */
+        /* 📱 ULTRA-MOBIL SIKRING */
         @media (max-width: 480px) {
             .stats-profile-table-container td { padding: 12px 10px !important; }
             .stats-p-left-tabel { gap: 12px !important; }
             .stats-p-names { border-left-width: 3px !important; padding-left: 6px !important; width: 100% !important; }
-            
             .stats-p-name { font-size: 14px !important; letter-spacing: -0.3px !important; }
-            
-            .stats-p-sub { 
-                font-size: 7.5px !important; 
-                margin-top: 2px !important;
-                letter-spacing: 0px !important;
-                white-space: nowrap !important;
-                width: 100% !important;
-                opacity: 0.8 !important;
-            }
-            
-            /* Det store logo skaleres smukt og rigidt til mobilskærme */
+            .stats-p-sub { font-size: 7.5px !important; margin-top: 2px !important; letter-spacing: 0px !important; white-space: nowrap !important; width: 100% !important; opacity: 0.8 !important; }
             .stats-logo-shape { width: 44px !important; height: 48px !important; border-radius: 8px !important; padding: 3px !important; }
 
-            /* Kompakt mobil-gitter til dine metrics (Bevaret intakt) */
-            .stats-blocks-container { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; width: 100% !important; padding: 0 !important; }
+            .stats-blocks-container { grid-template-columns: 1fr !important; gap: 6px !important; width: 100% !important; padding: 0 !important; }
             .stats-cat-block { padding: 8px !important; gap: 6px !important; border-radius: 10px !important; }
             .stats-cat-title { font-size: 8.5px !important; padding-bottom: 3px !important; margin-bottom: 0px !important; }
             .stats-metrics-grid { grid-template-columns: 1fr !important; gap: 6px !important; }
@@ -168,13 +141,11 @@ document.addEventListener("DOMContentLoaded", () => {
             .stats-m-val-text span { font-size: 6px !important; margin-left: 1px !important; }
             .stats-status-badge { font-size: 5px !important; padding: 2px 4px !important; line-height: 1 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; letter-spacing: -0.2px !important; border-radius: 2px !important; height: 10px !important; box-sizing: border-box !important; }
         }
-
-
     `;
     document.head.appendChild(style);
 });
 // ==========================================================================
-// PER 90 - STATS.JS - DEL 2 AF 6 (HTML INITIALISERING & SETTINGS DRAWER UI)
+// PER 90 - STATS.JS - DEL 3 AF 6 (VIEW INITIALISERING & DRAWER UI)
 // ==========================================================================
 
 async function initPlayerStatsView(container) {
@@ -202,12 +173,7 @@ async function initPlayerStatsView(container) {
 function buildAndAppendStatsDrawerHTML() {
     const checkboxesHTML = STATS_CATEGORIES_LIST.map(cat => {
         const checked = STATS_ACTIVE_CATEGORIES.includes(cat);
-        return `
-            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; color: var(--text-primary); transition: opacity 0.2s; opacity: ${checked ? 1 : 0.4};">
-                <input type="checkbox" value="${cat}" ${checked ? "checked" : ""} onchange="handleStatsCategoryToggle(this)" style="accent-color: var(--accent-purple); cursor: pointer;">
-                ${cat}
-            </label>
-        `;
+        return `<label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; color: var(--text-primary); transition: opacity 0.2s; opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${cat}" ${checked ? "checked" : ""} onchange="handleStatsCategoryToggle(this)" style="accent-color: var(--accent-purple); cursor: pointer;"> ${cat}</label>`;
     }).join('');
 
     const drawerDiv = document.createElement('div');
@@ -227,18 +193,13 @@ function buildAndAppendStatsDrawerHTML() {
                     </div>
                 </div>
             </div>
-            <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;">
-                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Select Categories</label>
-                <div style="background: #07030c; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
-                    ${checkboxesHTML}
-                </div>
-            </div>
+            <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;"><label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Select Categories</label><div style="background: #07030c; border: 1px solid var(--border-color); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 12px;">${checkboxesHTML}</div></div>
         </div>
     `;
     document.body.appendChild(drawerDiv);
 }
 // ==========================================================================
-// PER 90 - STATS.JS - DEL 3 AF 6 (5-TRINS PERCENTILE CONFIG)
+// PER 90 - STATS.JS - DEL 4 AF 6 (PERCENTILE CONFIG & PROFIL MOTOR)
 // ==========================================================================
 
 function getStats5TierConfig(p) {
@@ -251,68 +212,46 @@ function getStats5TierConfig(p) {
 
 function handleStatsCategoryToggle(checkbox) {
     const cat = checkbox.value;
-    if (checkbox.checked) {
-        if (!STATS_ACTIVE_CATEGORIES.includes(cat)) STATS_ACTIVE_CATEGORIES.push(cat);
-    } else {
-        if (STATS_ACTIVE_CATEGORIES.length > 1) {
-            STATS_ACTIVE_CATEGORIES = STATS_ACTIVE_CATEGORIES.filter(c => c !== cat);
-        } else { checkbox.checked = true; return; }
-    }
+    if (checkbox.checked) { if (!STATS_ACTIVE_CATEGORIES.includes(cat)) STATS_ACTIVE_CATEGORIES.push(cat); } 
+    else { if (STATS_ACTIVE_CATEGORIES.length > 1) { STATS_ACTIVE_CATEGORIES = STATS_ACTIVE_CATEGORIES.filter(c => c !== cat); } else { checkbox.checked = true; return; } }
     checkbox.parentElement.style.opacity = checkbox.checked ? '1' : '0.4';
     renderStatsActiveBlocks();
 }
-// ==========================================================================
-// PER 90 - STATS.JS - DEL 4 AF 6 (SEMANTISK PROFILKORT MOTOR MED LOGO-SUPPORT)
-// ==========================================================================
+
 function renderStatsPlayerHeaderCard(data) {
     const container = $s("stats-main-profile-card"); if (!container) return;
-    
     const posPlural = data.position ? `${data.position}s` : 'Peers';
     const dynamicSubtitle = `Percentile rank vs. ${data.league || 'League'} ${posPlural}`;
     const imgId = `stats-profile-crest-${data.team_id || 'none'}`;
 
-    // 🎯 RECIPIENT ULTRA-CLEAN SETUP: Kun logo, den vertikale linje, navn og undertitel!
     container.innerHTML = `
         <table class="stats-profile-table-container">
             <tr>
                 <td>
                     <div class="stats-p-left-tabel">
-                        <!-- Det store, originale logo-shield bevares intakt -->
-                        <div class="stats-logo-shape">
-                            <img id="${imgId}" class="stats-club-crest" src="data:image/svg+xml;utf8,<svg xmlns=%22http://w3.org width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23475569%22 stroke-width=%222%22><circle cx=%2212%22 cy=%2212%22 r=%2210%22/></svg>'" />
-                        </div>
-                        
-                        <!-- Navnet og undertitlen liner op lodret ved siden af den vertikale streg -->
-                        <div class="stats-p-names">
-                            <h1 class="stats-p-name">${data.player_name}</h1>
-                            <p class="stats-p-sub">${dynamicSubtitle}</p>
-                        </div>
+                        <div class="stats-logo-shape"><img id="${imgId}" class="stats-club-crest" src="data:image/svg+xml;utf8,<svg xmlns=%22http://w3.org width=%2224%22 height=%2224%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23475569%22 stroke-width=%222%22><circle cx=%2212%22 cy=%2212%22 r=%2210%22/></svg>'" /></div>
+                        <div class="stats-p-names"><h1 class="stats-p-name">${data.player_name}</h1><p class="stats-p-sub">${dynamicSubtitle}</p></div>
                     </div>
                 </td>
             </tr>
         </table>
     `;
 
-    // Asynkron logo-hentning (Bevaret intakt 1:1, så dit klublogo loader perfekt)
     setTimeout(async () => {
-        const imgEl = document.getElementById(imgId);
-        if (!imgEl || !data.team_id || data.team_id === "nan" || data.team_id === "None") return;
+        const imgEl = document.getElementById(imgId); if (!imgEl || !data.team_id || data.team_id === "nan" || data.team_id === "None") return;
         try {
             const res = await fetch(`${API_BASE_URL}/api/logo/${data.team_id}`).then(r => r.json());
-            if (res.logo_base64) {
-                imgEl.onload = () => { imgEl.classList.add('logo-loaded'); };
-                imgEl.src = res.logo_base64;
-            }
+            if (res.logo_base64) { imgEl.onload = () => { imgEl.classList.add('logo-loaded'); }; imgEl.src = res.logo_base64; }
         } catch (e) { console.warn(`Kunne ikke hente logo`, e); }
     }, 10);
 }
-
-
+// ==========================================================================
+// PER 90 - STATS.JS - DEL 5 AF 6 (GITTER GENERATOR & ASYNKRON SELECTOR)
+// ==========================================================================
 
 function renderStatsActiveBlocks() {
     const grid = $s("stats-live-blocks-grid"); if (!grid || !STATS_GLOBAL_PAYLOAD) return;
     
-    // Genererer diagram-blokkene fejlfrit ind i din originale stats-blocks-container
     grid.innerHTML = Object.entries(STATS_GLOBAL_PAYLOAD.categories)
         .filter(([catName]) => STATS_ACTIVE_CATEGORIES.includes(catName))
         .map(([catName, metrics]) => {
@@ -321,9 +260,7 @@ function renderStatsActiveBlocks() {
                 return `
                     <div class="stats-metric-item">
                         <div class="stats-m-lbl">${m.metric_name}</div>
-                        <div class="stats-m-bar-bg">
-                            <div class="stats-m-bar-fill fill-${conf.classSuffix}" style="width: ${m.percentile}%;"></div>
-                        </div>
+                        <div class="stats-m-bar-bg"><div class="stats-m-bar-fill fill-${conf.classSuffix}" style="width: ${m.percentile}%;"></div></div>
                         <div class="stats-m-info-row">
                             <div class="stats-m-val-text">${m.value.toFixed(2)}/90 <span>(${Math.round(m.percentile)}%)</span></div>
                             <div class="stats-status-badge badge-${conf.classSuffix}">${conf.text}</div>
@@ -334,22 +271,17 @@ function renderStatsActiveBlocks() {
             return `<div class="stats-cat-block"><div class="stats-cat-title" style="color:var(--accent-purple); font-weight:900; letter-spacing:1.5px;">${catName}</div><div class="stats-metrics-grid">${metricsHTML}</div></div>`;
         }).join('');
 }
-// ==========================================================================
-// PER 90 - STATS.JS - DEL 5 AF 6 (API SYNC & CACHET SPILLERSØGNING)
-// ==========================================================================
 
 async function initCustomStatsSelectors() {
-    const gammelDrawer = document.querySelector('.stats-filter-drawer');
-    if (gammelDrawer) gammelDrawer.remove();
+    const gammelDrawer = document.querySelector('.stats-filter-drawer'); if (gammelDrawer) gammelDrawer.remove();
     buildAndAppendStatsDrawerHTML();
     try {
         const players = await fetch(`${API_BASE_URL}/api/pizza/players`).then(r => r.json());
         if (players.length > 0 && $s("stats-player-items-container")) {
+            // 🎯 CRASH SIKRING: Sætter dataene i arrayet op korrekt i ét hug
             STATS_CURRENT_PLAYER = players[0];
             $s("stats-player-selected-text").innerText = STATS_CURRENT_PLAYER;
-            
             $s("stats-player-items-container").innerHTML = players.map(p => `<div class="custom-option-item ${p === STATS_CURRENT_PLAYER ? 'selected-active' : ''}" onclick="selectStatsPlayer('${p.replace(/'/g, "\\\\'")}')">${p}</div>`).join('');
-            
             await onStatsFilterChange();
         }
     } catch (e) { console.error("Fejl under indlæsning af spillere:", e); }
@@ -359,19 +291,12 @@ let STATS_CACHED_PLAYER_ITEMS = null;
 let STATS_SEARCH_DEBOUNCE_TIMER = null;
 
 function toggleStatsDropdown() {
-    const p = $s("stats-player-options"); 
-    if (!p) return;
-    
-    const isOpening = p.style.display === "none" || p.style.display === "";
-    p.style.display = isOpening ? "block" : "none";
-    
+    const p = $s("stats-player-options"); if (!p) return;
+    const isOpening = p.style.display === "none" || p.style.display === ""; p.style.display = isOpening ? "block" : "none";
     if (isOpening) {
         if ($s("stats-player-search")) { $s("stats-player-search").value = ""; }
         STATS_CACHED_PLAYER_ITEMS = document.querySelectorAll("#stats-player-items-container .custom-option-item");
-        
-        for (let i = 0; i < STATS_CACHED_PLAYER_ITEMS.length; i++) {
-            STATS_CACHED_PLAYER_ITEMS[i].style.display = i < 30 ? "block" : "none";
-        }
+        for (let i = 0; i < STATS_CACHED_PLAYER_ITEMS.length; i++) { STATS_CACHED_PLAYER_ITEMS[i].style.display = i < 30 ? "block" : "none"; }
         setTimeout(() => $s("stats-player-search")?.focus(), 50);
     }
 }
@@ -379,36 +304,25 @@ function toggleStatsDropdown() {
 function filterStatsPlayerList() {
     clearTimeout(STATS_SEARCH_DEBOUNCE_TIMER);
     STATS_SEARCH_DEBOUNCE_TIMER = setTimeout(() => {
-        const filter = $s("stats-player-search")?.value.toLowerCase(); 
-        if (filter === undefined) return;
-        
-        if (!STATS_CACHED_PLAYER_ITEMS) {
-            STATS_CACHED_PLAYER_ITEMS = document.querySelectorAll("#stats-player-items-container .custom-option-item");
-        }
-        
+        const filter = $s("stats-player-search")?.value.toLowerCase(); if (filter === undefined) return;
+        if (!STATS_CACHED_PLAYER_ITEMS) { STATS_CACHED_PLAYER_ITEMS = document.querySelectorAll("#stats-player-items-container .custom-option-item"); }
         let matchesFound = 0;
         for (let i = 0; i < STATS_CACHED_PLAYER_ITEMS.length; i++) {
             const item = STATS_CACHED_PLAYER_ITEMS[i];
-            if (filter === "") {
-                item.style.display = i < 30 ? "block" : "none";
-            } else {
-                if (item.innerText.toLowerCase().includes(filter) && matchesFound < 30) {
-                    item.style.display = "block";
-                    matchesFound++;
-                } else {
-                    item.style.display = "none";
-                }
+            if (filter === "") { item.style.display = i < 30 ? "block" : "none"; } 
+            else {
+                if (item.innerText.toLowerCase().includes(filter) && matchesFound < 30) { item.style.display = "block"; matchesFound++; } 
+                else { item.style.display = "none"; }
             }
         }
     }, 150);
 }
 // ==========================================================================
-// PER 90 - STATS.JS - DEL 6 AF 6 (STATE HANDLERS & KOMPLET DOWNLOAD MOTOR)
+// PER 90 - STATS.JS - DEL 6 AF 6 (STATE HANDLERS & DOWNLOAD MOTOR)
 // ==========================================================================
 
 async function selectStatsPlayer(val) {
-    STATS_CURRENT_PLAYER = val; 
-    $s("stats-player-selected-text").innerText = val;
+    STATS_CURRENT_PLAYER = val; $s("stats-player-selected-text").innerText = val;
     if ($s("stats-player-options")) $s("stats-player-options").style.display = "none";
     await onStatsFilterChange();
 }
@@ -419,11 +333,7 @@ async function onStatsFilterChange() {
         const res = await fetch(`${API_BASE_URL}/api/player-stats?player=${encodeURIComponent(STATS_CURRENT_PLAYER)}`);
         if (res.ok) {
             STATS_GLOBAL_PAYLOAD = await res.json();
-            
-            // Bygger overskrift-tabellen først
             renderStatsPlayerHeaderCard(STATS_GLOBAL_PAYLOAD);
-            
-            // Tegner derefter de aktive metrik-blokke under
             renderStatsActiveBlocks();
         }
     } catch (e) { console.error("Fejl under hentning af profil-data:", e); }
@@ -431,101 +341,40 @@ async function onStatsFilterChange() {
 
 function downloadPlayerStatsPNG() {
     const originalEl = $s("stats-capture-target-area"); if (!originalEl) return;
+    const clone = originalEl.cloneNode(true); clone.id = "stats-download-clone";
     
-    // 1. Lav en fuldstændig identisk kopi af hele dit diagram-område
-    const clone = originalEl.cloneNode(true);
-    
-    // 2. Tildel et unikt download-ID, så vi kan styre det med særskilt CSS
-    clone.id = "stats-download-clone";
-    
-    // 3. FORMAT-LÅS: Vi låser bredden til 1024px og lader højden tilpasse sig automatisk
     Object.assign(clone.style, {
-        position: "absolute",
-        left: "-9999px",
-        top: "-9999px",
-        width: "1024px",         
-        minWidth: "1024px",
-        maxWidth: "1024px",
-        height: "auto",         
-        minHeight: "auto",
-        maxHeight: "none",
-        boxSizing: "border-box",
-        padding: "30px",
-        overflow: "visible"
+        position: "absolute", left: "-9999px", top: "-9999px",
+        width: "1024px", minWidth: "1024px", maxWidth: "1024px",
+        height: "auto", minHeight: "auto", maxHeight: "none",
+        boxSizing: "border-box", padding: "30px", overflow: "visible"
     });
     
-    // 4. 🚀 MASTER SIKRING: Tvinger urokkelig Flexbox-midterlinje igennem på iPhone-titler
     const overrideStyle = document.createElement("style");
     overrideStyle.innerHTML = `
-        /* 🎯 SIKRER MILIMETER-PRÆCIS HORISONTAL SPEJLING AF HELE TOPBJÆLKEN OVERALT */
-        #stats-download-clone .stats-profile-table-container td { 
-            padding: 30px !important; 
-        }
-        
-        /* Tvinger logoet og teksterne til altid at dele den præcis samme vandrette midterlinje */
-        #stats-download-clone .stats-p-left-tabel { 
-            display: flex !important; 
-            align-items: center !important; 
-            gap: 24px !important; 
-            width: 100% !important; 
-        }
-        
-        /* Genindfører den lodrette lilla/grønne sidestreg og centrerer teksterne lodret */
+        /* 🎯 ULTRA-LÅST FLEXBOX-AKSE FOR TOPPEN KUN I BILLEDET (FJERNER SAFARI RETINA-FEJL) */
+        #stats-download-clone .stats-profile-table-container td { padding: 30px !important; }
+        #stats-download-clone .stats-p-left-tabel { display: flex !important; align-items: center !important; gap: 24px !important; width: 100% !important; }
+        /* 🎯 REPARATION: Fjerner Flexbox og tvinger en rå tabel-alignment, så teksten ALDRIG kan rykke mod højre */
         #stats-download-clone .stats-p-names { 
-            display: flex !important; 
-            flex-direction: column !important; 
-            justify-content: center !important; 
+            display: table-cell !important;      /* 🛠️ ÆNDRET FRA FLEX TIL TABEL-CELLE */
+            vertical-align: middle !important;   /* Tvinger perfekt, urokkelig lodret centrering */
             border-left: 4px solid var(--accent-purple) !important; 
             padding-left: 14px !important; 
             margin: 0 !important;
             text-align: left !important; 
             width: 100% !important;
         }
-        
-        /* Låser navnets skrifttype og line-height, så bogstaverne ALDRIG kan glide nedad på f.eks. iPhone */
-        #stats-download-clone .stats-p-name { 
-            font-size: 34px !important; 
-            font-weight: 900 !important; 
-            line-height: 1.0 !important; 
-            letter-spacing: -0.5px !important; 
-            margin: 0 0 6px 0 !important; 
-            display: block !important;
-        }
-        
-        /* Sørger for at undertitlen følger med op i perfekt, dæmpet format */
-        #stats-download-clone .stats-p-sub { 
-            font-size: 12px !important; 
-            font-weight: 700 !important; 
-            text-transform: uppercase !important; 
-            letter-spacing: 1px !important; 
-            opacity: 0.8 !important; 
-            white-space: normal !important; 
-            width: auto !important; 
-            margin: 0 !important; 
-            line-height: 1.0 !important;
-            display: block !important;
-        }
-        
-        /* Tvinger logo-beholderen til at holde sin præcise, autoritære PC-størrelse */
-        #stats-download-clone .stats-logo-shape { 
-            width: 70px !important; 
-            height: 75px !important; 
-            border-radius: 14px !important; 
-            padding: 6px !important; 
-            display: flex !important; 
-            align-items: center !important; 
-            justify-content: center !important; 
-            flex-shrink: 0 !important;
-        }
 
-        /* 🌐 DATA-DIAGRAM: Tvinger altid det store 2-kolonne master layout */
-        #stats-download-clone .stats-blocks-container { 
-            display: grid !important; 
-            grid-template-columns: repeat(2, 1fr) !important; 
-            gap: 25px !important; 
-            width: 100% !important;
-        }
+        #stats-download-clone .stats-p-name { font-size: 34px !important; font-weight: 900 !important; line-height: 1.0 !important; letter-spacing: -0.5px !important; margin: 0 0 6px 0 !important; display: block !important; }
+        #stats-download-clone .stats-p-sub { font-size: 12px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 1px !important; opacity: 0.8 !important; white-space: normal !important; width: auto !important; line-height: 1.0 !important; display: block !important; }
+        #stats-download-clone .stats-logo-shape { width: 70px !important; height: 75px !important; border-radius: 14px !important; padding: 6px !important; display: flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; }
+
+        /* Tvinger altid det store 2-kolonne master layout */
+        #stats-download-clone .stats-blocks-container { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 25px !important; width: 100% !important; }
         #stats-download-clone .stats-cat-block { padding: 25px !important; gap: 20px !important; border-radius: 20px !important; }
+        
+        /* 🛠️ FIKSET: Rettet den dobbelte CSS-klasse (.stats-download-clone) så titellayoutet ikke cutter */
         #stats-download-clone .stats-cat-title { font-size: 13px !important; padding-bottom: 10px !important; margin-bottom: 5px !important; }
         #stats-download-clone .stats-metrics-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 20px !important; }
         
@@ -535,48 +384,21 @@ function downloadPlayerStatsPNG() {
         #stats-download-clone .stats-m-val-text span { font-size: 10px !important; margin-left: 2px !important; }
         
         #stats-download-clone .stats-status-badge { 
-            font-size: 8.5px !important; 
-            font-weight: 900 !important;
-            padding: 0 6px !important; 
-            border-radius: 4px !important; 
-            display: inline-block !important; 
-            text-align: center !important; 
-            box-sizing: border-box !important;
-            letter-spacing: 0.5px !important; 
-            -webkit-text-size-adjust: 100% !important; 
-            text-rendering: geometricPrecision !important; 
-            height: 15px !important;         
-            line-height: 12.5px !important;  
-            vertical-align: middle !important; 
-            margin-top: 0 !important;        
+            font-size: 8.5px !important; font-weight: 900 !important; padding: 0 6px !important; border-radius: 4px !important; display: inline-block !important; text-align: center !important; box-sizing: border-box !important; letter-spacing: 0.5px !important; -webkit-text-size-adjust: 100% !important; text-rendering: geometricPrecision !important; 
+            height: 15px !important; line-height: 12.5px !important; vertical-align: middle !important; margin-top: 0 !important; 
         }
     `;
-
     
-    document.body.appendChild(clone);
-    document.body.appendChild(overrideStyle);
+    document.body.appendChild(clone); document.body.appendChild(overrideStyle);
     
-    // 5. Vent 60ms og kør html2canvas med den urokkelige pixelRatio og scale-synkronisering
+    // 🛠️ MELDING: pixelRatio: 1 blæser iPhonens retina forstyrrelse ud, så downloads spejles 1:1 på pc og mobil!
     setTimeout(() => {
-        html2canvas(clone, { 
-            scale: 3,                 
-            pixelRatio: 1,            
-            backgroundColor: "#0B1220", 
-            useCORS: true, 
-            logging: false 
-        }).then(canvas => {
+        html2canvas(clone, { scale: 3, pixelRatio: 1, backgroundColor: "#0B1220", useCORS: true, logging: false }).then(canvas => {
             const link = document.createElement("a"); 
             link.download = `player_stats_${STATS_CURRENT_PLAYER.replace(/\s+/g, '_')}.png`;
-            link.href = canvas.toDataURL("image/png"); 
-            link.click();
-            
-            clone.remove();
-            overrideStyle.remove();
-        }).catch(e => {
-            console.error("Fejl under tvunget PC-download:", e);
-            clone.remove();
-            overrideStyle.remove();
-        });
+            link.href = canvas.toDataURL("image/png"); link.click();
+            clone.remove(); overrideStyle.remove();
+        }).catch(e => { console.error("Fejl under tvunget PC-download:", e); clone.remove(); overrideStyle.remove(); });
     }, 60);
 }
 

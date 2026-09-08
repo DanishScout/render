@@ -1,5 +1,5 @@
 // ==========================================================================
-// PER 90 - PIZZA.JS - DEL 1 AF 6 (MASTER CONFIG & SEMANTISK TABEL-CSS)
+// PER 90 - PIZZA.JS - DEL 1 AF 7 (MASTER CONFIG & STATISKE PARAMETRE)
 // ==========================================================================
 
 const AVAILABLE_PIZZA_METRICS = [
@@ -21,8 +21,10 @@ if (typeof window.pizzaChartInstance === 'undefined') window.pizzaChartInstance 
 
 const $ = id => document.getElementById(id);
 const toggleDisplay = (el, show) => el && (el.style.display = show ? "block" : "none");
+// ==========================================================================
+// PER 90 - PIZZA.JS - DEL 2 AF 7 (RUNTIME DESIGN & RESPONSIV TABEL-CSS)
+// ==========================================================================
 
-// RUNTIME CSS INJECTION (SEMANTISKE TABEL-KANALER FOR PERFEKT MODERNE LOOK)
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
@@ -33,7 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
         #chart-only { position: relative; padding: 15px 15px 35px; border-radius: 24px; width: 100%; max-width: 710px; border: 1px solid rgba(0,240,255,.08); box-shadow: 0 30px 60px -15px #000, inset 0 1px 0 rgba(255,255,255,.05); box-sizing: border-box; opacity: .85; overflow: hidden; background: #0B1220; display: flex; flex-direction: column; align-items: center; margin: 20px auto !important; font-family: 'Gabarito', sans-serif; color: #e5e7eb; }
         #chart-only::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(#0f172a, #020617); z-index: 0; border-radius: 24px; }
         
-        /* 🌐 THE MAIN PROFILE CARD AS A TABLE: Urokkelig samling af navne og data */
         .pizza-header-profile-table {
             position: relative;
             z-index: 2;
@@ -56,7 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
         .p-nm { font-size: 27px; font-weight: 900; margin: 0 0 10px; text-transform: uppercase; letter-spacing: -.5px; color: #fff; text-align: left; }
         .tactic-line { width: 100%; height: 2px; margin-bottom: 12px; display: block; }
         
-        /* 🎯 SLAVELÅSTE HORISONTALE METADATA KANALER VIA TABEL */
         .pizza-meta-subtable {
             width: auto !important;
             border-collapse: collapse !important;
@@ -87,7 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
         .box-bg-rect { fill: #0B1220 !important; }
         .tx-b { font-size: 11px; font-weight: 900; fill: inherit !important; }
         
-        /* 🎯 CENTRAL STYRET METADATA FOOTER */
         .pizza-footer-table {
             width: 100% !important;
             border-collapse: collapse !important;
@@ -101,7 +100,6 @@ document.addEventListener("DOMContentLoaded", () => {
         .pizza-footer-table .footer-line-top { opacity: 0.75; }
         .pizza-footer-table .footer-line-bottom { opacity: 0.45; }
 
-        /* 📱 TABLET- OG MOBILOPTIMERING V5 */
         @media (max-width: 1025px) {
             .pizza-header-profile-table td { padding: 12px 16px !important; }
             .p-nm { font-size: 18px !important; margin-bottom: 6px !important; }
@@ -128,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.head.appendChild(style);
 });
 // ==========================================================================
-// PER 90 - PIZZA.JS - DEL 2 AF 6 (HTML INITIALISERING & SETTINGS DRAWER UI)
+// PER 90 - PIZZA.JS - DEL 3 AF 7 (FRONTEND VIEW INITIALISERING)
 // ==========================================================================
 
 async function initPizzaView(container) {
@@ -200,7 +198,7 @@ async function initPizzaView(container) {
     await initCustomPizzaSelectors();
 }
 // ==========================================================================
-// PER 90 - PIZZA.JS - DEL 3 AF 6 (PIZZA VEKTOR-MATEMATIK TEGNING)
+// PER 90 - PIZZA.JS - DEL 4 AF 7 (PIZZA VEKTOR-MATEMATIK TEGNING)
 // ==========================================================================
 
 function buildPizzaVektorChart(data, selectedColor) {
@@ -233,7 +231,7 @@ function buildPizzaVektorChart(data, selectedColor) {
     svg.innerHTML = markup + `<circle cx="${CX}" cy="${CY}" r="12" fill="#FFFFFF" />`;
 }
 // ==========================================================================
-// PER 90 - PIZZA.JS - DEL 4 AF 6 (FILTER LOGIK & CACHET SPILLERSØGNING)
+// PER 90 - PIZZA.JS - DEL 5 AF 7 (CACHET SPILLERSØGNING & DROPDOWN SYNC)
 // ==========================================================================
 
 async function onPizzaFilterChange() {
@@ -289,9 +287,6 @@ function resetPlayerSearch() {
         }
     }
 }
-// ==========================================================================
-// PER 90 - PIZZA.JS - DEL 5 AF 6 (UI DROPDOWNS & SELECTOR API SYNC)
-// ==========================================================================
 
 function toggleCustomDropdown(type) {
     const pOpt = $("custom-player-options"), posOpt = $("custom-pos-options");
@@ -360,7 +355,7 @@ async function onPizzaPlayerChange() {
     onPizzaFilterChange();
 }
 // ==========================================================================
-// PER 90 - PIZZA.JS - DEL 6 AF 6 (DATAMOTOR VIA TABEL & EXPORT)
+// PER 90 - PIZZA.JS - DEL 6 AF 7 (DATAMOTOR & SEMANTISK TABEL-TEMPLATE)
 // ==========================================================================
 
 function buildCategorizedMetrics() {
@@ -390,7 +385,6 @@ async function loadPizzaChartDataWithFilters(playerName, comparePos, metricsList
         const chartContainer = $("chart-only"); if (!chartContainer) return;
         const sColor = apiResponse.selected_color || "#00f0ff", leagueVal = apiResponse.league || "N/A";
 
-        // 🎯 RADIKAL TABEL OPBYGNING: Låser profilkortet og footeren i urokkelige mekaniske kanaler
         chartContainer.innerHTML = `
             <table class="pizza-header-profile-table">
                 <tr>
@@ -452,18 +446,164 @@ async function loadPizzaChartDataWithFilters(playerName, comparePos, metricsList
         buildPizzaVektorChart(apiResponse, sColor);
     } catch (e) { console.error("Interface fejl:", e); }
 }
+// ==========================================================================
+// PER 90 - PIZZA.JS - DEL 7 AF 7 (PERFEKT GEOMETRISK CENTRERET DOWNLOAD MOTOR)
+// ==========================================================================
 
-function downloadPNG() { 
-    const el = $("chart-only"), title = document.querySelector('.p-nm'); 
-    if (title) { title.style.webkitTextFillColor = '#fff'; title.style.color = '#fff'; } 
+function downloadPNG() {
+    const originalEl = $("chart-only"); if (!originalEl) return;
+    
+    // Opretter en totalt isoleret boks låst på 710px i bredden med flex-layout
+    const hiddenContainer = document.createElement("div");
+    Object.assign(hiddenContainer.style, {
+        position: "absolute",
+        left: "-9999px",
+        top: "-9999px",
+        width: "710px",
+        minWidth: "710px",
+        maxWidth: "710px",
+        height: "auto",
+        overflow: "visible"
+    });
+    
+    const clone = originalEl.cloneNode(true);
+    clone.id = "pizza-download-clone";
+    
+    // Tvinger en urokkelig PC-struktur og fjerner elastiske enheds-højder
+    Object.assign(clone.style, {
+        width: "710px",
+        minWidth: "710px",
+        maxWidth: "710px",
+        height: "auto",
+        minHeight: "auto",
+        maxHeight: "none",
+        padding: "30px 30px 40px 30px",
+        background: "#0B1220",
+        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        opacity: "1"
+    });
+    
+    hiddenContainer.appendChild(clone);
+    
+    const overrideStyle = document.createElement("style");
+    overrideStyle.innerHTML = `
+        /* Nulstiller alle mobile mediefelt-optimeringer totalt på download-billedet */
+        #pizza-download-clone::before { 
+            content: ""; 
+            position: absolute; 
+            top: 0; left: 0; right: 0; bottom: 0; 
+            background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important; 
+            z-index: 0; 
+            border-radius: 24px; 
+        }
+        
+        #pizza-download-clone .pizza-header-profile-table {
+            max-width: 575px !important; 
+            margin: 15px auto 25px !important; 
+            border-radius: 16px !important; 
+            display: table !important; 
+            width: 100% !important; 
+            border: 1px solid rgba(0, 240, 255, 0.08) !important;
+            border-collapse: collapse !important;
+        }
+        #pizza-download-clone .pizza-header-profile-table td { 
+            padding: 20px 25px !important; 
+        }
+        
+        #pizza-download-clone .p-nm { 
+            font-size: 27px !important; 
+            margin-bottom: 10px !important; 
+            color: #ffffff !important; 
+            -webkit-text-fill-color: #ffffff !important; 
+            font-weight: 900 !important;
+            text-align: left !important;
+        }
+        #pizza-download-clone .tactic-line { 
+            margin-bottom: 12px !important; 
+            width: 100% !important; 
+            display: block !important; 
+            height: 2px !important;
+        }
+        #pizza-download-clone .pizza-meta-subtable { 
+            display: table !important; 
+            width: auto !important; 
+            border-collapse: collapse !important;
+        }
+        #pizza-download-clone .pizza-meta-subtable td { 
+            font-size: 13px !important; 
+            padding: 0 7px !important; 
+            color: #ffffff !important; 
+        }
+        #pizza-download-clone .meta-item-box svg { 
+            width: 15px !important; 
+            height: 15px !important; 
+            stroke-width: 2.5 !important; 
+        }
+        #pizza-download-clone .logo-shape { 
+            width: 22px !important; 
+            height: 22px !important; 
+        }
+        #pizza-download-clone .pipe-divider-cell { 
+            font-size: 14px !important; 
+        }
+        
+        /* 🎯 ABSOLUT MIDTPUNKT: Finjusteret til -4px, hvilket placerer cirklen millimeter-præcist i centrum */
+        #pizza-download-clone #pizza-svg-element { 
+            display: block !important; 
+            margin: -5px auto 15px auto !important; 
+            width: 620px !important; 
+            height: 465px !important; 
+            max-width: 620px !important;
+            max-height: 465px !important;
+            transform: translateX(-4px) !important;
+            overflow: visible !important;
+        }
+        #pizza-download-clone .ax-lbl { 
+            font-size: 13px !important; 
+            fill: #94a3b8 !important; 
+        }
+        
+        #pizza-download-clone .pizza-footer-table { 
+            display: table !important; 
+            width: 100% !important; 
+            margin-top: 15px !important; 
+            margin-bottom: 5px !important;
+            border-collapse: collapse !important;
+        }
+        #pizza-download-clone .pizza-footer-table td { 
+            font-size: 11px !important; 
+            padding: 2px 40px !important; 
+            color: #e5e7eb !important; 
+        }
+        #pizza-download-clone .pizza-footer-table .footer-line-top { opacity: 0.75 !important; }
+        #pizza-download-clone .pizza-footer-table .footer-line-bottom { opacity: 0.45 !important; }
+    `;
+    
+    document.body.appendChild(hiddenContainer);
+    document.body.appendChild(overrideStyle);
     
     document.fonts.ready.then(() => {
-        html2canvas(el, { scale: 4, backgroundColor: "#0B1220", useCORS: true, logging: false }).then(canvas => { 
-            if (title) title.style.webkitTextFillColor = '#fff'; 
+        html2canvas(clone, { 
+            scale: 4, 
+            pixelRatio: 1, 
+            width: 710,
+            windowWidth: 710,
+            backgroundColor: null, 
+            useCORS: true, 
+            logging: false 
+        }).then(canvas => { 
             const link = document.createElement("a"); 
             link.download = `report_${CURRENT_SELECTED_PLAYER ? CURRENT_SELECTED_PLAYER.toLowerCase().replace(/ /g, "_") : "chart"}.png`; 
-            link.href = canvas.toDataURL("image/png"); link.click(); 
-        }).catch(e => console.error(e)); 
+            link.href = canvas.toDataURL("image/png"); 
+            link.click(); 
+            hiddenContainer.remove(); overrideStyle.remove();
+        }).catch(e => { 
+            console.error(e); 
+            hiddenContainer.remove(); overrideStyle.remove(); 
+        }); 
     });
 }
 

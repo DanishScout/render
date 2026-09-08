@@ -35,8 +35,8 @@ document.addEventListener("DOMContentLoaded", () => {
             margin-bottom: 35px;
             border-radius: 14px;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.06);
-            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255,255,255,0.06) !important;
+            background: rgba(15, 23, 42, 0.6) !important;
         }
         
         .radar-header-table td {
@@ -47,17 +47,21 @@ document.addEventListener("DOMContentLoaded", () => {
         
         .radar-header-table .td-left {
             text-align: left !important;
-            background: linear-gradient(135deg, rgba(0,240,255,0.08) 0%, rgba(0,0,0,0) 80%);
-            border-right: 1px solid rgba(255,255,255,0.08);
+            background: linear-gradient(135deg, rgba(0,240,255,0.08) 0%, rgba(0,0,0,0) 80%) !important;
+            border-right: 1px solid rgba(255,255,255,0.08) !important;
         }
         
         .radar-header-table .td-right {
             text-align: right !important;
-            background: linear-gradient(315deg, rgba(217,70,239,0.08) 0%, rgba(0,0,0,0) 80%);
+            background: linear-gradient(315deg, rgba(217,70,239,0.08) 0%, rgba(0,0,0,0) 80%) !important;
         }
 
-        #view-radar .p-nm { font-size: 15px; font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 2px; opacity: 0.95; }
-        #view-radar .p-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+        #view-radar .p-nm { font-size: 15px; font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 2px; opacity: 0.95; display: block; width: 100%; }
+        .radar-header-table .td-left .p-nm { text-align: left !important; }
+        .radar-header-table .td-right .p-nm { text-align: right !important; }
+        
+        #view-radar .p-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; width: 100%; }
+        .radar-header-table .td-left .p-row { justify-content: flex-start; }
         .radar-header-table .td-right .p-row { justify-content: flex-end; }
         
         #view-radar .info-tag { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); color: #f1f5f9; letter-spacing: 0.5px; text-transform: uppercase; display: inline-block; white-space: nowrap; }
@@ -81,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         .radar-footer-table td { padding: 3px 0 !important; }
 
-        #view-radar .svg-score-text { font-size: 10px; font-weight: 700; font-family: 'Gabarito', sans-serif; dominant-baseline: central; text-anchor: middle; }
+        #view-radar .svg-score-text { font-size: 10px; font-weight: 700; font-family: 'Gabarito', sans-serif; text-anchor: middle; }
 
         /* 📱 TABLET- OG MOBILOPTIMERING V5 */
         @media (max-width: 1025px) {
@@ -96,60 +100,54 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         /* 📱 MOBILTELEFONER (Samsung S8+, iPhones under 480px) */
-                /* 📱 MOBILTELEFONER (Samsung S8+, iPhones under 480px) */
         @media (max-width: 480px) {
-            /* Skruer ned for polstringen, så teksten ikke presses ind mod midten */
             .radar-header-table td { 
                 padding: 6px 12px !important; 
             }
             
-            /* Tvinger højre side til at højreorientere ABSOLUT alt indhold i cellen */
             .radar-header-table .td-right {
                 text-align: right !important;
             }
             
-            /* 🎯 REPARATION: Tvinger selve h2-navnet i højre side helt ud til kanten */
             .radar-header-table .td-right .p-nm {
                 text-align: right !important;
                 width: 100% !important;
                 display: block !important;
             }
             
-            /* Gør spillernavnene mindre på telefoner, så de ikke pakker eller overlapper */
             #view-radar .p-nm { 
                 font-size: 10.5px !important; 
                 letter-spacing: 0.5px !important; 
                 line-height: 1.2 !important;
             }
             
-            /* Sørger for at rækken af tags bryder pænt eller pakker tæt i højre/venstre side */
             #view-radar .p-row { 
                 gap: 5px !important; 
                 margin-top: 5px !important;
                 display: flex !important;
-                flex-wrap: wrap !important; /* Lader tags pakke i to rækker hvis liga-avnet er for langt */
+                flex-wrap: wrap !important;
                 width: 100% !important;
             }
             
-            /* Tvinger venstresidens tags til venstre og højresidens tags helt ud til højre */
             .radar-header-table .td-left .p-row { justify-content: flex-start !important; }
             .radar-header-table .td-right .p-row { justify-content: flex-end !important; }
             
-            /* Nedskalerer de mørke info-tags så der reelt er plads til lange navne som VEIKKAUSLIIGA */
             #view-radar .info-tag { 
                 font-size: 7.5px !important; 
                 padding: 2px 5px !important;
                 letter-spacing: 0px !important;
             }
             
-            /* 🎯 REPARATION: Fører dine elskede farvestreger tilbage på mobil, præcis som på PC */
             .radar-header-table .td-left .info-tag { border-left: 2px solid #00f0ff !important; border-right: none !important; }
             .radar-header-table .td-right .info-tag { border-right: 2px solid #d946ef !important; border-left: none !important; }
             
+            /* 🎯 SKJUL LIGA-TEKST OG BOKS KUN PÅ MOBIL */
+            #view-radar .p-row .info-tag:nth-child(3) {
+                display: none !important;
+            }
+            
             .radar-footer-table { font-size: 8px !important; }
         }
-
-
     `;
     document.head.appendChild(style);
 });
@@ -252,7 +250,7 @@ function buildRadarVektorSpiderweb(d1, d2) {
     let markup = [52.5, 105, 157.5, 210].map(r => {
         let points = [];
         for (let i = 0; i < total; i++) points.push(`${CX + r * Math.cos(i * angle - Math.PI/2)},${CY + r * Math.sin(i * angle - Math.PI/2)}`);
-        return `<polygon points="${points.join(' ')}" class="grid-poly" />`;
+        return `<polygon points="${points.join(' ')}" class="grid-poly" style="fill: none !important; stroke: rgba(255,255,255,0.1);" />`;
     }).join('');
 
     d1.metrics.forEach((_, i) => {
@@ -296,7 +294,7 @@ function buildRadarVektorSpiderweb(d1, d2) {
         let boxY = 14; 
 
         if (words.length >= 2) {
-            const line1 = words[0];
+            const line1 = words[0]; // 🎯 REPARATION: Rettet 'words' til 'words[0]', så hele arrayet ikke udskrives på én linje
             const line2 = words.slice(1).join(" ");
             markup += `
                 <text x="0" y="-12" class="ax-lbl" text-anchor="middle" dominant-baseline="central">${line1}</text>
@@ -307,21 +305,31 @@ function buildRadarVektorSpiderweb(d1, d2) {
             boxY = 11;
         }
 
+        // Beregner det absolutte midtpunkt for x i boksene ud fra boksbredden på 25px
         const b1X = -27;
+        const b1Center = b1X + 12.5;
+        
         const b2X = 2;
+        const b2Center = b2X + 12.5;
+        
+        // Beregner det præcise lodrette y-midtpunkt i forhold til boksens top (boxY) og dens højde på 15px
+        const textY = boxY + 7.5;
 
+        // 🎯 DESIGNREPARATION: text-anchor="middle" er nu bagt direkte ind som en HTML-attribut på teksten.
+        // dy="3.5" fjerner baseline-skævheden på tværs af både live browser-engine og html2canvas-canvas.
         markup += `
                 <rect x="${b1X}" y="${boxY}" width="25" height="15" rx="4" style="fill: ${RADAR_COLOR_1}0a; stroke: ${RADAR_COLOR_1}; stroke-width: 1;" />
-                <text x="${b1X + 12.5}" y="${boxY + 7.5}" class="svg-score-text" style="fill: ${RADAR_COLOR_1}; font-weight: 900;">${score1}</text>
+                <text x="${b1Center}" y="${textY}" dy="3.5" text-anchor="middle" class="svg-score-text" style="fill: ${RADAR_COLOR_1}; font-weight: 900;">${score1}</text>
                 
                 <rect x="${b2X}" y="${boxY}" width="25" height="15" rx="4" style="fill: ${RADAR_COLOR_2}0a; stroke: ${RADAR_COLOR_2}; stroke-width: 1;" />
-                <text x="${b2X + 12.5}" y="${boxY + 7.5}" class="svg-score-text" style="fill: ${RADAR_COLOR_2}; font-weight: 900;">${d2 ? score2 : '-'}</text>
+                <text x="${b2Center}" y="${textY}" dy="3.5" text-anchor="middle" class="svg-score-text" style="fill: ${RADAR_COLOR_2}; font-weight: 900;">${d2 ? score2 : '-'}</text>
             </g>
         `;
     });
 
     svg.innerHTML = markup + `<circle cx="${CX}" cy="${CY}" r="4" fill="#ffffff" />`;
 }
+
 // ==========================================================================
 // PER 90 - RADAR.JS - DEL 4 AF 6 (FARVESTYRING & FILTER LOGIK)
 // ==========================================================================
@@ -414,7 +422,7 @@ function resetRadarPlayerSearch(type) {
     }
 }
 // ==========================================================================
-// PER 90 - RADAR.JS - DEL 6 AF 6 (UI DROPDOWNS & DATAMOTOR VIA TABEL)
+// PER 90 - RADAR.JS - DEL 6 - APART A (HOVEDFUNKTIONER & HTML-SKABELON)
 // ==========================================================================
 
 function toggleRadarDropdown(type) {
@@ -519,13 +527,164 @@ async function loadRadarChartDataWithFilters(p1, p2, metricsList) {
         buildRadarVektorSpiderweb(d1, d2);
     } catch (e) { console.error("Radar motorfejl:", e); }
 }
+// ==========================================================================
+// PER 90 - RADAR.JS - DEL 6 - APART B (ISOLERET DOWNLOAD-MOTOR)
+// ==========================================================================
+
+// ==========================================================================
+// PER 90 - RADAR.JS - DEL 6 - PART B - SPLIT 1 (KLONING & OVERRIDE STYLE)
+// ==========================================================================
+
+// ==========================================================================
+// PER 90 - RADAR.JS - DEL 6 - PART B - SPLIT 1 (KLONING & OVERRIDE STYLE)
+// ==========================================================================
+
+// ==========================================================================
+// PER 90 - RADAR.JS - DEL 6 - PART B - SPLIT 1 (KLONING & OVERRIDE STYLE)
+// ==========================================================================
 
 function downloadRadarPNG() {
-    const el = $r("radar-capture-target-area");
-    html2canvas(el, { scale: 4, backgroundColor: "#0B1220", useCORS: true, logging: false }).then(canvas => {
-        const link = document.createElement("a"); link.download = `radar_comparison.png`;
-        link.href = canvas.toDataURL("image/png"); link.click();
+    const originalEl = $r("radar-capture-target-area"); if (!originalEl) return;
+    
+    const hiddenContainer = document.createElement("div");
+    Object.assign(hiddenContainer.style, {
+        position: "absolute", left: "-9999px", top: "-9999px",
+        width: "710px", minWidth: "710px", maxWidth: "710px", overflow: "visible"
     });
+    
+    const clone = originalEl.cloneNode(true);
+    clone.id = "radar-download-clone";
+    
+    Object.assign(clone.style, {
+        width: "710px", minWidth: "710px", maxWidth: "710px",
+        padding: "30px", background: "#0B1220", boxSizing: "border-box"
+    });
+    
+    hiddenContainer.appendChild(clone);
+    
+    const overrideStyle = document.createElement("style");
+    overrideStyle.innerHTML = `
+        /* Overstyrer AL global responsive CSS udelukkende dybt inde i klonen under download */
+        #radar-download-clone table.radar-header-table { 
+            margin-bottom: 35px !important; 
+            background: rgba(15, 23, 42, 0.6) !important;
+            border-collapse: collapse !important;
+            display: table !important;
+            width: 100% !important;
+            border: 1px solid rgba(255,255,255,0.06) !important;
+            border-radius: 14px !important;
+            overflow: hidden !important;
+        }
+        
+        /* Fastlåser højden og polstringen på cellerne totalt uanset enhedens skærmstørrelse */
+        #radar-download-clone table.radar-header-table td { 
+            padding: 18px 25px !important; 
+            background: none !important;
+            height: 80px !important;
+            box-sizing: border-box !important;
+        }
+        
+        #radar-download-clone table.radar-header-table td.td-left { 
+            text-align: left !important; 
+            background: linear-gradient(135deg, rgba(0,240,255,0.08) 0%, rgba(0,0,0,0) 80%) !important;
+            border-right: 1px solid rgba(255,255,255,0.08) !important;
+        }
+        
+        #radar-download-clone table.radar-header-table td.td-right { 
+            text-align: right !important; 
+            background: linear-gradient(315deg, rgba(217,70,239,0.08) 0%, rgba(0,0,0,0) 80%) !important;
+        }
+        
+        /* 🎯 FASTLÅST LINE-HEIGHT: Sikrer at afstanden fra tekstens bund altid er præcis ens */
+        #radar-download-clone .p-nm { 
+            font-size: 15px !important; 
+            letter-spacing: 2px !important; 
+            line-height: 18px !important; 
+            margin: 0 !important;
+            padding: 0 !important;
+            display: block !important; 
+            width: 100% !important; 
+            opacity: 0.95 !important; 
+        }
+        #radar-download-clone table.radar-header-table td.td-left .p-nm { text-align: left !important; }
+        #radar-download-clone table.radar-header-table td.td-right .p-nm { text-align: right !important; }
+        
+        /* 🎯 FASTLÅST MARGIN: Tvinger afstanden mellem navn og tags til at være nøjagtig 6px på alle enheder */
+        #radar-download-clone .p-row { 
+            margin-top: 6px !important; 
+            margin-bottom: 0 !important;
+            padding: 0 !important;
+            gap: 6px !important; 
+            display: flex !important; 
+            flex-wrap: nowrap !important; 
+            width: 100% !important; 
+            line-height: 1 !important;
+        }
+        #radar-download-clone table.radar-header-table td.td-left .p-row { justify-content: flex-start !important; }
+        #radar-download-clone table.radar-header-table td.td-right .p-row { justify-content: flex-end !important; }
+        
+        #radar-download-clone .info-tag { 
+            font-size: 11px !important; 
+            padding: 2px 6px !important; 
+            letter-spacing: 0.5px !important; 
+            display: inline-block !important; 
+            background: rgba(255,255,255,0.05) !important; 
+            border-radius: 4px !important; 
+            line-height: 14px !important;
+            height: 18px !important;
+            box-sizing: border-box !important;
+        }
+        #radar-download-clone table.radar-header-table td.td-left .info-tag { border-left: 2px solid #00f0ff !important; }
+        #radar-download-clone table.radar-header-table td.td-right .info-tag { border-right: 2px solid #d946ef !important; }
+        
+        #radar-download-clone .p-row .info-tag:nth-child(3) { display: inline-block !important; }
+        
+        #radar-download-clone .ax-lbl { font-size: 10px !important; font-weight: 800 !important; }
+        #radar-download-clone .svg-score-text { font-size: 10px !important; font-weight: 700 !important; }
+        
+        #radar-download-clone .radar-footer-table { 
+            font-size: 12px !important; 
+            margin-top: 25px !important; 
+            color: #ffffff !important;
+            opacity: 1 !important; /* Nulstiller den kollektive gennemsigtighed */
+        }
+        #radar-download-clone .radar-footer-table tr:nth-child(1) td {
+            opacity: 0.95 !important; /* Den øverste linje står helt skarpt */
+        }
+        #radar-download-clone .radar-footer-table tr:nth-child(2) td {
+            opacity: 0.6 !important; /* Den nederste linje dæmpes præcis som på live-appen */
+        }
+        
+        /* Skrubber tal en ekstra tak op på det downloadede billede */
+        #radar-download-clone .svg-score-text {
+            dy: 2.5px !important;
+        }
+    `;
+    
+    document.body.appendChild(hiddenContainer);
+    document.body.appendChild(overrideStyle);
+
+
+
+
+    setTimeout(() => {
+        html2canvas(clone, { 
+            scale: 4, 
+            pixelRatio: 1, 
+            backgroundColor: "#0B1220", 
+            useCORS: true, 
+            logging: false 
+        }).then(canvas => {
+            const link = document.createElement("a"); 
+            link.download = `radar_comparison.png`;
+            link.href = canvas.toDataURL("image/png"); 
+            link.click();
+            hiddenContainer.remove(); overrideStyle.remove();
+        }).catch(e => { 
+            console.error("Fejl under klonet radar-download:", e); 
+            hiddenContainer.remove(); overrideStyle.remove(); 
+        });
+    }, 60);
 }
 
 document.addEventListener("click", e => {
@@ -533,3 +692,4 @@ document.addEventListener("click", e => {
     if (!e.target.closest('#radar-player2-wrapper')) { const p = $r("radar-player2-options"); if(p) p.style.display = "none"; }
     if (!e.target.closest('.multiselect')) { const cb = $r("radar-checkboxes-container"); if(cb) cb.style.display = "none"; }
 });
+
