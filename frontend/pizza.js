@@ -482,7 +482,7 @@ async function loadPizzaChartDataWithFilters(playerName, comparePos, metricsList
                                 <td>
                                     <div class="meta-item-box">
                                         <svg viewBox="0 0 24 24" style="stroke: ${sColor}"><path d="M20.38 3.46L16 2a4 4 0 0 0-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l1.08 5.4A2 2 0 0 0 5.3 12.5H7v7a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-7h1.7a2 2 0 0 0 1.94-1.41l1.08-5.4a2 2 0 0 0-1.34-2.23z"/></svg>
-                                        <span class="data-val">${CURRENT_SELECTED_POS}</span>
+                                        <span class="data-val">${apiResponse.player_pos || 'N/A'}</span>
                                     </div>
                                 </td>
                                 <td class="pipe-divider-cell">|</td>

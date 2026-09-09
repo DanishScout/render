@@ -182,7 +182,7 @@ function buildAndAppendStatsDrawerHTML() {
         <div class="drawer-header"><span class="drawer-title">Profile Settings</span><button class="close-drawer-btn" onclick="closeGlobalDrawer()">✕</button></div>
         <div class="filter-panel" style="display: flex; flex-direction: column; gap: 20px; width: 100%;">
             <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; position: relative; width:100%;">
-                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Select profile</label>
+                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Select player</label>
                 <div class="custom-select-wrapper" id="stats-player-wrapper" style="position: relative; width: 100%;">
                     <div class="custom-select-trigger" onclick="toggleStatsDropdown()" style="background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
                         <span id="stats-player-selected-text">Indlæser...</span><i class="fa-solid fa-chevron-down" style="font-size: 12px; color: var(--text-muted);"></i>

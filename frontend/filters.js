@@ -295,7 +295,7 @@ function runAdvancedFilteringEngine() {
 
     // Match count badge-linjen er fjernet helt herfra!
     if (filtered.length === 0) {
-        canvas.innerHTML = `<div style="text-align:center; padding:40px; color:#64748b; font-size:12px; font-weight:700;">INGEN MATCHES DETEKTERET</div>`;
+        canvas.innerHTML = `<div style="text-align:center; padding:40px; color:#64748b; font-size:12px; font-weight:700;">NO MATCHES</div>`;
         return;
     }
 

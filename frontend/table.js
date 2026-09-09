@@ -299,7 +299,7 @@ async function buildTableLeaderboardEngine() {
     });
 
     if (filtered.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding:50px; color:#64748b; font-weight:700;">INGEN SPILLERE MATCHER DINE SØGEKRITERIER</div>`;
+        container.innerHTML = `<div style="text-align:center; padding:50px; color:#64748b; font-weight:700;">NO MATCHES</div>`;
         return;
     }
 

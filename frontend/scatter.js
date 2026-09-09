@@ -7,7 +7,6 @@ let SCATTER_X_AXIS = "npxG";
 let SCATTER_Y_AXIS = "Assists";
 let SCATTER_STAT_TYPE = "Per 90";
 
-// 🎯 STANDARDVALG DEFINERET: Loader nu direkte Bundesliga og CM/AM for lynhurtig performance
 let SCATTER_FILTERS = {
     leagues: ["Bundesliga", "Eliteserien"],
     nationalities: [],
@@ -16,9 +15,10 @@ let SCATTER_FILTERS = {
     maxAge: 100,
     minMins: 0,
     maxMins: 99999,
-    highlightTeam: "",
-    highlightPlayer: ""
+    highlightTeam: [],    // 🎯 Ændret til array for multiselect
+    highlightPlayer: []   // 🎯 Ændret til array for multiselect
 };
+
 
 let SCATTER_QUICK_HIGHLIGHTS = {
     top10x: true,
@@ -26,6 +26,22 @@ let SCATTER_QUICK_HIGHLIGHTS = {
     u21: false,
     u19: false
 };
+
+// Hjælpefunktion til at hente de aktive spillere baseret på overordnede filtre
+function getFilteredPlayersList(includeAgeAndMins = true) {
+    if (!SCATTER_GLOBAL_DATA || !SCATTER_GLOBAL_DATA.players) return [];
+    return SCATTER_GLOBAL_DATA.players.filter(p => {
+        if (SCATTER_FILTERS.leagues.length > 0 && !SCATTER_FILTERS.leagues.includes(p.league)) return false;
+        if (SCATTER_FILTERS.nationalities.length > 0 && !SCATTER_FILTERS.nationalities.includes(p.nationality)) return false;
+        if (SCATTER_FILTERS.positions.length > 0 && !SCATTER_FILTERS.positions.includes(p.position)) return false;
+        if (includeAgeAndMins) {
+            if (p.age < SCATTER_FILTERS.minAge || p.age > SCATTER_FILTERS.maxAge) return false;
+            if (p.mins_played < SCATTER_FILTERS.minMins || p.mins_played > SCATTER_FILTERS.maxMins) return false;
+        }
+        return true;
+    });
+}
+
 
 const $sc = id => document.getElementById(id);
 // ==========================================================================
@@ -147,18 +163,6 @@ function buildScatterQuickToolbarUI() {
         </label>
     `;
 }
-// ==========================================================================
-// PER 90 - SCATTER.JS - DEL 4 AF 7 (SCATTER VEKTOR MOTOR & AKSER)
-// ==========================================================================
-
-// ==========================================================================
-// PER 90 - SCATTER.JS - DEL 4 AF 7 (SCATTER VEKTOR MOTOR & AKSER)
-// ==========================================================================
-
-// ==========================================================================
-// PER 90 - SCATTER.JS - DEL 4 AF 7 (RETTET VEKTOR MOTOR & AKSER)
-// ==========================================================================
-
 function buildScatterPlotVektorEngine() {
     const svg = $sc("scatter-svg-canvas"); if (!svg || !SCATTER_GLOBAL_DATA) return;
     svg.innerHTML = "";
@@ -180,24 +184,20 @@ function buildScatterPlotVektorEngine() {
     const graphWidth = width - padding.left - padding.right;
     const graphHeight = height - padding.top - padding.bottom;
 
-    const filteredPlayers = SCATTER_GLOBAL_DATA.players.filter(p => {
-        if (SCATTER_FILTERS.leagues.length > 0 && !SCATTER_FILTERS.leagues.includes(p.league)) return false;
-        if (SCATTER_FILTERS.nationalities.length > 0 && !SCATTER_FILTERS.nationalities.includes(p.nationality)) return false;
-        if (SCATTER_FILTERS.positions.length > 0 && !SCATTER_FILTERS.positions.includes(p.position)) return false;
-        if (p.age < SCATTER_FILTERS.minAge || p.age > SCATTER_FILTERS.maxAge) return false;
-        if (p.mins_played < SCATTER_FILTERS.minMins || p.mins_played > SCATTER_FILTERS.maxMins) return false;
-        return true;
-    });
+    // Hent KUN de spillere der rent faktisk klarer de aktive filtre lige nu
+    const filteredPlayers = getFilteredPlayersList(true);
 
     if (filteredPlayers.length === 0) {
-        svg.innerHTML = markup + `<text x="${width/2}" y="${height/2}" fill="#64748b" text-anchor="middle" font-weight="700" style="font-family: 'Gabarito', sans-serif;">INGEN MATCHER DINE FILTRE</text>`;
+        svg.innerHTML = markup + `<text x="${width/2}" y="${height/2}" fill="#64748b" text-anchor="middle" font-weight="700" style="font-family: 'Gabarito', sans-serif;">NO MATCHES</text>`;
         return;
     }
 
     let xVals = filteredPlayers.map(p => p.stats[SCATTER_X_AXIS] || 0);
     let yVals = filteredPlayers.map(p => p.stats[SCATTER_Y_AXIS] || 0);
-    let minMinsGlobal = Math.min(...filteredPlayers.map(p => p.mins_played));
-    let maxMinsGlobal = Math.max(...filteredPlayers.map(p => p.mins_played));
+    
+    // Globale min/max minutter bevares til farveskalaen
+    let minMinsGlobal = Math.min(...SCATTER_GLOBAL_DATA.players.map(p => p.mins_played || 0));
+    let maxMinsGlobal = Math.max(...SCATTER_GLOBAL_DATA.players.map(p => p.mins_played || 1));
 
     const colorbarTarget = $sc("scatter-live-colorbar-target");
     if (colorbarTarget) {
@@ -216,8 +216,14 @@ function buildScatterPlotVektorEngine() {
         `;
     }
 
+    // Forbedret akseberegner med en indbygget 5% buffer mod kanterne
     const calculateNiceAxisBounds = (minVal, maxVal) => {
         if (maxVal === minVal) maxVal += 1;
+        
+        // Tilføj en lille buffer i toppen så prikkerne ikke skæres af eller rører kanten
+        const buffer = (maxVal - minVal) * 0.05;
+        maxVal += buffer;
+
         const rawRange = maxVal - minVal;
         const rawStep = rawRange / 4;
         const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
@@ -233,12 +239,13 @@ function buildScatterPlotVektorEngine() {
         if (minVal >= 0 && cleanMin < 0) cleanMin = 0;
         let cleanMax = cleanMin + (cleanStep * 4);
         
-        if (cleanMax < maxVal) cleanMax += cleanStep;
+        while (cleanMax < maxVal) cleanMax += cleanStep;
         if (cleanMin > minVal) cleanMin -= cleanStep;
 
         return { min: cleanMin, max: cleanMax };
     };
 
+    // Beregn akse-grænser udelukkende ud fra de aktive data
     const boundsX = calculateNiceAxisBounds(Math.min(...xVals), Math.max(...xVals));
     const boundsY = calculateNiceAxisBounds(Math.min(...yVals), Math.max(...yVals));
 
@@ -263,7 +270,6 @@ function buildScatterPlotVektorEngine() {
         }
     };
 
-    // 🎯 Tvinger definitionen af minX/getXPixel til at ligge FØR denne løkke, så fejlen forsvinder
     for (let i = 0; i <= 4; i++) {
         const xVal = minX + (i / 4) * (maxX - minX);
         const yVal = minY + (i / 4) * (maxY - minY);
@@ -292,9 +298,6 @@ function buildScatterPlotVektorEngine() {
     continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPixel, getYPixel, getMinutesColor);
 }
 
-// ==========================================================================
-// PER 90 - SCATTER.JS - DEL 5 AF 7 (NODE PLOTTER & YELLOW-GLOW TOOLTIP)
-// ==========================================================================
 
 function continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPixel, getYPixel, getMinutesColor) {
     const sortedX = [...filteredPlayers].sort((a,b) => (b.stats[SCATTER_X_AXIS]||0) - (a.stats[SCATTER_X_AXIS]||0)).slice(0, 10);
@@ -303,20 +306,28 @@ function continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPix
     filteredPlayers.forEach(p => {
         const xV = p.stats[SCATTER_X_AXIS] || 0, yV = p.stats[SCATTER_Y_AXIS] || 0;
         const cx = getXPixel(xV), cy = getYPixel(yV);
-        const isTarget = (typeof CURRENT_SELECTED_PLAYER !== 'undefined' && CURRENT_SELECTED_PLAYER && p.player_name.toLowerCase() === CURRENT_SELECTED_PLAYER.toLowerCase());
         
-        let isHighlighted = false;
-        if (SCATTER_QUICK_HIGHLIGHTS.top10x && sortedX.includes(p)) isHighlighted = true;
-        if (SCATTER_QUICK_HIGHLIGHTS.top10y && sortedY.includes(p)) isHighlighted = true;
-        if (SCATTER_QUICK_HIGHLIGHTS.u21 && p.age > 0 && p.age <= 21) isHighlighted = true;
-        if (SCATTER_QUICK_HIGHLIGHTS.u19 && p.age > 0 && p.age <= 19) isHighlighted = true;
-        if (SCATTER_FILTERS.highlightTeam && p.team.toLowerCase() === SCATTER_FILTERS.highlightTeam) isHighlighted = true;
-        if (SCATTER_FILTERS.highlightPlayer && p.player_name.toLowerCase() === SCATTER_FILTERS.highlightPlayer) isHighlighted = true;
+        const currentNameLower = p.player_name.trim().toLowerCase();
+        const currentTeamLower = p.team.trim().toLowerCase();
 
-        const anyHighlightActive = SCATTER_QUICK_HIGHLIGHTS.top10x || SCATTER_QUICK_HIGHLIGHTS.top10y || SCATTER_QUICK_HIGHLIGHTS.u21 || SCATTER_QUICK_HIGHLIGHTS.u19 || SCATTER_FILTERS.highlightTeam || SCATTER_FILTERS.highlightPlayer;
-        const opacity = isTarget ? 1 : (isHighlighted ? 1 : (anyHighlightActive ? 0.12 : 0.45));
-        const nodeColor = isTarget ? "#d946ef" : getMinutesColor(p.mins_played);
-        const radius = isTarget ? 6.5 : (isHighlighted ? 5.5 : 4.5);
+        // 🎯 FIX: Tjekker nu om værdierne findes i multiselect-arrays (.includes)
+        const isTargetPlayer = (SCATTER_FILTERS.highlightPlayer.length > 0 && SCATTER_FILTERS.highlightPlayer.includes(currentNameLower));
+        const isTargetTeam = (SCATTER_FILTERS.highlightTeam.length > 0 && SCATTER_FILTERS.highlightTeam.includes(currentTeamLower));
+        const isTargetGlobal = (typeof CURRENT_SELECTED_PLAYER !== 'undefined' && CURRENT_SELECTED_PLAYER && currentNameLower === CURRENT_SELECTED_PLAYER.trim().toLowerCase());
+
+        let isQuickHighlighted = false;
+        if (SCATTER_QUICK_HIGHLIGHTS.top10x && sortedX.includes(p)) isQuickHighlighted = true;
+        if (SCATTER_QUICK_HIGHLIGHTS.top10y && sortedY.includes(p)) isQuickHighlighted = true;
+        if (SCATTER_QUICK_HIGHLIGHTS.u21 && p.age > 0 && p.age <= 21) isQuickHighlighted = true;
+        if (SCATTER_QUICK_HIGHLIGHTS.u19 && p.age > 0 && p.age <= 19) isQuickHighlighted = true;
+
+        const anyHighlightActive = SCATTER_QUICK_HIGHLIGHTS.top10x || SCATTER_QUICK_HIGHLIGHTS.top10y || SCATTER_QUICK_HIGHLIGHTS.u21 || SCATTER_QUICK_HIGHLIGHTS.u19 || SCATTER_FILTERS.highlightTeam.length > 0 || SCATTER_FILTERS.highlightPlayer.length > 0;
+
+        const isFullyHighlighted = isTargetPlayer || isTargetTeam || isTargetGlobal;
+
+        const opacity = isFullyHighlighted ? 1 : (isQuickHighlighted ? 1 : (anyHighlightActive ? 0.10 : 0.50));
+        const nodeColor = getMinutesColor(p.mins_played); 
+        const radius = isFullyHighlighted ? 7.0 : (isQuickHighlighted ? 5.5 : 4.5);
 
         const cleanName = p.player_name.replace(/'/g, "\\\\'");
         const cleanTeam = p.team.replace(/'/g, "\\\\'");
@@ -328,12 +339,13 @@ function continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPix
             onmouseover="showScatterLiveTooltip(event, '${cleanName}', '${cleanTeam}', '${cleanLeague}', '${cleanPos}', '${cleanNat}', ${p.age}, ${p.mins_played}, ${xV}, ${yV})" 
             onmouseout="hideScatterLiveTooltip()" />`;
 
-        if (isHighlighted || isTarget) {
-            markup += `<text x="${cx}" y="${cy - 9}" class="scatter-player-text-label" text-anchor="middle" style="opacity: ${opacity};">${p.player_name}</text>`;
+        if (isQuickHighlighted || isFullyHighlighted) {
+            markup += `<text x="${cx}" y="${cy - 10}" class="scatter-player-text-label" text-anchor="middle" style="opacity: ${opacity};">${p.player_name}</text>`;
         }
     });
     svg.innerHTML = markup;
 }
+
 
 function showScatterLiveTooltip(e, name, team, league, pos, nat, age, mins, xVal, yVal) {
     const tooltip = $sc("scatter-live-tooltip"); if (!tooltip) return;
@@ -365,6 +377,10 @@ function hideScatterLiveTooltip() {
 // PER 90 - SCATTER.JS - DEL 6 AF 7 (SETTINGS DRAWER PANEL GENERATOR)
 // ==========================================================================
 
+// ==========================================================================
+// PER 90 - SCATTER.JS - DEL 6 AF 7 (SETTINGS DRAWER PANEL GENERATOR)
+// ==========================================================================
+
 function buildAndAppendScatterDrawerHTML() {
     const gammelDrawer = document.querySelector('.scatter-filter-drawer');
     if (gammelDrawer) gammelDrawer.remove();
@@ -372,11 +388,37 @@ function buildAndAppendScatterDrawerHTML() {
     const list = SCATTER_GLOBAL_DATA.players;
     const availableAxes = SCATTER_GLOBAL_DATA.available_axes;
 
+    // 1. 🎯 Beregn de ÆGTE globale min/max værdier på tværs af ALLE data til input-felterne én gang
+    const allAges = list.map(p => p.age).filter(v => typeof v === 'number');
+    const allMins = list.map(p => p.mins_played).filter(v => typeof v === 'number');
+
+    const absoluteMinAge = allAges.length ? Math.min(...allAges) : 0;
+    const absoluteMaxAge = allAges.length ? Math.max(...allAges) : 100;
+    const absoluteMinMins = allMins.length ? Math.min(...allMins) : 0;
+    const absoluteMaxMins = allMins.length ? Math.max(...allMins) : 99999;
+
+    // Hvis koden kører for første gang, sættes de ægte værdier som default i stedet for 0 og 99999
+    if (SCATTER_FILTERS.minAge === 0 && SCATTER_FILTERS.maxAge === 100 && SCATTER_FILTERS.minMins === 0 && SCATTER_FILTERS.maxMins === 99999) {
+        SCATTER_FILTERS.minAge = absoluteMinAge;
+        SCATTER_FILTERS.maxAge = absoluteMaxAge;
+        SCATTER_FILTERS.minMins = absoluteMinMins;
+        SCATTER_FILTERS.maxMins = absoluteMaxMins;
+    }
+
+    // 2. 🎯 Filtrering af dropdown-lister baseret på dine specifikke regler:
+    
+    // Hold-liste: Kun 'leagues' filteret applier her
+    const playersForTeams = list.filter(p => SCATTER_FILTERS.leagues.length === 0 || SCATTER_FILTERS.leagues.includes(p.league));
+    const dynamicTeams = [...new Set(playersForTeams.map(p => p.team).filter(Boolean).sort())];
+
+    // Spiller-liste: ALLE aktive filtre (liga, nationalitet, position, alder, minutter) applier her
+    const playersForPlayers = getFilteredPlayersList(true);
+    const dynamicPlayers = [...new Set(playersForPlayers.map(p => p.player_name).filter(Boolean).sort())];
+
+    // Generer HTML-optioner og afkrydsningsfelter
     const leagues = [...new Set(list.map(p => p.league).filter(Boolean).sort())];
     const nationalities = [...new Set(list.map(p => p.nationality).filter(Boolean).sort())];
     const positions = [...new Set(list.map(p => p.position).filter(Boolean).sort())];
-    const teams = ["Highlight Hold...", ...new Set(list.map(p => p.team).filter(Boolean).sort())];
-    const players = ["Highlight Spillere...", ...new Set(list.map(p => p.player_name).filter(Boolean).sort())];
 
     const xOptions = availableAxes.map(ax => `<option value="${ax}" ${ax === SCATTER_X_AXIS ? 'selected' : ''}>${ax}</option>`).join('');
     const yOptions = availableAxes.map(ax => `<option value="${ax}" ${ax === SCATTER_Y_AXIS ? 'selected' : ''}>${ax}</option>`).join('');
@@ -396,8 +438,19 @@ function buildAndAppendScatterDrawerHTML() {
         return `<label class="sc-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${pos}" ${checked ? "checked" : ""} onchange="handleScatterCheckboxToggle(this, 'positions')" style="accent-color: var(--accent-purple);"> ${pos}</label>`;
     }).join('');
 
-    const teamOptions = teams.map(t => `<option value="${t === "Highlight Hold..." ? "" : t}" ${t.toLowerCase() === SCATTER_FILTERS.highlightTeam ? 'selected' : ''}>${t}</option>`).join('');
-    const playerOptions = players.map(p => `<option value="${p === "Highlight Spillere..." ? "" : p}" ${p.toLowerCase() === SCATTER_FILTERS.highlightPlayer ? 'selected' : ''}>${p}</option>`).join('');
+    // 🎯 NY GENERERING: Byg tjekbokse til det nye multiselect af hold
+    const teamCheckboxes = dynamicTeams.map(t => {
+        const tLower = t.toLowerCase();
+        const checked = SCATTER_FILTERS.highlightTeam.includes(tLower);
+        return `<label class="sc-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${tLower}" ${checked ? "checked" : ""} onchange="handleScatterHighlightToggle(this, 'highlightTeam')" style="accent-color: var(--accent-purple);"> ${t}</label>`;
+    }).join('');
+
+    // 🎯 NY GENERERING: Byg tjekbokse til det nye multiselect af spillere
+    const playerCheckboxes = dynamicPlayers.map(p => {
+        const pLower = p.toLowerCase();
+        const checked = SCATTER_FILTERS.highlightPlayer.includes(pLower);
+        return `<label class="sc-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${pLower}" ${checked ? "checked" : ""} onchange="handleScatterHighlightToggle(this, 'highlightPlayer')" style="accent-color: var(--accent-purple);"> ${p}</label>`;
+    }).join('');
 
     const drawerDiv = document.createElement('div');
     drawerDiv.className = 'filter-drawer stats-filter-drawer scatter-filter-drawer';
@@ -410,15 +463,18 @@ function buildAndAppendScatterDrawerHTML() {
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Leagues</label><div class="sc-drawer-checkbox-box">${lCheckboxes}</div></div>
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Nationalities</label><div class="sc-drawer-checkbox-box">${nCheckboxes}</div></div>
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Positions</label><div class="sc-drawer-checkbox-box">${pCheckboxes}</div></div>
-            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Age (Min / Max)</label><div class="scatter-drawer-input-row"><input type="number" id="sc-filt-min-age" class="scatter-drawer-input" value="${SCATTER_FILTERS.minAge}"><input type="number" id="sc-filt-max-age" class="scatter-drawer-input" value="${SCATTER_FILTERS.maxAge}"></div></div>
-            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Minutes (Min / Max)</label><div class="scatter-drawer-input-row"><input type="number" id="sc-filt-min-mins" class="scatter-drawer-input" value="${SCATTER_FILTERS.minMins}"><input type="number" id="sc-filt-max-mins" class="scatter-drawer-input" value="${SCATTER_FILTERS.maxMins}"></div></div>
-            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Highlight Team</label><select id="sc-toolbar-team" class="scatter-drawer-select" onchange="handleToolbarFilterChange('team')">${teamOptions}</select></div>
-            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Highlight Player</label><select id="sc-toolbar-player" class="scatter-drawer-select" onchange="handleToolbarFilterChange('player')">${playerOptions}</select></div>
+            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Age (Min / Max)</label><div class="scatter-drawer-input-row"><input type="number" id="sc-filt-min-age" class="scatter-drawer-input" value="${SCATTER_FILTERS.minAge}" oninput="handleScatterFilterInputChange()"><input type="number" id="sc-filt-max-age" class="scatter-drawer-input" value="${SCATTER_FILTERS.maxAge}" oninput="handleScatterFilterInputChange()"></div></div>
+            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Minutes (Min / Max)</label><div class="scatter-drawer-input-row"><input type="number" id="sc-filt-min-mins" class="scatter-drawer-input" value="${SCATTER_FILTERS.minMins}" oninput="handleScatterFilterInputChange()"><input type="number" id="sc-filt-max-mins" class="scatter-drawer-input" value="${SCATTER_FILTERS.maxMins}" oninput="handleScatterFilterInputChange()"></div></div>
+            
+            <!-- 🎯 HER SÆTTES DE NYE MULTISELECT-BOKSE IND I STEDET FOR DE GAMLE DROP-DOWNS -->
+            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Highlight Hold</label><div class="sc-drawer-checkbox-box" id="sc-container-team">${teamCheckboxes}</div></div>
+            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Highlight Spillere</label><div class="sc-drawer-checkbox-box" id="sc-container-player">${playerCheckboxes}</div></div>
         </div>
     `;
     document.body.appendChild(drawerDiv);
     activateScatterGridVisibility();
 }
+
 
 function activateScatterGridVisibility() {
     const gridLines = document.getElementById('sc-grid-density-styles') || document.createElement('style');
@@ -456,6 +512,14 @@ function handleScatterFilterInputChange() {
     SCATTER_FILTERS.maxAge = parseInt($sc("sc-filt-max-age").value) || 100;
     SCATTER_FILTERS.minMins = parseInt($sc("sc-filt-min-mins").value) || 0;
     SCATTER_FILTERS.maxMins = parseInt($sc("sc-filt-max-mins").value) || 99999;
+    
+    // Nulstil valgte highlight-spillere, hvis de ikke længere er en del af det filtrerede datasæt
+    const filteredPlayers = getFilteredPlayersList(true);
+    SCATTER_FILTERS.highlightPlayer = SCATTER_FILTERS.highlightPlayer.filter(pLower => 
+        filteredPlayers.some(p => p.player_name.toLowerCase() === pLower)
+    );
+
+    updateDynamicHighlightDropdownsOnly();
     buildScatterPlotVektorEngine();
 }
 
@@ -467,14 +531,81 @@ function handleScatterCheckboxToggle(cb, key) {
         SCATTER_FILTERS[key] = SCATTER_FILTERS[key].filter(v => v !== val);
     }
     cb.parentElement.style.opacity = cb.checked ? '1' : '0.4';
+    
+    updateDynamicHighlightDropdownsOnly();
+    buildScatterPlotVektorEngine();
+}
+
+// 🎯 NY FUNKTION: Håndterer tilføjelse/fjernelse af multiselect for hold og spillere
+function handleScatterHighlightToggle(cb, key) {
+    const val = cb.value;
+    if (cb.checked) {
+        if (!SCATTER_FILTERS[key].includes(val)) SCATTER_FILTERS[key].push(val);
+    } else {
+        SCATTER_FILTERS[key] = SCATTER_FILTERS[key].filter(v => v !== val);
+    }
+    cb.parentElement.style.opacity = cb.checked ? '1' : '0.4';
+    buildScatterPlotVektorEngine();
+}
+
+// 🎯 OPPDATERET HJÆLPEFUNKTION: Opdaterer nu de nye tjekboks-containere i stedet for select-menuer
+function updateDynamicHighlightDropdownsOnly() {
+    if (!SCATTER_GLOBAL_DATA || !SCATTER_GLOBAL_DATA.players) return;
+    
+    const list = SCATTER_GLOBAL_DATA.players;
+    const teamBox = $sc("sc-container-team");
+    const playerBox = $sc("sc-container-player");
+    
+    if (teamBox) {
+        const playersForTeams = list.filter(p => SCATTER_FILTERS.leagues.length === 0 || SCATTER_FILTERS.leagues.includes(p.league));
+        const dynamicTeams = [...new Set(playersForTeams.map(p => p.team).filter(Boolean).sort())];
+        teamBox.innerHTML = dynamicTeams.map(t => {
+            const tLower = t.toLowerCase();
+            const checked = SCATTER_FILTERS.highlightTeam.includes(tLower);
+            return `<label class="sc-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${tLower}" ${checked ? "checked" : ""} onchange="handleScatterHighlightToggle(this, 'highlightTeam')" style="accent-color: var(--accent-purple);"> ${t}</label>`;
+        }).join('');
+    }
+    
+    if (playerBox) {
+        const playersForPlayers = getFilteredPlayersList(true);
+        const dynamicPlayers = [...new Set(playersForPlayers.map(p => p.player_name).filter(Boolean).sort())];
+        playerBox.innerHTML = dynamicPlayers.map(p => {
+            const pLower = p.toLowerCase();
+            const checked = SCATTER_FILTERS.highlightPlayer.includes(pLower);
+            return `<label class="sc-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${pLower}" ${checked ? "checked" : ""} onchange="handleScatterHighlightToggle(this, 'highlightPlayer')" style="accent-color: var(--accent-purple);"> ${p}</label>`;
+        }).join('');
+    }
+}
+
+
+
+
+function handleScatterCheckboxToggle(cb, key) {
+    const val = cb.value;
+    if (cb.checked) {
+        if (!SCATTER_FILTERS[key].includes(val)) SCATTER_FILTERS[key].push(val);
+    } else {
+        SCATTER_FILTERS[key] = SCATTER_FILTERS[key].filter(v => v !== val);
+    }
+    cb.parentElement.style.opacity = cb.checked ? '1' : '0.4';
+    
+    // 🎯 Genbyg draweren så listerne tilpasses afkrydsningerne med det samme
+    buildAndAppendScatterDrawerHTML();
     buildScatterPlotVektorEngine();
 }
 
 function handleToolbarFilterChange(type) {
-    if (type === 'team') SCATTER_FILTERS.highlightTeam = $sc("sc-toolbar-team").value.trim().toLowerCase();
-    else if (type === 'player') SCATTER_FILTERS.highlightPlayer = $sc("sc-toolbar-player").value.trim().toLowerCase();
+    if (type === 'team') {
+        const select = $sc("sc-toolbar-team");
+        SCATTER_FILTERS.highlightTeam = select ? select.value.trim().toLowerCase() : "";
+    } else if (type === 'player') {
+        const select = $sc("sc-toolbar-player");
+        SCATTER_FILTERS.highlightPlayer = select ? select.value.trim().toLowerCase() : "";
+    }
     buildScatterPlotVektorEngine();
 }
+
+
 
 function toggleScatterQuickHighlight(key) {
     SCATTER_QUICK_HIGHLIGHTS[key] = !SCATTER_QUICK_HIGHLIGHTS[key];

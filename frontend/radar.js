@@ -185,7 +185,7 @@ function buildAndAppendRadarDrawer() {
         <div class="filter-panel" style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
             
             <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; position: relative;">
-                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Player 1</label>
+                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Select player 1</label>
                 <div style="display: flex; gap: 10px; width: 100%;">
                     <div class="custom-select-wrapper" id="radar-player1-wrapper" style="position: relative; flex-grow: 1;">
                         <div class="custom-select-trigger" onclick="toggleRadarDropdown('player1')" style="background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
@@ -201,7 +201,7 @@ function buildAndAppendRadarDrawer() {
             </div>
 
             <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px; position: relative;">
-                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Player 2</label>
+                <label style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Select player 2</label>
                 <div style="display: flex; gap: 10px; width: 100%;">
                     <div class="custom-select-wrapper" id="radar-player2-wrapper" style="position: relative; flex-grow: 1;">
                         <div class="custom-select-trigger" onclick="toggleRadarDropdown('player2')" style="background: rgba(20, 13, 33, 0.85); color: var(--text-primary); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
@@ -487,7 +487,7 @@ async function loadRadarChartDataWithFilters(p1, p2, metricsList) {
         const chartContainer = $r("radar-chart-only"); if (!chartContainer) return;
 
         chartContainer.innerHTML = `
-            <div class="chart-container" id="radar-capture-target-area">
+            <div class="chart-container" id="radar-capture-target-area" style="position: relative;">
                 
                 <!-- 🎯 SEMANTISK TOPBJÆLKE: Låser spiller 1 og 2 i en perfekt, urokkelig tabel-struktur -->
                 <table class="radar-header-table">
@@ -511,6 +511,11 @@ async function loadRadarChartDataWithFilters(p1, p2, metricsList) {
                     </tr>
                 </table>
                 
+                <!-- 🎯 NYT COV-OVERLAY: Smækker advarslen på hvis der er 2 eller færre metrics (skjult som default) -->
+                <div id="radar-warning-overlay" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 6, 18, 0.95); border-radius: 20px; justify-content: center; align-items: center; z-index: 150;">
+                    <div style="color: #ff007f; font-weight: 800; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; font-family: 'Gabarito', sans-serif;">Choose at least 3 metrics</div>
+                </div>
+                
                 <svg width="710" height="600" viewBox="0 0 710 600" id="radar-svg-element"></svg>
 
                 <table class="radar-footer-table">
@@ -524,9 +529,19 @@ async function loadRadarChartDataWithFilters(p1, p2, metricsList) {
             </div>
         `;
         
-        buildRadarVektorSpiderweb(d1, d2);
+        // Tvinger overlay-boksen frem med det samme her, hvis listen fejler kravet
+        const lowMetrics = metricsList.length < 3;
+        const overlay = $r("radar-warning-overlay");
+        if (overlay) {
+            overlay.style.display = lowMetrics ? "flex" : "none";
+        }
+
+        if (!lowMetrics) {
+            buildRadarVektorSpiderweb(d1, d2);
+        }
     } catch (e) { console.error("Radar motorfejl:", e); }
 }
+
 // ==========================================================================
 // PER 90 - RADAR.JS - DEL 6 - APART B (ISOLERET DOWNLOAD-MOTOR)
 // ==========================================================================

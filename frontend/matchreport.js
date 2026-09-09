@@ -8,16 +8,20 @@ let MATCH_SELECTED_PLAYER = null;   // Den nuværende valgte spiller i Fig 5 (Pl
 
 // 🎯 ISOLERET SELEKTOR-FUNKTION: Forhindrer 'already been declared' fejl permanent på tværs af appen!
 const getMatchReportEl = id => document.getElementById(id);
-// ==========================================================================
-// PER 90 - MATCHREPORT.JS - DEL 2 AF 10 (CENTRAL DASHBOARD CSS)
-// ==========================================================================
 
+// ==========================================================================
+// PER 90 - MATCHREPORT.JS - DEL 2 AF 10 (UFEJLBARLIG SCALE CSS - DEL A)
+// ==========================================================================
 document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById('match-report-core-styles')) return;
     const style = document.createElement('style');
     style.id = 'match-report-core-styles';
     style.innerHTML = `
         .mr-main-container { width: 100%; max-width: 820px; margin: 0 auto; padding: 0 15px; box-sizing: border-box; }
+        
+        /* 🔥 NY VIEWPORT WRAPPER: Forhindrer kortet i at skubbe sig ud af skærmen eller blive cuttet */
+        .mr-scale-viewport { width: 100%; overflow: hidden; position: relative; display: block; }
+        
         .mr-search-box { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 20px; margin-bottom: 20px; display: flex; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); box-sizing: border-box; }
         .mr-input-field { flex-grow: 1; background: #07030c; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px 16px; color: #fff; font-size: 14px; outline: none; }
         .mr-input-field:focus { border-color: var(--accent-purple); }
@@ -25,17 +29,22 @@ document.addEventListener("DOMContentLoaded", () => {
         .mr-tabs-nav { display: flex; overflow-x: auto; gap: 6px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 4px; margin-bottom: 25px; }
         .mr-tab-item { padding: 10px 18px; font-size: 12.5px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; border-radius: 7px; cursor: pointer; border: none; background: transparent; transition: all 0.15s; }
         .mr-tab-item.active { color: #fff; background: #1e293b; }
-        .mr-capture-card { position: relative; width: 100%; padding: 35px 30px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); background: radial-gradient(circle at top, #111A2E 0%, #070A13 100%); display: flex; flex-direction: column; align-items: center; box-shadow: 0 25px 60px rgba(0,0,0,0.4); box-sizing: border-box; }
-        .mr-pitch-wrapper { width: 100%; max-width: 660px; aspect-ratio: 105 / 68; position: relative; overflow: visible; background: transparent; margin-bottom: 10px; }
+        
+        /* 🔥 FAST PC-LOOK: Kortet er ALTID præcis 680px under motorhjelmen. transform-origin sættes til top left */
+        .mr-capture-card { position: relative; width: 680px; min-width: 680px; max-width: 680px; padding: 35px 25px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); background: radial-gradient(circle at top, #111A2E 0%, #070A13 100%); display: flex; flex-direction: column; align-items: center; box-shadow: 0 25px 60px rgba(0,0,0,0.4); box-sizing: border-box; transform-origin: top left; margin: 0; }
+        
+        .mr-pitch-wrapper { width: 100%; max-width: 620px; aspect-ratio: 105 / 68; position: relative; overflow: visible; background: transparent; margin-bottom: 10px; }
         .mr-pitch-line { stroke: rgba(255, 255, 255, 0.12); stroke-width: 0.6; fill: none; }
         .mr-markers-layer { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
         .mr-shot-dot { position: absolute; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid #040812; box-shadow: 0 3px 8px rgba(0,0,0,0.5); text-align: center; font-weight: 900; }
         .mr-shot-dot.own-goal { border: none; box-shadow: none; background: transparent !important; }
-        .mr-stats-overlay { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 185px; padding: 18px 14px; background: rgba(11, 18, 32, 0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; display: flex; flex-direction: column; gap: 14px; z-index: 15; backdrop-filter: blur(2px); box-sizing: border-box; }
-        .mr-stat-row { display: flex; flex-direction: column; gap: 5px; }
-        .mr-stat-meta { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-        .mr-stat-v { font-weight: 950; font-size: 13px; }
-        .mr-stat-lbl { color: rgba(255,255,255,0.6); font-size: 9px; letter-spacing: 0.6px; font-weight: 800; text-align: center; flex-grow: 1; }
+        .mr-stats-overlay { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 190px; padding: 14px; background: rgba(11, 18, 32, 0.88); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; display: flex; flex-direction: column; gap: 11px; z-index: 15; backdrop-filter: blur(4px); box-sizing: border-box; }
+        .mr-stat-row { display: flex; flex-direction: column; gap: 4px; }
+// ==========================================================================
+// PER 90 - MATCHREPORT.JS - DEL 2 AF 10 (UFEJLBARLIG SCALE CSS - DEL B)
+// ==========================================================================
+        .mr-stat-meta { display: flex; justify-content: space-between; align-items: center; font-size: 10.5px; font-weight: 700; text-transform: uppercase; }
+        .mr-stat-lbl { color: rgba(255,255,255,0.6); font-size: 8.5px; letter-spacing: 0.5px; font-weight: 800; text-align: center; flex-grow: 1; }
         .mr-bar-track { width: 100%; height: 3px; background: rgba(255,255,255,0.05); border-radius: 1.5px; display: flex; overflow: hidden; }
         .mr-graph-frame { display: flex; width: 100%; height: 340px; position: relative; }
         .mr-y-axis { position: relative; width: 90px; height: 100%; color: #475569; text-align: right; box-sizing: border-box; }
@@ -46,7 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
         .mr-x-axis { flex-grow: 1; display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: #475569; padding-top: 14px; }
         .mr-x-axis span { width: 0; display: flex; justify-content: center; white-space: nowrap; }
         .mr-perf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; box-sizing: border-box; }
-        @media (max-width: 680px) { .mr-perf-grid { grid-template-columns: 1fr; gap: 25px; } }
         .mr-perf-col { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
         .mr-column-headline { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: #ffffff; background: rgba(255, 255, 255, 0.04); padding: 6px 12px; clip-path: polygon(0 0, 90% 0, 100% 100%, 0% 100%); border-left: 3px solid #ff4d4d; margin-bottom: -6px; width: fit-content; }
         .mr-player-record-box { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.02); min-width: 0; }
@@ -59,19 +67,131 @@ document.addEventListener("DOMContentLoaded", () => {
         .mr-mini-value { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); text-variant-numeric: tabular-nums; }
         .mr-mini-value.rank-1 { color: #ff4d4d; font-weight: 900; text-shadow: 0 0 15px rgba(255, 77, 77, 0.4); }
         .mr-player-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; margin-top: 20px; box-sizing: border-box; }
-        @media (max-width: 768px) { .mr-player-grid { grid-template-columns: repeat(2, 1fr); } }
         .mr-player-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 14px; padding: 12px; min-width: 0; display: flex; flex-direction: column; }
         .mr-card-headline { font-size: 11px; font-weight: 900; color: rgba(255,255,255,0.3); letter-spacing: 1px; margin-bottom: 20px; text-align: center; }
         .mr-metric-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 32px; min-height: 76px; }
         .mr-metric-row:last-child { margin-bottom: 0; }
         .mr-wave-box { width: 100%; height: 16px; margin-top: auto; }
         .mr-wave-box svg { width: 100%; height: 100%; }
+        
+        @media (max-width: 600px) {
+            .mr-search-box { flex-direction: column; padding: 15px; gap: 10px; }
+            .mr-btn { width: 100%; justify-content: center; }
+        }
     `;
     document.head.appendChild(style);
+
+    // 🔥 AUTOMATISK JAVASCRIPT AUTOFIT MOTOR:
+    // Måler den reelle skærmplads og krymper både kortet og containerens højde/bredde proportionalt live!
+    const applyMatchReportScale = () => {
+        const cards = document.querySelectorAll('.mr-capture-card');
+        cards.forEach(card => {
+            const container = card.parentElement;
+            if (!container) return;
+            
+            // Hvis kortet ikke ligger i en viewport wrapper, opretter vi den automatisk live
+            if (!container.classList.contains('mr-scale-viewport')) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'mr-scale-viewport';
+                container.insertBefore(wrapper, card);
+                wrapper.appendChild(card);
+                return;
+            }
+            
+            const viewportWidth = container.getBoundingClientRect().width;
+            const targetWidth = 680; // Matcher kortets bredde i CSS'en
+            
+            if (viewportWidth < targetWidth && viewportWidth > 0) {
+                const scaleFactor = viewportWidth / targetWidth;
+                
+                // Udregner og tvinger det perfekte pc-look ned i præcis mobil-bredde
+                card.style.transform = `scale(${scaleFactor})`;
+                
+                // Korrigerer containerens højde, så der ikke opstår et enormt tomt felt under kortet
+                const calculatedHeight = card.offsetHeight * scaleFactor;
+                container.style.height = `${calculatedHeight}px`;
+            } else {
+                card.style.transform = 'none';
+                container.style.height = 'auto';
+            }
+        });
+    };
+
+    // Trigger skaleringen ved resize, dom-ændringer og ved load
+    window.addEventListener('resize', applyMatchReportScale);
+    const observer = new MutationObserver(applyMatchReportScale);
+    observer.observe(document.body, { childList: true, subtree: true });
+    setTimeout(applyMatchReportScale, 150);
 });
-// ==========================================================================
-// PER 90 - MATCHREPORT.JS - DEL 3 AF 10 (HTML-SKAL & FANE-NAVIGATION)
-// ==========================================================================
+
+
+
+function triggerMatchReportDownload(filename, elementId) {
+    const originalEl = getMatchReportEl(elementId);
+    if (!originalEl) return;
+
+    // 1. Opretter den urokkelige PC-sandbox container i baggrunden (fastlåst til 820px bredde)
+    const hiddenContainer = document.createElement("div");
+    Object.assign(hiddenContainer.style, {
+        position: "absolute", left: "-9999px", top: "-9999px",
+        width: "820px", minWidth: "820px", maxWidth: "820px",
+        height: "auto", overflow: "visible", boxSizing: "border-box"
+    });
+
+    // 2. Klon det originale element og tving det ind i PC-layout i sandkassen
+    const clone = originalEl.cloneNode(true);
+    clone.id = `${elementId}-download-clone`;
+    
+    Object.assign(clone.style, {
+        width: "820px", minWidth: "820px", maxWidth: "820px",
+        height: "auto", minHeight: "auto", maxHeight: "none",
+        background: "#0B1220", boxSizing: "border-box",
+        display: "flex", opacity: "1"
+    });
+
+    // Fjern spillervælger-dropdown'en fra download-billedet, hvis det er Fig 5
+    const dropdownInClone = clone.querySelector("#mr-player-dropdown");
+    if (dropdownInClone) {
+        dropdownInClone.parentElement.remove();
+    }
+
+    // Tving Fig 4 til 3 kolonner i det downloadede billede
+    const gridBoxInClone = clone.querySelector("#fig4-grid-box");
+    if (gridBoxInClone) {
+        gridBoxInClone.style.setProperty("grid-template-columns", "repeat(3, 1fr)", "important");
+        gridBoxInClone.style.setProperty("gap", "20px", "important");
+    }
+    
+    // Tving Fig 5 til 4 kolonner i det downloadede billede
+    const playerGridInClone = clone.querySelector(".grid-container");
+    if (playerGridInClone) {
+        playerGridInClone.style.setProperty("grid-template-columns", "repeat(4, 1fr)", "important");
+        playerGridInClone.style.setProperty("gap", "12px", "important");
+    }
+
+    // 3. Skyd det ind i DOM'en, affyr html2canvas, og ryd op bagefter
+    hiddenContainer.appendChild(clone);
+    document.body.appendChild(hiddenContainer);
+
+    html2canvas(clone, { 
+        scale: 3, 
+        backgroundColor: "#0B1220", 
+        useCORS: true,
+        logging: false
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = `${filename}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        document.body.removeChild(hiddenContainer);
+    }).catch(err => {
+        console.error("Download fejlede:", err);
+        if (document.body.contains(hiddenContainer)) {
+            document.body.removeChild(hiddenContainer);
+        }
+    });
+}
+
 
 function initMatchReportView(container) {
     container.innerHTML = `
@@ -230,20 +350,90 @@ function generateSharedHeaderHTML(subtitle) {
 }
 
 function triggerMatchReportDownload(filename, elementId) {
-    const el = getMatchReportEl(elementId);
-    if (!el) return;
-    html2canvas(el, { scale: 3, backgroundColor: "#0B1220", useCORS: true }).then(canvas => {
+    const originalEl = getMatchReportEl(elementId);
+    if (!originalEl) return;
+
+    // 1. Opretter en urokkelig PC-sandbox container i baggrunden (820px matcher dit dashboard max-width)
+    const hiddenContainer = document.createElement("div");
+    Object.assign(hiddenContainer.style, {
+        position: "absolute",
+        left: "-9999px",
+        top: "-9999px",
+        width: "820px",
+        minWidth: "820px",
+        maxWidth: "820px",
+        height: "auto",
+        overflow: "visible",
+        boxSizing: "border-box"
+    });
+
+    // 2. Klon det originale element og nulstil responsive begrænsninger på klonen
+    const clone = originalEl.cloneNode(true);
+    clone.id = `${elementId}-download-clone`;
+    
+    Object.assign(clone.style, {
+        width: "820px",
+        minWidth: "820px",
+        maxWidth: "820px",
+        height: "auto",
+        minHeight: "auto",
+        maxHeight: "none",
+        background: "#0B1220", // Sikrer ensartet mørk baggrund
+        boxSizing: "border-box",
+        display: "flex",
+        opacity: "1"
+    });
+
+    // 🎯 SIKKERHEDS-FIX FOR DROPDOWNS: Hvis det er Fig 5, vil vi ikke have select-boksen med på billedet
+    const dropdownInClone = clone.querySelector("#mr-player-dropdown");
+    if (dropdownInClone) {
+        dropdownInClone.parentElement.remove(); // Fjerner dropdown-bjælken fra download-billedet
+    }
+
+    // Specifikt fix for Fig 4 grid i PC-størrelse under download
+    const gridBoxInClone = clone.querySelector("#fig4-grid-box");
+    if (gridBoxInClone) {
+        gridBoxInClone.style.setProperty("grid-template-columns", "repeat(3, 1fr)", "important");
+        gridBoxInClone.style.setProperty("gap", "20px", "important");
+    }
+    
+    // Specifikt fix for Fig 5 grid i PC-størrelse under download
+    const playerGridInClone = clone.querySelector(".grid-container");
+    if (playerGridInClone) {
+        playerGridInClone.style.setProperty("grid-template-columns", "repeat(4, 1fr)", "important");
+        playerGridInClone.style.setProperty("gap", "12px", "important");
+    }
+
+    // 3. Tilføj container og klon til DOM'en midlertidigt
+    hiddenContainer.appendChild(clone);
+    document.body.appendChild(hiddenContainer);
+
+    // 4. Kør html2canvas på vores skjulte PC-klon
+    html2canvas(clone, { 
+        scale: 3, // Giver skyhøj og professionel printopløsning
+        backgroundColor: "#0B1220", 
+        useCORS: true,
+        logging: false
+    }).then(canvas => {
         const link = document.createElement("a");
         link.download = `${filename}.png`;
         link.href = canvas.toDataURL("image/png");
         link.click();
+
+        // 5. Oprydning: Fjern sandboxen fra DOM'en igen med det samme
+        document.body.removeChild(hiddenContainer);
+    }).catch(err => {
+        console.error("Download fejlede:", err);
+        if (document.body.contains(hiddenContainer)) {
+            document.body.removeChild(hiddenContainer);
+        }
     });
 }
+
 
 // ==========================================================================
 // PER 90 - MATCHREPORT.JS - DEL 6 AF 10 (FIG 1 – MATCH STATS PITCH)
 // ==========================================================================
-
 function buildFig1MatchStats() {
     const container = getMatchReportEl("mr-display-target-area");
     const info = MATCH_GLOBAL_DATA.match_info;
@@ -288,12 +478,13 @@ function buildFig1MatchStats() {
         const aNum = parseFloat(originalStat.away.toString().replace('%', '').split('/')) || 0;
         const hPct = (hNum + aNum) > 0 ? (hNum / (hNum + aNum)) * 100 : 50;
 
+        // 🔥 EFFEKTIVT ALIGNMENT FIX: Vi tvinger venstre tal yderst til venstre, midten centreret, og højre tal yderst til højre med fast bredde
         return `
             <div class="mr-stat-row">
-                <div class="mr-stat-meta">
-                    <span style="color:${homeColor}; font-weight:900;">${originalStat.home}</span>
-                    <span class="mr-stat-lbl" style="font-size:10px; font-weight:800; color:rgba(255,255,255,0.7);">${mapping.label}</span>
-                    <span style="color:${awayColor}; font-weight:900;">${originalStat.away}</span>
+                <div class="mr-stat-meta" style="display: flex !important; justify-content: space-between !important; align-items: center !important; width: 100% !important;">
+                    <span style="color:${homeColor}; font-weight:900; width: 45px; text-align: left; flex-shrink: 0;">${originalStat.home}</span>
+                    <span class="mr-stat-lbl" style="font-size:9px; font-weight:800; color:rgba(255,255,255,0.7); text-align: center; flex-grow: 1; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${mapping.label}</span>
+                    <span style="color:${awayColor}; font-weight:900; width: 45px; text-align: right; flex-shrink: 0;">${originalStat.away}</span>
                 </div>
                 <div class="mr-bar-track" style="height:4px; background:rgba(255,255,255,0.08); border-radius:2px;">
                     <div style="width:${hPct}%; background:${homeColor}; height:100%;"></div>
@@ -479,7 +670,6 @@ function buildFig2AccumulatedXG() {
 // ==========================================================================
 // PER 90 - MATCHREPORT.JS - DEL 8 AF 10 (FIG 3 – GAME STATE & MOMENTUM)
 // ==========================================================================
-
 function buildFig3GameState() {
     const container = getMatchReportEl("mr-display-target-area");
     const info = MATCH_GLOBAL_DATA.match_info;
@@ -494,7 +684,7 @@ function buildFig3GameState() {
 
     const maxMin = Math.max(90, ...mData.map(m => m.minute));
 
-    // 1. Glat momentum-punkterne ud (Moving average) for at få den flydende Streamlit-bølge
+    // 1. Glat momentum-punkterne ud (Moving average) for at få den flydende bølge
     const smoothedPoints = mData.map((m, idx) => {
         const start = Math.max(0, idx - 3);
         const end = Math.min(mData.length, idx + 4);
@@ -517,22 +707,24 @@ function buildFig3GameState() {
     hPoints.push("L 100,50 Z");
     aPoints.push("L 100,50 Z");
 
-    // 2. Byg dæmpede gridlines (Vandrette niveauer + Lodrette kvarter-linjer)
-    // Tre vandrette linjer: Top (Dominans H), Midte (Balanceret), Bund (Dominans A)
-    let svgGridLines = [8, 50, 92].map(y => `<line x1="0" y1="${y}" x2="100" y2="${y}" stroke="rgba(255,255,255,${y === 50 ? '0.15' : '0.04'})" stroke-width="${y === 50 ? '0.8' : '0.5'}" />`).join('');
+    // 2. Byg dæmpede gridlines med fulde, urokkelige HTML-attributter (Sikrer html2canvas kompabilitet)
+    let svgGridLines = [8, 50, 92].map(y => `
+        <line x1="0" y1="${y}" x2="100" y2="${y}" stroke="rgba(255,255,255,${y === 50 ? '0.15' : '0.04'})" stroke-width="${y === 50 ? '0.8' : '0.5'}" />
+    `).join('');
     
-    const timeMinutes = Array.from([15, 30, 45, 60, 75, 90]);
-    svgGridLines += timeMinutes.map(m => `<line x1="${(m/maxMin)*100}" y1="0" x2="${(m/maxMin)*100}" y2="100" stroke="rgba(255,255,255,0.03)" stroke-width="0.5" stroke-dasharray="2 2" />`).join('');
-
+    const timeMinutes = [15, 30, 45, 60, 75, 90];
+    svgGridLines += timeMinutes.map(m => `
+        <line x1="${(m/maxMin)*100}" y1="0" x2="${(m/maxMin)*100}" y2="100" stroke="rgba(255,255,255,0.03)" stroke-width="0.5" stroke-dasharray="2,2" />
+    `).join('');
 
     // 3. Split scoringstallene til topbar
     const [homeGoals, awayGoals] = (info.scoreStr || "0 - 0").split('-').map(s => s.trim());
 
-    // 4. Render det samlede Streamlit-layout
+    // 4. Render det samlede layout
     container.innerHTML = `
         <div class="mr-capture-card" id="fig3-capture" style="padding: 40px 30px;">
             
-            <!-- TOPBAR: LOGOER YDERST TIL VENSTRE & PERFEKT VERTIKAL ALIGNMENT -->
+            <!-- TOPBAR -->
             <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:30px;">
                 <div style="display:flex; flex-direction:column; gap:12px; margin-left:110px;">
                     <!-- Hjemmehold Linje -->
@@ -564,19 +756,19 @@ function buildFig3GameState() {
                     <span style="position:absolute; top:92%; right:15px; font-size:10px; font-weight:900; color:${awayColor}; text-transform:uppercase; letter-spacing:0.5px; transform:translateY(-50%);">Dominance (A)</span>
                 </div>
                 
-                <!-- SVG Canvas med bølge-kurven (Tynde linjer og tydeligt fill) -->
+                <!-- SVG Canvas med de rettede attributter for download-motoren -->
                 <div class="mr-svg-canvas" style="border-bottom:1px solid rgba(255,255,255,0.1); border-left:1px solid rgba(255,255,255,0.1);">
-                    <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%; height:100%;">
                         <!-- Baggrunds-gridlines -->
                         ${svgGridLines}
                         
-                        <!-- Farve-flader (Fill-opacity: 0.12) -->
-                        <path d="${hPoints.join(' ')}" fill="${homeColor}" fill-opacity="0.12"/>
-                        <path d="${aPoints.join(' ')}" fill="${awayColor}" fill-opacity="0.12"/>
+                        <!-- Farve-flader (Fill) -->
+                        <path d="${hPoints.join(' ')}" fill="${homeColor}" fill-opacity="0.12" stroke="none" />
+                        <path d="${aPoints.join(' ')}" fill="${awayColor}" fill-opacity="0.12" stroke="none" />
                         
-                        <!-- Slanke momentum-linjer (stroke-width: 1.2) -->
-                        <path d="${hPoints.join(' ')}" fill="none" stroke="${homeColor}" stroke-width="1.2" stroke-linecap:round; />
-                        <path d="${aPoints.join(' ')}" fill="none" stroke="${awayColor}" stroke-width="1.2" stroke-linecap:round; />
+                        <!-- Slanke momentum-linjer (Med urokkelige SVG-attributter i stedet for ren CSS) -->
+                        <path d="${hPoints.join(' ')}" fill="none" stroke="${homeColor}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="${aPoints.join(' ')}" fill="none" stroke="${awayColor}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </div>
             </div>
@@ -597,7 +789,6 @@ function buildFig3GameState() {
 // ==========================================================================
 // PER 90 - MATCHREPORT.JS - FIG 4 (DEL A: DATABEHANDLING & HTML-MAPPING)
 // ==========================================================================
-
 function buildFig4TopPerformers() {
     const container = getMatchReportEl("mr-display-target-area");
     const info = MATCH_GLOBAL_DATA.match_info;
@@ -626,16 +817,18 @@ function buildFig4TopPerformers() {
 
             const players_html = topPlayers.map((player, idx) => {
                 const is_1st = idx === 0;
+                
+                // 🔥 FAST BREDDE & FLEX FIX: Vi låser elementerne, så navne ALDRIG kan blive skåret af (f.eks. Tavernier)
                 return `
                 <div class="pr ${is_1st ? 'l1' : ''}" style="display: flex !important; align-items: center !important; justify-content: flex-start !important; gap: 10px !important; padding: 2px 8px !important; margin-bottom: 4px !important; border-radius: 6px !important; background: rgba(255,255,255,0.01) !important; border: 1px solid rgba(255,255,255,0.02) !important; min-height: 28px !important; box-sizing: border-box !important; overflow: hidden !important;">
-                    <span class="rb ${is_1st ? 'gd' : ''}" style="font-size: ${is_1st ? '12px' : '11px'} !important; font-weight: 900 !important; color: ${is_1st ? '#ff4d4d' : 'rgba(255,255,255,0.2)'} !important; width: 10px !important; text-align: center !important; flex-shrink: 0 !important; display: inline-block !important; line-height: 1 !important; margin: 0 !important; padding: 0 !important;">
+                    <span class="rb ${is_1st ? 'gd' : ''}" style="font-size: ${is_1st ? '12px' : '11px'} !important; font-weight: 900 !important; color: ${is_1st ? '#ff4d4d' : 'rgba(255,255,255,0.2)'} !important; width: 12px !important; text-align: center !important; flex-shrink: 0 !important; display: inline-block !important; line-height: 1 !important; margin: 0 !important; padding: 0 !important;">
                         ${idx + 1}
                     </span>
                     <img class="logo" src="${player.teamId == info.homeId ? info.homeLogoB64 : info.awayLogoB64 || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}" style="width: 16px !important; height: 16px !important; object-fit: contain !important; flex-shrink: 0 !important; display: block !important; margin: 0 !important; padding: 0 !important; filter: drop-shadow(0 0 4px rgba(255,255,255,0.1)) !important;">
-                    <span class="p-nm" style="flex-grow: 1 !important; font-size: 11px !important; font-weight: ${is_1st ? '700' : '600'} !important; color: ${is_1st ? '#ffffff' : 'rgba(255,255,255,0.6)'} !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; display: inline-block !important; line-height: 1 !important; margin: 0 !important; padding: 0 !important;">
+                    <span class="p-nm" style="flex-grow: 1 !important; width: 0 !important; font-size: 11px !important; font-weight: ${is_1st ? '700' : '600'} !important; color: ${is_1st ? '#ffffff' : 'rgba(255,255,255,0.6)'} !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; display: inline-block !important; line-height: 1 !important; margin: 0 !important; padding: 0 !important;">
                         ${player.name}
                     </span>
-                    <span class="p-vl" style="font-size: 11px !important; font-weight: ${is_1st ? '900' : '700'} !important; color: ${is_1st ? '#ff4d4d' : 'rgba(255,255,255,0.5)'} !important; text-shadow: ${is_1st ? '0 0 15px rgba(255, 77, 77, 0.4)' : 'none'} !important; text-align: right !important; margin-left: auto !important; font-variant-numeric: tabular-nums !important; display: inline-block !important; line-height: 1 !important; padding: 0 !important; flex-shrink: 0 !important;">
+                    <span class="p-vl" style="font-size: 11px !important; font-weight: ${is_1st ? '900' : '700'} !important; color: ${is_1st ? '#ff4d4d' : 'rgba(255,255,255,0.5)'} !important; text-shadow: ${is_1st ? '0 0 15px rgba(255, 77, 77, 0.4)' : 'none'} !important; text-align: right !important; margin-left: auto !important; font-variant-numeric: tabular-nums !important; display: inline-block !important; line-height: 1 !important; padding: 0 !important; flex-shrink: 0 !important; width: 35px !important;">
                         ${Number.isInteger(player.val) ? player.val : player.val.toFixed(2)}
                     </span>
                 </div>`;
@@ -644,14 +837,14 @@ function buildFig4TopPerformers() {
             return `<div style="display:flex; flex-direction:column; margin-bottom: 4px;"><div style="font-size:10px; font-weight:700; color:rgba(255,255,255,0.35); letter-spacing:0.5px; margin-bottom:8px; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${metric.label}</div>${players_html}</div>`;
         }).join('');
 
-        return `<div class="gcol" style="display:flex; flex-direction:column; gap:20px; min-width:0;"><div class="cht" style="font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:1.5px; color:#ffffff; background:rgba(255,255,255,0.04); padding:6px 12px; margin-bottom:-4px; clip-path:polygon(0 0, 90% 0, 100% 100%, 0% 100%); border-left:3px solid #ff4d4d; width: fit-content;">${col.title.toUpperCase()}</div>${metrics_html}</div>`;
+        return `<div class="gcol" style="display:flex; flex-direction:column; gap:20px; min-width:0; flex: 1 1 0%;"><div class="cht" style="font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:1.5px; color:#ffffff; background:rgba(255, 255, 255, 0.04); padding:6px 12px; margin-bottom:-4px; clip-path:polygon(0 0, 90% 0, 100% 100%, 0% 100%); border-left:3px solid #ff4d4d; width: fit-content;">${col.title.toUpperCase()}</div>${metrics_html}</div>`;
     }).join('');
+
 // ==========================================================================
 // PER 90 - MATCHREPORT.JS - FIG 4 (DEL B: FRAME-RENDERING & DOWNLOAD)
 // ==========================================================================
-
     container.innerHTML = `
-        <div id="chart-only-fig4" style="background:radial-gradient(circle at 0% 0%, #15151e 0%, #060609 100%); padding:44px 32px; border-radius:24px; position:relative; overflow:hidden; border:1px solid rgba(255,255,255,0.05); width:100%; box-sizing:border-box;">
+        <div id="chart-only-fig4" class="mr-capture-card" style="background:radial-gradient(circle at 0% 0%, #15151e 0%, #060609 100%); padding:44px 32px; border-radius:24px; position:relative; overflow:hidden; border:1px solid rgba(255,255,255,0.05); width:100%; box-sizing:border-box; align-items: stretch !important;">
             <style>
                 #chart-only-fig4::before { content:''; position:absolute; inset:0; pointer-events:none; background-image:linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px); background-size:20px 20px; }
                 .pr.l1 { 
@@ -660,13 +853,14 @@ function buildFig4TopPerformers() {
                     box-shadow: 0 10px 25px rgba(255, 77, 77, 0.08) !important; 
                     transform: scale(1.01) !important;
                 }
-                @media (max-width:650px) { #fig4-grid-box { grid-template-columns:1fr !important; gap:28px !important; } }
             </style>
             <div style="display:flex; flex-direction:column; align-items:flex-start; margin-bottom:40px; position:relative; z-index:2;">
                 <h1 style="font-size:30px; font-weight:900; text-transform:uppercase; margin:0; letter-spacing:2px; line-height:0.85; color:#ffffff;">Top <strong style="font-weight:900; letter-spacing:2px; color:#ff4d4d;">Performers</strong></h1>
                 <div style="font-size:9px; font-weight:700; color:#ff4d4d; letter-spacing:2px; margin-top:8px; text-transform:uppercase; padding-left:12px; border-left:2px solid #ff4d4d;">Generated via per-90.streamlit.app</div>
             </div>
-            <div id="fig4-grid-box" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; position:relative; z-index:2; width:100%;">
+            
+            <!-- 🔥 STRUKTUR FIX: Vi tvinger containeren til altid at bruge flex og fordele kolonnerne ensartet under download -->
+            <div id="fig4-grid-box" style="display: flex !important; flex-direction: row !important; gap: 20px !important; position: relative; z-index: 2; width: 100% !important; box-sizing: border-box !important;">
                 ${cols_html}
             </div>
         </div>
@@ -675,13 +869,6 @@ function buildFig4TopPerformers() {
 }
 
 
-// ==========================================================================
-// PER 90 - MATCHREPORT.JS - FIG 5 (DEL A: SPILLEDATA, BADGES & PERCENTILER)
-// ==========================================================================
-
-// ==========================================================================
-// PER 90 - MATCHREPORT.JS - DEL 10 AF 10 (FIG 5 – PAKKE 1 AF 4)
-// ==========================================================================
 
 // ==========================================================================
 // PER 90 - MATCHREPORT.JS - DEL 10 AF 10 (FIG 5 – PAKKE 1 AF 4 – OPDATERET)

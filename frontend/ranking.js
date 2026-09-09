@@ -294,7 +294,7 @@ function buildRankingLeaderboardEngine() {
 
     const list = RANK_GLOBAL_DATA.players || [];
     if (list.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding:50px; color:#64748b; font-weight:700; grid-column: span 3;">INGEN SPILLERE MATCHER DINE SØGEKRITERIER I DENNE ROLLE</div>`;
+        container.innerHTML = `<div style="text-align:center; padding:50px; color:#64748b; font-weight:700; grid-column: span 3;">NO MATCHES</div>`;
         return;
     }
 
