@@ -1,12 +1,12 @@
 # ==========================================================================
-# PER 90 - EVENTDATA.PY (OPDATERET API ROUTER TIL ADVANCED OPTA TELEMETRY)
+# PER 90 - EVENTDATA.PY (OPDATERET API ROUTER MED BACKEND LOGO-CACHING)
 # ==========================================================================
 from fastapi import APIRouter, HTTPException, Query
 import requests
 import json
 import re
-import ast
-from bs4 import BeautifulSoup
+import base64
+from io import BytesIO
 from typing import List, Dict, Any
 
 router = APIRouter(prefix="/api", tags=["eventdata"])
@@ -27,6 +27,21 @@ def lookup_xt(x: float, y: float) -> float:
     row_idx = int((y / 100) * 8) if y < 100 else 7
     col_idx = int((x / 100) * 12) if x < 100 else 11
     return XT_MATRIX[max(0, min(7, row_idx))][max(0, min(11, col_idx))]
+
+# 🎯 DYNAMISK BACKEND FETCH OG BASE64-CACHING AF HOLDLOGOER
+def get_team_logo_base64(team_id: int) -> str:
+    url = f"https://d2zywfiolv4f83.cloudfront.net/img/teams/{team_id}.png"
+    try:
+        headers = {"User-Agent": "Mozilla/5.0"}
+        res = requests.get(url, headers=headers, timeout=5)
+        if res.status_code == 200:
+            # Konverterer rå billed-bytes til en sikker data-URI tekststreng
+            encoded = base64.b64encode(res.content).decode("utf-8")
+            return f"data:image/png;base64,{encoded}"
+    except Exception:
+        pass
+    # Fallback til det rå link, hvis Cloudfront skulle fejle under anmodningen
+    return url
 
 @router.get("/fetch-events")
 def get_whoscored_event_data(url: str = Query(...)):
@@ -53,6 +68,10 @@ def get_whoscored_event_data(url: str = Query(...)):
         home_id = home.get("teamId")
         away_id = away.get("teamId")
 
+        # 🎯 HENT OG GEM BEGGE LOGOER SOM BASE64 ÉN GANG FOR ALLE
+        home_logo_data = get_team_logo_base64(home_id)
+        away_logo_data = get_team_logo_base64(away_id)
+
         match_info = {
             "homeId": home_id,
             "awayId": away_id,
@@ -60,6 +79,8 @@ def get_whoscored_event_data(url: str = Query(...)):
             "awayName": away.get("name"),
             "homeColor": "#00F0FF",
             "awayColor": "#FF0055",
+            "homeLogo": home_logo_data,   # 🟥 Gemt i cache i JSON
+            "awayLogo": away_logo_data,   # 🟥 Gemt i cache i JSON
             "scoreStr": f"{home.get('scores', {}).get('fullTime', 0)} - {away.get('scores', {}).get('fullTime', 0)}"
         }
 
@@ -99,7 +120,6 @@ def get_whoscored_event_data(url: str = Query(...)):
             is_success = bool(ev.get("outcomeType", {}).get("value", 1) == 1)
             is_touch = bool(ev.get("isTouch", False))
 
-            # Find afleveringsslut via qualifiers
             end_x, end_y = None, None
             is_set_piece = False
             for q in ev.get("qualifiers", []):
@@ -109,7 +129,6 @@ def get_whoscored_event_data(url: str = Query(...)):
                 elif q_name in ['CornerTaken', 'FreekickTaken', 'ThrowIn', 'GoalKick']:
                     is_set_piece = True
 
-            # Beregn xT hvis succesfuldt åbent spil pass
             xt_diff = 0.0
             if ev_type == "Pass" and is_success and not is_set_piece and end_x is not None and end_y is not None:
                 start_xt = lookup_xt(ev.get("x"), ev.get("y"))

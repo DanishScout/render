@@ -4,9 +4,12 @@
 from fastapi import APIRouter, HTTPException, Query
 import requests
 import json
+import base64
 import pandas as pd
 import numpy as np
 from bs4 import BeautifulSoup
+from io import BytesIO            # <--- TILFØJET: Til Pillow billedhåndtering
+from PIL import Image, ImageDraw  # <--- TILFØJET: Til Streamlit cirkelmaskering
 from typing import Dict, Any
 
 router = APIRouter(prefix="/api", tags=["matchreport"])
@@ -44,16 +47,36 @@ def get_match_report_data(
         team_colors = general.get("teamColors", {}).get("darkMode", {})
         header = match_data.get("header", {})
         
+        home_id = home_team.get("id")
+        away_id = away_team.get("id")
+
+        # Hent og konverter udelukkende de to holdlogoer til Base64 med det samme
+        logo_base64_dict = {}
+        for t_id in [home_id, away_id]:
+            if t_id:
+                try:
+                    logo_url = f"https://images.fotmob.com/image_resources/logo/teamlogo/{t_id}.png"
+                    logo_res = requests.get(logo_url, headers=headers, timeout=5)
+                    if logo_res.status_code == 200:
+                        b64_encoded = base64.b64encode(logo_res.content).decode('utf-8')
+                        logo_base64_dict[t_id] = f"data:image/png;base64,{b64_encoded}"
+                    else:
+                        logo_base64_dict[t_id] = ""
+                except Exception:
+                    logo_base64_dict[t_id] = ""
+        
         match_info = {
-            "homeId": home_team.get("id"),
-            "awayId": away_team.get("id"),
+            "homeId": home_id,
+            "awayId": away_id,
             "homeName": home_team.get("name"),
             "awayName": away_team.get("name"),
             "homeColor": team_colors.get("home", "#3498db"),
             "awayColor": team_colors.get("away", "#e74c3c"),
             "scoreStr": header.get("status", {}).get("scoreStr", "0 - 0"),
             "leagueName": general.get("leagueName", "Ukendt Liga"),
-            "leagueRound": general.get("leagueRoundName", "")
+            "leagueRound": general.get("leagueRoundName", ""),
+            "homeLogoB64": logo_base64_dict.get(home_id, ""),
+            "awayLogoB64": logo_base64_dict.get(away_id, "")
         }
 
         # ------------------------------------------------------------------
@@ -65,7 +88,6 @@ def get_match_report_data(
         for player_id, player_info in player_stats_dict.items():
             shotmap = player_info.get("shotmap", [])
             for shot in shotmap:
-                # Rens værdier og håndter NaN fallbacks på forhånd
                 shotmap_entries.append({
                     "id": shot.get("id"),
                     "teamId": shot.get("teamId"),
@@ -122,7 +144,7 @@ def get_match_report_data(
             })
 
         # ------------------------------------------------------------------
-        # DATABASE 5: PLAYER PERFORMANCE RECORDS
+        # DATABASE 5: PLAYER PERFORMANCE RECORDS (Forbliver ultra-let)
         # ------------------------------------------------------------------
         players_list = []
         for player_id, player_info in player_stats_dict.items():
@@ -139,9 +161,6 @@ def get_match_report_data(
                 "stats": metrics
             })
 
-        # ------------------------------------------------------------------
-        # PACK & RETURN MASTER JSON RESPONS
-        # ------------------------------------------------------------------
         return {
             "status": "SUCCESS",
             "match_info": match_info,
@@ -153,3 +172,42 @@ def get_match_report_data(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Fejl under generering af kamprapport-feed: {str(e)}")
+
+# ==========================================================================
+# NYT ENDPOINT: HENTER OG CIRKELMASKERER ÉT ENKELT SPILLERBILLEDE ON-DEMAND
+# ==========================================================================
+@router.get("/player-image")
+def get_player_image_b64(
+    player_id: int = Query(..., description="ID på spilleren, der skal hentes")
+):
+    try:
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+        url = f"https://images.fotmob.com/image_resources/playerimages/{player_id}.png"
+        response = requests.get(url, headers=headers, timeout=5)
+        
+        if response.status_code != 200:
+            return {"player_img_b64": ""}
+            
+        # --- DIN PRÆCISE STREAMLIT-LOGIK: Pillow-behandling og Base64-konvertering ---
+        im = Image.open(BytesIO(response.content)).convert("RGBA")
+        im = im.resize((300, 300), Image.Resampling.LANCZOS)
+        
+        # Opretter den grå baggrund (70, 70, 70, 255)
+        bg = Image.new('RGBA', im.size, (70, 70, 70, 255))
+        bg.paste(im, (0, 0), im)
+        
+        # Opretter den cirkulære maske
+        mask = Image.new('L', im.size, 0)
+        draw = ImageDraw.Draw(mask)
+        draw.ellipse((0, 0, im.size[0], im.size[1]), fill=255)
+        bg.putalpha(mask)
+        
+        # Save til Base64 string
+        buffered_p = BytesIO()
+        bg.save(buffered_p, format="PNG")
+        player_img_b64 = f"data:image/png;base64,{base64.b64encode(buffered_p.getvalue()).decode('utf-8')}"
+        
+        return {"player_img_b64": player_img_b64}
+        
+    except Exception:
+        return {"player_img_b64": ""}

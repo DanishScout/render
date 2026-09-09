@@ -3,17 +3,61 @@
 // ==========================================================================
 
 const AVAILABLE_PIZZA_METRICS = [
-    "Goals", "npxG", "Shots On Target", "On Target %", 
-    "Assists", "xA", "Key Passes", "xT via Live Passes", 
-    "Successful Dribbles", "Dribble Attempts", "Dribble Success %", 
-    "Tackles Won %", "Aerials Won %", "Duels Won %", "Tackles Won"
+    "Goals", "npxG", "Shots On Target", "On Target %", "Created Own Shot", "Total Shots", "Shots Outside Box", "Shots Inside Box",
+    "Assists", "xA", "Key Passes", "xT via Live Passes", "Progressive Passes", "Passes Into Final 3rd", "Forward Passes", "Passes in Opp. Half", "Passes in Own Half", "Accurate Passes", "Accurate Long Balls", "Accurate Crosses", "Pass Accuracy %", "Long Ball Accuracy %", "Cross Accuracy %",
+    "Successful Dribbles", "Dribble Attempts", "Dribble Success %", "Progressive Carries", "xT via Prog. Carries", "Carries Into Final ⅓", "Touches In Opp. Box", "Fouls Drawn",
+    "Tackles Won %", "Aerials Won %", "Duels Won %", "Tackles Won", "Aerials Won", "Duels Won", "Clearances", "Blocked Shots", "Interceptions"
 ];
 
 const PIZZA_CATEGORIES = {
-    "Shooting": { "Goals": "Goals", "npxG": "npxG", "Shots On Target": "Shots On Target", "On Target %": "On Target %" },
-    "Passing": { "Assists": "Assists", "xA": "xA", "Key Passes": "Key Passes", "xT via Live Passes": "xT via Live Passes" },
-    "Possession": { "Successful Dribbles": "Successful Dribbles", "Dribble Attempts": "Dribble Attempts", "Dribble Success %": "Dribble Success %" },
-    "Defending": { "Tackles Won %": "Tackles Won %", "Aerials Won %": "Aerials Won %", "Duels Won %": "Duels Won %", "Tackles Won": "Tackles Won" }
+    "Shooting": {
+        "Goals": "Goals",
+        "npxG": "npxG",
+        "Shots On Target": "Shots On Target",
+        "On Target %": "On Target %",
+        "Created Own Shot": "Created Own Shot",
+        "Total Shots": "Total Shots",
+        "Shots Outside Box": "Shots Outside Box",
+        "Shots Inside Box": "Shots Inside Box"
+    },
+    "Passing": {
+        "Assists": "Assists",
+        "xA": "xA",
+        "Key Passes": "Key Passes",
+        "xT via Live Passes": "xT via Live Passes",
+        "Progressive Passes": "Progressive Passes",
+        "Passes Into Final 3rd": "Passes Into Final 3rd",
+        "Forward Passes": "Forward Passes",
+        "Passes in Opp. Half": "Passes in Opp. Half",
+        "Passes in Own Half": "Passes in Own Half",
+        "Accurate Passes": "Accurate Passes",
+        "Accurate Long Balls": "Accurate Long Balls",
+        "Accurate Crosses": "Accurate Crosses",
+        "Pass Accuracy %": "Pass Accuracy %",
+        "Long Ball Accuracy %": "Long Ball Accuracy %",
+        "Cross Accuracy %": "Cross Accuracy %"
+    },
+    "Possession": {
+        "Successful Dribbles": "Successful Dribbles",
+        "Dribble Attempts": "Dribble Attempts",
+        "Dribble Success %": "Dribble Success %",
+        "Progressive Carries": "Progressive Carries",
+        "xT via Prog. Carries": "xT via Prog. Carries",
+        "Carries Into Final ⅓": "Carries Into Final ⅓",
+        "Touches In Opp. Box": "Touches In Opp. Box",
+        "Fouls Drawn": "Fouls Drawn"
+    },
+    "Defending": {
+        "Tackles Won %": "Tackles Won %",
+        "Aerials Won %": "Aerials Won %",
+        "Duels Won %": "Duels Won %",
+        "Tackles Won": "Tackles Won",
+        "Aerials Won": "Aerials Won",
+        "Duels Won": "Duels Won",
+        "Clearances": "Clearances",
+        "Blocked Shots": "Blocked Shots",
+        "Interceptions": "Interceptions"
+    }
 };
 
 let CURRENT_SELECTED_PLAYER = "", CURRENT_SELECTED_POS = "";
@@ -201,6 +245,10 @@ async function initPizzaView(container) {
 // PER 90 - PIZZA.JS - DEL 4 AF 7 (PIZZA VEKTOR-MATEMATIK TEGNING)
 // ==========================================================================
 
+// ==========================================================================
+// PER 90 - PIZZA.JS - DEL 4 AF 7 (PIZZA VEKTOR-MATEMATIK TEGNING) - PERFEKT CENTRERET
+// ==========================================================================
+
 function buildPizzaVektorChart(data, selectedColor) {
     const svg = $("pizza-svg-element"); if (!svg) return;
     const CX = 355, CY = 285, MAX_R = 230, total = data.metrics.length, angle = (2 * Math.PI) / total;
@@ -221,8 +269,26 @@ function buildPizzaVektorChart(data, selectedColor) {
         }
         markup += `<line x1="${CX}" y1="${CY}" x2="${CX + 230 * Math.cos(sA)}" y2="${CY + 230 * Math.sin(sA)}" class="grid-line" />`;
         
-        let anchor = cos > 0.2 ? "start" : cos < -0.2 ? "end" : "middle";
-        markup += `<text x="${CX + 258 * cos}" y="${CY + 250 * sin}" class="ax-lbl" style="font-family: 'Gabarito', sans-serif;" text-anchor="${anchor}" dominant-baseline="middle" fill="#94a3b8">${metric}</text>`;
+        const ord = metric.split(" ");
+        
+        // 🎯 GEOMETRISK AFSTAND: Vi placerer tekstens absolutte ankerpunkt 262 pixels ude (32 pixels uden for cirkelkanten)
+        // Det sikrer, at teksten svæver i en flot, jævn cirkel uden om diagrammet.
+        const textX = CX + 262 * cos;
+        const textY = CY + 262 * sin;
+
+        if (ord.length > 1) {
+            // Splitter efter det allerførste ord
+            const linje1 = ord[0];
+            const linje2 = ord.slice(1).join(" ");
+            
+            // Da vi bruger text-anchor="middle", vil begge linjer centrere sig præcist på 'textX'-aksen.
+            // Vi forskyder dem vertikalt med hhv. -7px og +9px for at skabe en perfekt linjeafstand.
+            markup += `<text x="${textX}" y="${textY - 7}" class="ax-lbl" style="font-family: 'Gabarito', sans-serif;" text-anchor="middle" dominant-baseline="middle" fill="#94a3b8">${linje1}</text>`;
+            markup += `<text x="${textX}" y="${textY + 9}" class="ax-lbl" style="font-family: 'Gabarito', sans-serif;" text-anchor="middle" dominant-baseline="middle" fill="#94a3b8">${linje2}</text>`;
+        } else {
+            // Hvis det er et enkelt ord, centrerer vi det direkte på det geometriske punkt
+            markup += `<text x="${textX}" y="${textY}" class="ax-lbl" style="font-family: 'Gabarito', sans-serif;" text-anchor="middle" dominant-baseline="middle" fill="#94a3b8">${metric}</text>`;
+        }
 
         if (score > 15) {
             markup += `<g><rect x="${CX + currentR * cos - 13}" y="${CY + currentR * sin - 7}" width="26" height="14" rx="3" class="box-bg-rect" stroke="${c}" stroke-width="1.5" /><text x="${CX + currentR * cos}" y="${CY + currentR * sin}" class="tx-b" style="font-family: 'Gabarito', sans-serif; fill: ${c} !important;" text-anchor="middle" dominant-baseline="central">${score}</text></g>`;
@@ -230,6 +296,7 @@ function buildPizzaVektorChart(data, selectedColor) {
     });
     svg.innerHTML = markup + `<circle cx="${CX}" cy="${CY}" r="12" fill="#FFFFFF" />`;
 }
+
 // ==========================================================================
 // PER 90 - PIZZA.JS - DEL 5 AF 7 (CACHET SPILLERSØGNING & DROPDOWN SYNC)
 // ==========================================================================
