@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         /* 🎯 FIX: Sænket opacity på Rank efter dit ønske, så det matcher Pos, Age og Min */
-        .font-rank { font-size: 20px; font-weight: 800; color: #fff; opacity: 0.35 !important; }
+        .font-rank { font-size: 20px; font-weight: 800; color: #fff; opacity: 0.5 !important; }
 
 
         /* Afrunder hjørnerne på hvert enkelt "kort-række" */
@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
         /* 🎯 FASTE BREDDE-KANALER (Slavelåser top og bund i browserens motor) */
         .col-rank { width: 75px; text-align: center !important; }
         .col-logo { width: 80px; text-align: center !important; }
-        .col-player { text-align: left !important; }
+        .col-player { text-align: left !important; padding: 12px 20px !important; }
         .col-pos { width: 75px; text-align: center !important; }
         .col-age { width: 80px; text-align: center !important; }
         .col-min { width: 90px; text-align: center !important; }
@@ -95,14 +95,14 @@ document.addEventListener("DOMContentLoaded", () => {
             font-size: 16px !important; /* Skruet ned fra 20px for et mere strømlinet look */
             font-weight: 800; 
             color: #fff; 
-            opacity: 0.35 !important; 
+            opacity: 0.5 !important; 
         }
         
         .font-meta { 
             font-size: 13px !important; /* Tvunget ned i en mindre, elegant størrelse på store skærme */
             font-weight: 900; 
             color: #fff; 
-            opacity: 0.35 !important; 
+            opacity: 0.5 !important; 
         }
 
         .table-row-logo-box { width: 40px; height: 44px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 3px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
@@ -202,29 +202,58 @@ function buildAndAppendTableDrawerHTML() {
 
     const metricOptions = availableAxes.map(ax => `<option value="${ax}" ${ax === TABLE_SELECTED_METRIC ? 'selected' : ''}>${ax}</option>`).join('');
 
-    const generateCheckboxesHTML = (items, key) => {
-        return items.map(item => {
-            const checked = TABLE_FILTERS[key].includes(item);
-            return `<label class="table-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${item}" ${checked ? "checked" : ""} onchange="handleTableCheckboxToggle(this, '${key}')" style="accent-color: var(--accent-purple);"> ${item}</label>`;
-        }).join('');
-    };
+    // --- LIGA CHECKBOXES MED INTRA-LOGIK FOR "ALL" ---
+    const isAllLeaguesChecked = TABLE_FILTERS.leagues.length === 0;
+    let lCheckboxes = `<label class="table-drawer-checkbox-label" style="opacity: ${isAllLeaguesChecked ? 1 : 0.4}; font-weight: bold; color: var(--accent-purple);"><input type="checkbox" value="ALL" ${isAllLeaguesChecked ? "checked" : ""} onchange="handleTableCheckboxToggle(this, 'leagues')" style="accent-color: var(--accent-purple);"> [ALLE LIGAER]</label>`;
+    lCheckboxes += leagues.map(l => {
+        const checked = TABLE_FILTERS.leagues.includes(l);
+        return `<label class="table-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${l}" ${checked ? "checked" : ""} onchange="handleTableCheckboxToggle(this, 'leagues')" style="accent-color: var(--accent-purple);"> ${l}</label>`;
+    }).join('');
+
+    // --- NATIONALITET CHECKBOXES MED INTRA-LOGIK FOR "ALL" ---
+    const isAllNationalitiesChecked = TABLE_FILTERS.nationalities.length === 0;
+    let nCheckboxes = `<label class="table-drawer-checkbox-label" style="opacity: ${isAllNationalitiesChecked ? 1 : 0.4}; font-weight: bold; color: var(--accent-purple);"><input type="checkbox" value="ALL" ${isAllNationalitiesChecked ? "checked" : ""} onchange="handleTableCheckboxToggle(this, 'nationalities')" style="accent-color: var(--accent-purple);"> [ALLE NATIONALITETER]</label>`;
+    nCheckboxes += nationalities.map(n => {
+        const checked = TABLE_FILTERS.nationalities.includes(n);
+        return `<label class="table-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${n}" ${checked ? "checked" : ""} onchange="handleTableCheckboxToggle(this, 'nationalities')" style="accent-color: var(--accent-purple);"> ${n}</label>`;
+    }).join('');
+
+    // --- POSITION CHECKBOXES MED INTRA-LOGIK FOR "ALL" ---
+    const isAllPositionsChecked = TABLE_FILTERS.positions.length === 0;
+    let pCheckboxes = `<label class="table-drawer-checkbox-label" style="opacity: ${isAllPositionsChecked ? 1 : 0.4}; font-weight: bold; color: var(--accent-purple);"><input type="checkbox" value="ALL" ${isAllPositionsChecked ? "checked" : ""} onchange="handleTableCheckboxToggle(this, 'positions')" style="accent-color: var(--accent-purple);"> [ALLE POSITIONER]</label>`;
+    pCheckboxes += positions.map(pos => {
+        const checked = TABLE_FILTERS.positions.includes(pos);
+        return `<label class="table-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${pos}" ${checked ? "checked" : ""} onchange="handleTableCheckboxToggle(this, 'positions')" style="accent-color: var(--accent-purple);"> ${pos}</label>`;
+    }).join('');
 
     const drawerDiv = document.createElement('div');
     drawerDiv.className = 'filter-drawer stats-filter-drawer table-filter-drawer';
+    
+    // 🎯 HER ER KNAPPEN FJERNET FRA TOPPEN OG PLACERET SMUKT I BUNDEN I STEDET
     drawerDiv.innerHTML = `
         <div class="drawer-header"><span class="drawer-title">Leaderboard Settings</span><button class="close-drawer-btn" onclick="closeGlobalDrawer()">✕</button></div>
         <div class="filter-panel" style="display: flex; flex-direction: column; gap: 12px; width: 100%; max-height: 85vh; overflow-y: auto;">
+            
             <div class="table-drawer-group"><label class="table-drawer-label">Metric</label><select id="tb-opt-metric" class="table-drawer-select" onchange="handleTableConfigChange()">${metricOptions}</select></div>
             <div class="table-drawer-group"><label class="table-drawer-label">Stat Type</label><select id="tb-opt-stat-type" class="table-drawer-select" onchange="handleTableConfigChange()"><option value="Per 90" ${TABLE_STAT_TYPE === "Per 90" ? "selected" : ""}>Per 90</option><option value="Total" ${TABLE_STAT_TYPE === "Total" ? "selected" : ""}>Total</option></select></div>
-            <div class="table-drawer-group"><label class="table-drawer-label">Leagues</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(leagues, 'leagues')}</div></div>
-            <div class="table-drawer-group"><label class="table-drawer-label">Nationalities</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(nationalities, 'nationalities')}</div></div>
-            <div class="table-drawer-group"><label class="table-drawer-label">Positions</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(positions, 'positions')}</div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Leagues</label><div class="table-drawer-checkbox-box" id="tb-container-leagues">${lCheckboxes}</div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Nationalities</label><div class="table-drawer-checkbox-box" id="tb-container-nationalities">${nCheckboxes}</div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Positions</label><div class="table-drawer-checkbox-box" id="tb-container-positions">${pCheckboxes}</div></div>
             <div class="table-drawer-group"><label class="table-drawer-label">Age (Min / Max)</label><div class="table-drawer-input-row"><input type="number" id="tb-filt-min-age" class="table-drawer-input" value="${TABLE_FILTERS.minAge}" oninput="handleTableFilterInputChange()"><input type="number" id="tb-filt-max-age" class="table-drawer-input" value="${TABLE_FILTERS.maxAge}" oninput="handleTableFilterInputChange()"></div></div>
             <div class="table-drawer-group"><label class="table-drawer-label">Minutes (Min / Max)</label><div class="table-drawer-input-row"><input type="number" id="tb-filt-min-mins" class="table-drawer-input" value="${TABLE_FILTERS.minMins}" oninput="handleTableFilterInputChange()"><input type="number" id="tb-filt-max-mins" class="table-drawer-input" value="${TABLE_FILTERS.maxMins}" oninput="handleTableFilterInputChange()"></div></div>
+            
+            <!-- 🎯 REDESIGNET RESET BUTTON PLACERET SMUKT I BUNDEN AF SKUFFEN MED FLOT RED-TRANSPARENT DESIGN -->
+            <div style="margin-top: 15px; width: 100%;">
+                <button onclick="resetAllTableFilters()" style="width: 100%; padding: 12px; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; font-family: Gabarito, sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.15s ease;" onmouseover="this.style.background='rgba(239, 68, 68, 0.25)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.15)'">
+                    Reset All Filters <i class="fa-solid fa-rotate-left" style="margin-left: 6px;"></i>
+                </button>
+            </div>
         </div>
     `;
     document.body.appendChild(drawerDiv);
 }
+
+
 // ==========================================================================
 // PER 90 - TABLE.JS - DEL 4 AF 6 (API SYNC & INTERACTION LOGIK)
 // ==========================================================================
@@ -271,16 +300,113 @@ function handleTableFilterInputChange() {
     buildTableLeaderboardEngine();
 }
 
+// 🎯 KORRIGERET CHECKBOX TOGGLE TIL TABLE.JS MED ALL-LOGIK OG OPERATIV OPACITY
 function handleTableCheckboxToggle(cb, key) {
     const val = cb.value;
-    if (cb.checked) {
-        if (!TABLE_FILTERS[key].includes(val)) TABLE_FILTERS[key].push(val);
+
+    if (val === "ALL") {
+        TABLE_FILTERS[key] = [];
     } else {
-        TABLE_FILTERS[key] = TABLE_FILTERS[key].filter(v => v !== val);
+        if (cb.checked) {
+            if (!TABLE_FILTERS[key].includes(val)) TABLE_FILTERS[key].push(val);
+        } else {
+            TABLE_FILTERS[key] = TABLE_FILTERS[key].filter(v => v !== val);
+        }
     }
+
+    // Sætter den visuelle opacity øjeblikkeligt ved klik
     cb.parentElement.style.opacity = cb.checked ? '1' : '0.4';
+
+    // Kalder live-motoren for at opdatere de andre bokse uden genbygning af hele draweren
+    updateDynamicTableDropdownsOnly();
     buildTableLeaderboardEngine();
 }
+
+// 🎯 NY GLOBAL RESET-FUNKTION TIL TABLE.JS
+function resetAllTableFilters() {
+    const list = TABLE_GLOBAL_DATA.players;
+    let absoluteMinAge = 0, absoluteMaxAge = 100;
+    let absoluteMinMins = 0, absoluteMaxMins = 99999;
+
+    if (list && list.length > 0) {
+        const ages = list.map(p => p.age).filter(a => a > 0);
+        const mins = list.map(p => p.mins_played).filter(m => m > 0);
+        if (ages.length) { absoluteMinAge = Math.min(...ages); absoluteMaxAge = Math.max(...ages); }
+        if (mins.length) { absoluteMinMins = Math.min(...mins); absoluteMaxMins = Math.max(...mins); }
+    }
+
+    // Gendanner standardtilstande (Tomme arrays [] betyder Vis Alle)
+    TABLE_FILTERS = {
+        leagues: [],
+        nationalities: [],
+        positions: [],
+        minAge: absoluteMinAge,
+        maxAge: absoluteMaxAge,
+        minMins: absoluteMinMins,
+        maxMins: absoluteMaxMins
+    };
+
+    // Opdaterer live elementerne uden fuld genbygning, så vi undgår sløret skærm
+    updateDynamicTableDropdownsOnly();
+    buildTableLeaderboardEngine();
+    
+    // Synkroniserer input-felterne i draweren visuelt, så tallene nulstilles med det samme
+    if ($t("tb-filt-min-age")) $t("tb-filt-min-age").value = TABLE_FILTERS.minAge;
+    if ($t("tb-filt-max-age")) $t("tb-filt-max-age").value = TABLE_FILTERS.maxAge;
+    if ($t("tb-filt-min-mins")) $t("tb-filt-min-mins").value = TABLE_FILTERS.minMins;
+    if ($t("tb-filt-max-mins")) $t("tb-filt-max-mins").value = TABLE_FILTERS.maxMins;
+}
+
+// ==========================================================================
+// PER 90 - TABLE.JS - LIVE-OPDATERING AF INDHOLD (DEL AF DEL 4)
+// ==========================================================================
+
+// 🎯 DYNAMISK LIVE-OPDATERING: Genbygger udelukkende HTML'en inde i boksene uden at lukke draweren
+function updateDynamicTableDropdownsOnly() {
+    if (!TABLE_GLOBAL_DATA || !TABLE_GLOBAL_DATA.players) return;
+    
+    const list = TABLE_GLOBAL_DATA.players;
+    const leaguesBox = $t("tb-container-leagues");
+    const natBox = $t("tb-container-nationalities");
+    const posBox = $t("tb-container-positions");
+    
+    // 1. Opdater Liga-tjekbokse live baseret på om arrayet er tomt (ALL)
+    if (leaguesBox) {
+        const leagues = [...new Set(list.map(p => p.league).filter(Boolean).sort())];
+        const isAllChecked = TABLE_FILTERS.leagues.length === 0;
+        let html = `<label class="table-drawer-checkbox-label" style="opacity: ${isAllChecked ? 1 : 0.4}; font-weight: bold; color: var(--accent-purple);"><input type="checkbox" value="ALL" ${isAllChecked ? "checked" : ""} onchange="handleTableCheckboxToggle(this, 'leagues')" style="accent-color: var(--accent-purple);"> [ALLE LIGAER]</label>`;
+        html += leagues.map(l => {
+            const checked = TABLE_FILTERS.leagues.includes(l);
+            return `<label class="table-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${l}" ${checked ? "checked" : ""} onchange="handleTableCheckboxToggle(this, 'leagues')" style="accent-color: var(--accent-purple);"> ${l}</label>`;
+        }).join('');
+        leaguesBox.innerHTML = html;
+    }
+
+    // 2. Opdater Nationalitet-tjekbokse live baseret på om arrayet er tomt (ALL)
+    if (natBox) {
+        const nationalities = [...new Set(list.map(p => p.nationality).filter(Boolean).sort())];
+        const isAllChecked = TABLE_FILTERS.nationalities.length === 0;
+        let html = `<label class="table-drawer-checkbox-label" style="opacity: ${isAllChecked ? 1 : 0.4}; font-weight: bold; color: var(--accent-purple);"><input type="checkbox" value="ALL" ${isAllChecked ? "checked" : ""} onchange="handleTableCheckboxToggle(this, 'nationalities')" style="accent-color: var(--accent-purple);"> [ALLE NATIONALITETER]</label>`;
+        html += nationalities.map(n => {
+            const checked = TABLE_FILTERS.nationalities.includes(n);
+            return `<label class="table-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${n}" ${checked ? "checked" : ""} onchange="handleTableCheckboxToggle(this, 'nationalities')" style="accent-color: var(--accent-purple);"> ${n}</label>`;
+        }).join('');
+        natBox.innerHTML = html;
+    }
+    
+    // 3. Opdater Position-tjekbokse live baseret på om arrayet er tomt (ALL)
+    if (posBox) {
+        const positions = [...new Set(list.map(p => p.position).filter(Boolean).sort())];
+        const isAllChecked = TABLE_FILTERS.positions.length === 0;
+        let html = `<label class="table-drawer-checkbox-label" style="opacity: ${isAllChecked ? 1 : 0.4}; font-weight: bold; color: var(--accent-purple);"><input type="checkbox" value="ALL" ${isAllChecked ? "checked" : ""} onchange="handleTableCheckboxToggle(this, 'positions')" style="accent-color: var(--accent-purple);"> [ALLE POSITIONER]</label>`;
+        html += positions.map(pos => {
+            const checked = TABLE_FILTERS.positions.includes(pos);
+            return `<label class="table-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${pos}" ${checked ? "checked" : ""} onchange="handleTableCheckboxToggle(this, 'positions')" style="accent-color: var(--accent-purple);"> ${pos}</label>`;
+        }).join('');
+        posBox.innerHTML = html;
+    }
+}
+
 // ==========================================================================
 // PER 90 - TABLE.JS - DEL 5 AF 6 (TABEL-DATAMOTOR & LOGO LOGIK)
 // ==========================================================================
@@ -349,7 +475,7 @@ async function buildTableLeaderboardEngine() {
                     <td class="col-min text-center font-meta">${p.mins_played}</td>
                     <td class="col-metric">
                         <div class="table-row-bar-container">
-                            <div class="table-row-score-value">${val.toFixed(2)}</div>
+                            <div class="table-row-score-value">${Number.isInteger(val) ? val : val.toFixed(2)}</div>
                             <div class="table-row-bar-bg">
                                 <div class="table-row-bar-fill" style="width: ${barWidthPct}%;"></div>
                             </div>
@@ -446,8 +572,8 @@ function downloadTablePNG() {
             background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important; 
         }
         
-        #table-download-clone .font-rank { font-size: 20px !important; font-weight: 800 !important; color: #ffffff !important; opacity: 0.35 !important; }
-        #table-download-clone .font-meta { font-size: 13px !important; font-weight: 900 !important; color: #ffffff !important; opacity: 0.35 !important; }
+        #table-download-clone .font-rank { font-size: 20px !important; font-weight: 800 !important; color: #ffffff !important; opacity: 0.5 !important; }
+        #table-download-clone .font-meta { font-size: 13px !important; font-weight: 900 !important; color: #ffffff !important; opacity: 0.5 !important; }
         #table-download-clone .table-row-player-name { font-size: 14px !important; font-weight: 900 !important; color: #ffffff !important; }
         #table-download-clone .table-row-subtext { font-size: 10.5px !important; color: #64748b !important; }
         #table-download-clone .table-row-score-value { font-size: 14px !important; font-weight: 900 !important; color: var(--accent-purple) !important; }

@@ -1,5 +1,5 @@
 // ==========================================================================
-// PER 90 - EVENTDATA.JS - DEL 1 AF 10 (MASTER STATES & SELEKTOR-LOGIK)
+// PER 90 - EVENTDATA.JS - DEL 1 AF 7 (MASTER STATES & INTEGRERET SCALE-CSS)
 // ==========================================================================
 
 let EV_GLOBAL_DATA = null;       // Indeholder det rå JSON-objekt fra eventdata.py
@@ -13,42 +13,109 @@ let EV_SELECTED_METRICS = ["Touch"]; // Standardvalg
 
 // 🎯 UNIK ISOLERET SELEKTOR: Forhindrer sammenstød i det globale navnerum
 const getEvEl = id => document.getElementById(id);
-// ==========================================================================
-// PER 90 - EVENTDATA.JS - DEL 2 AF 10 (WHOSCORED DASHBOARD CSS)
-// ==========================================================================
 
+// ==========================================================================
+// KOPIERET 1:1 FRA MATCHREPORT: UFEJLBARLIG SCALE CSS & AUTOMATISK AUTOFIT MOTOR
+// ==========================================================================
 document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById('ev-core-styles')) return;
     const style = document.createElement('style');
     style.id = 'ev-core-styles';
     style.innerHTML = `
         .ev-main-container { width: 100%; max-width: 820px; margin: 0 auto; padding: 0 15px; box-sizing: border-box; font-family: 'Gabarito', sans-serif; color: #e5e7eb; }
-        .ev-pitch-box { width: 100%; max-width: 660px; aspect-ratio: 105 / 68; position: relative; overflow: visible; background: transparent; margin: 0 auto 10px auto; }
+        
+        /* 🔥 1:1 HENTET FRA MATCHREPORT: Forhindrer kortet i at skubbe sig ud af skærmen eller blive cuttet */
+        .ev-scale-viewport { width: 100%; overflow: hidden; position: relative; display: block; }
+        
+        .mr-search-box { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 20px; margin-bottom: 20px; display: flex; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); box-sizing: border-box; }
+        .mr-input-field { flex-grow: 1; background: #07030c; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px 16px; color: #fff; font-size: 14px; outline: none; }
+        .mr-btn { background: #a855f7; color: #000000; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .mr-tabs-nav { display: flex; overflow-x: auto; gap: 6px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 4px; margin-bottom: 25px; }
+        .mr-tab-item { padding: 10px 18px; font-size: 12.5px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; border-radius: 7px; cursor: pointer; border: none; background: transparent; transition: all 0.15s; }
+        .mr-tab-item.active { color: #fff; background: #1e293b; }
+        
+        /* 🔥 FAST 1:1 LOOK: Kortet er ALTID præcis 680px under motorhjelmen. transform-origin sættes til top left */
+        .ev-capture-card { position: relative; width: 680px; min-width: 680px; max-width: 680px; padding: 35px 25px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); background: radial-gradient(circle at top, #111A2E 0%, #070A13 100%); display: flex; flex-direction: column; align-items: center; box-shadow: 0 25px 60px rgba(0,0,0,0.4); box-sizing: border-box; transform-origin: top left; margin: 0; }
+        
+        /* Justerede baneproportioner baseret på din originale pitch-box */
+        .ev-pitch-box { width: 100%; max-width: 620px; aspect-ratio: 105 / 68; position: relative; overflow: visible; background: transparent; margin: 0 auto; }
         .ev-pitch-box svg { width: 100%; height: 100%; overflow: visible; display: block; }
         .ev-pitch-line { stroke: rgba(255, 255, 255, 0.22); stroke-width: 1.5; fill: none; }
         .ev-markers-layer { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
         
-        /* Comet lines og pile til afleveringsmapping */
-        .ev-pass-arrow { stroke-dasharray: 0; stroke-linecap: round; }
-        
-        /* Legend styling nederst på banen */
+        /* Legend styling */
         .ev-legend-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 20px; width: 100%; margin-top: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #fff; }
         .ev-legend-item { display: flex; align-items: center; gap: 6px; }
         .ev-legend-marker { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        
+        @media (max-width: 600px) {
+            .mr-search-box { flex-direction: column; padding: 15px; gap: 10px; }
+            .mr-btn { width: 100%; justify-content: center; }
+        }
     `;
     document.head.appendChild(style);
+
+    // 🔥 AUTOMATISK JAVASCRIPT AUTOFIT MOTOR:
+    // Måler den reelle skærmplads og krymper både kortet og containerens højde/bredde proportionalt live!
+    const applyEventDataScale = () => {
+        const cards = document.querySelectorAll('.ev-capture-card');
+        cards.forEach(card => {
+            const container = card.parentElement;
+            if (!container) return;
+            
+            // Hvis kortet ikke ligger i en viewport wrapper, opretter vi den automatisk live
+            if (!container.classList.contains('ev-scale-viewport')) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'ev-scale-viewport';
+                container.insertBefore(wrapper, card);
+                wrapper.appendChild(card);
+                return;
+            }
+            
+            const viewportWidth = container.getBoundingClientRect().width;
+            const targetWidth = 680; // Matcher kortets faste bredde
+            
+            if (viewportWidth < targetWidth && viewportWidth > 0) {
+                const scaleFactor = viewportWidth / targetWidth;
+                
+                // Udregner og tvinger det perfekte pc-look ned i præcis mobil-bredde
+                card.style.transform = `scale(${scaleFactor})`;
+                
+                // Korrigerer containerens højde, så der ikke opstår et enormt tomt felt under kortet
+                const calculatedHeight = card.offsetHeight * scaleFactor;
+                container.style.height = `${calculatedHeight}px`;
+            } else {
+                card.style.transform = 'none';
+                container.style.height = 'auto';
+            }
+        });
+    };
+
+    // Trigger skaleringen ved resize, dom-ændringer og ved load
+    window.addEventListener('resize', applyEventDataScale);
+    const observer = new MutationObserver(applyEventDataScale);
+    observer.observe(document.body, { childList: true, subtree: true });
+    setTimeout(applyEventDataScale, 150);
 });
 // ==========================================================================
-// PER 90 - EVENTDATA.JS - DEL 3 AF 10 (HTML-SKAL & TJEKBOKS-SKUFFE)
+// PER 90 - EVENTDATA.JS - DEL 2 AF 7 (HTML-SKAL, DOWNLOAD-SANDBOX & FILTERPANEL)
 // ==========================================================================
 
 function initEventDataView(container) {
     container.innerHTML = `
-        <div class="ev-main-container">
+        <div class="ev-main-container" style="padding-top: 10px;">
+            <!-- SEKTIONS-HEADER DER MATCHER MATCHREPORT -->
+            <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-location-crosshairs" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
+                <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Event Data</span>
+            </div>
+
             <!-- URL INPUT -->
             <div class="mr-search-box">
-                <input type="text" id="ev-url-input" class="mr-input-field" placeholder="Indsæt WhoScored kamp-URL (f.srv. https://whoscored.com...)" value="https://www.whoscored.com/matches/1983584/live/england-premier-league-2026-2027-newcastle-bournemouth">
-                <button class="mr-btn" onclick="fetchWhoScoredEventFeed()">Hent Telemetri <i class="fa-solid fa-circle-notch fa-spin" id="ev-spinner" style="display:none;"></i></button>
+                <input type="text" id="ev-url-input" class="mr-input-field" placeholder="Indsæt WhoScored kamp-URL (f.eks. https://whoscored.com...)" value="https://www.whoscored.com/matches/2029172/live/europe-champions-league-2026-2027-manchester-united-sabah-fk">
+                <button class="mr-btn" onclick="fetchWhoScoredEventFeed()">
+                    Load Data <i class="fa-solid fa-circle-notch fa-spin" id="ev-spinner" style="display:none; margin-left: 6px;"></i>
+                </button>
             </div>
 
             <!-- FANE BJÆLKE -->
@@ -61,10 +128,12 @@ function initEventDataView(container) {
             </div>
 
             <!-- FILTER PANEL TIL METRIKKER -->
-            <div id="ev-metric-filter-panel" style="display:none; flex-wrap:wrap; gap:10px; margin-bottom:20px; justify-content:center;"></div>
+            <div id="ev-metric-filter-panel" style="display:none; flex-wrap:wrap; gap:10px; margin-bottom:25px; justify-content:center;"></div>
 
-            <!-- CENTRAL TEGNE-FLADE -->
-            <div class="mr-capture-card" id="ev-capture-target-area" style="display:none;"></div>
+            <!-- CENTRAL TEGNE-FLADE MED SCALE VIEWPORT INTEGRATION -->
+            <div class="ev-scale-viewport" id="ev-display-viewport" style="display:none;">
+                <div class="ev-capture-card" id="ev-capture-target-area"></div>
+            </div>
         </div>
     `;
     buildWhoScoredMetricFiltersHTML();
@@ -74,11 +143,81 @@ function buildWhoScoredMetricFiltersHTML() {
     const p = getEvEl("ev-metric-filter-panel"); if (!p) return;
     p.innerHTML = EV_METRIC_CONFIG.map(m => {
         const checked = EV_SELECTED_METRICS.includes(m);
-        return `<label class="table-drawer-checkbox-label" style="opacity:${checked?1:0.4}; background:#0f172a; padding:6px 12px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);"><input type="checkbox" value="${m}" ${checked?"checked":""} onchange="handleEvMetricToggle(this)" style="accent-color:#00F0FF; margin-right:6px;">${m}</label>`;
+        return `<label class="table-drawer-checkbox-label" style="opacity:${checked?1:0.4}; background:#0f172a; padding:6px 12px; border-radius:6px; border:1px solid rgba(255,255,255,0.05); cursor:pointer; font-size:12px; font-weight:700;"><input type="checkbox" value="${m}" ${checked?"checked":""} onchange="handleEvMetricToggle(this)" style="accent-color:#00F0FF; margin-right:6px;">${m}</label>`;
     }).join('');
 }
+
 // ==========================================================================
-// PER 90 - EVENTDATA.JS - DEL 4 AF 10 (API-SYNKRONISERING & MENU-TOGGLING)
+// PER 90 - EVENTDATA.JS - DEL 2: UNIVERSAL DOWNLOAD-SANDBOX (RETTET TIL ALLE FANER)
+// ==========================================================================
+function triggerEventDataDownload(filename, elementId) {
+    const originalEl = getEvEl(elementId);
+    if (!originalEl) return;
+
+    const hiddenContainer = document.createElement("div");
+    Object.assign(hiddenContainer.style, {
+        position: "absolute", left: "-9999px", top: "-9999px",
+        width: "820px", minWidth: "820px", maxWidth: "820px",
+        height: "auto", overflow: "visible", boxSizing: "border-box"
+    });
+
+    const clone = originalEl.cloneNode(true);
+    clone.id = `${elementId}-download-clone`;
+    
+    Object.assign(clone.style, {
+        width: "820px", minWidth: "820px", maxWidth: "820px",
+        height: "auto", minHeight: "auto", maxHeight: "none",
+        background: "#0B1220", boxSizing: "border-box",
+        display: "flex", opacity: "1", transform: "none"
+    });
+
+    // 🎯 SMART FILTER-MOTOR: Finder og fjerner interaktive elementer baseret på fanen
+    
+    // 1) Fjern spiller-dropdown (Figur 2)
+    const dropdown = clone.querySelector(".ev-interactive-select");
+    if (dropdown) {
+        dropdown.remove(); 
+    }
+    
+    // 2) Fjern hold-vælger knapper (Figur 3 og Figur 4) hvis de ligger øverst inde i kortet
+    // Vi leder efter en .ev-interactive-buttons som IKKE indeholder download-knappen
+    const topTeamButtons = clone.querySelector(".ev-interactive-buttons:not(:last-child)");
+    if (topTeamButtons) {
+        topTeamButtons.remove();
+    }
+
+    // 3) Fjern den reelle download-knap i bunden (Figur 2, 3, 4 og 5)
+    // Vi finder den absolut sidste knap-container og fjerner den, så billedet bliver helt rent
+    const allButtonContainers = clone.querySelectorAll(".ev-interactive-buttons");
+    if (allButtonContainers.length > 0) {
+        const downloadButtonContainer = allButtonContainers[allButtonContainers.length - 1];
+        if (downloadButtonContainer) {
+            downloadButtonContainer.remove();
+        }
+    }
+
+    hiddenContainer.appendChild(clone);
+    document.body.appendChild(hiddenContainer);
+
+    html2canvas(clone, { 
+        scale: 3, 
+        backgroundColor: "#0B1220", 
+        useCORS: true,
+        logging: false
+    }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = `${filename}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        document.body.removeChild(hiddenContainer);
+    }).catch(err => {
+        console.error("Download fejlede:", err);
+        if (document.body.contains(hiddenContainer)) document.body.removeChild(hiddenContainer);
+    });
+}
+
+// ==========================================================================
+// PER 90 - EVENTDATA.JS - DEL 3 AF 7 (API-INTEGRATION & GENEREL VISUEL HEADER)
 // ==========================================================================
 
 async function fetchWhoScoredEventFeed() {
@@ -92,12 +231,11 @@ async function fetchWhoScoredEventFeed() {
             EV_GLOBAL_DATA = await res.json();
             EV_SELECTED_TEAM = EV_GLOBAL_DATA.match_info.homeId;
             
-            // Sæt den første spiller i rækken som standardvalg til Player Events
             const firstPId = Object.keys(EV_GLOBAL_DATA.players_map)[0];
             EV_SELECTED_PLAYER = firstPId || "";
 
             getEvEl("ev-tabs-bar").style.display = "flex";
-            getEvEl("ev-capture-target-area").style.display = "flex";
+            getEvEl("ev-display-viewport").style.display = "block";
             switchEventTab(EV_ACTIVE_TAB);
         } else {
             const err = await res.json(); alert(`Fejl: ${err.detail}`);
@@ -111,7 +249,6 @@ function switchEventTab(tabId) {
     document.querySelectorAll('.mr-tab-item').forEach(b => b.classList.remove('active'));
     getEvEl(`ev-tab-${tabId}`).classList.add('active');
 
-    // Vis kun tjekbokse til valg af metrics på de faner, der understøtter det (Player/Team Events)
     getEvEl("ev-metric-filter-panel").style.display = (tabId === "player" || tabId === "team") ? "flex" : "none";
     renderActiveEventVisualization();
 }
@@ -122,9 +259,6 @@ function handleEvMetricToggle(cb) {
     buildWhoScoredMetricFiltersHTML();
     renderActiveEventVisualization();
 }
-// ==========================================================================
-// PER 90 - EVENTDATA.JS - DEL 5 AF 10 (RENDERTRANSFORMATION & FÆLLES HEADER)
-// ==========================================================================
 
 function renderActiveEventVisualization() {
     if (!EV_GLOBAL_DATA) return;
@@ -135,21 +269,57 @@ function renderActiveEventVisualization() {
     else if (EV_ACTIVE_TAB === "zonal") buildWhoScoredFig5ZonalControl();
 }
 
+// ==========================================================================
+// PER 90 - EVENTDATA.JS - OPDATERET HEADER MED STORE LOGOER OG RESTE-FARVEKANTER
+// ==========================================================================
+
 function generateWhoScoredHeaderHTML(titleText) {
     const info = EV_GLOBAL_DATA.match_info;
+    const scores = (info.scoreStr || "0-0").split('-');
+    const homeGoals = scores[0] ? scores[0].trim() : "0";
+    const awayGoals = scores[1] ? scores[1].trim() : "0";
+
+    // Standard fallback-farver hvis backend mangler dem
+    const homeColor = info.homeColor || "#00F0FF"; 
+    const awayColor = info.awayColor || "#FF0055";
+
     return `
-        <div style="display:flex; flex-direction:column; align-items:center; width:100%; text-align:center; margin-bottom:20px;">
-            <div style="display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:12px;">
-                <!-- 🎯 RETTET TIL info.homeLogo -->
-                <div style="width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; padding:6px;"><img src="${info.homeLogo}" style="max-width:100%; max-height:100%; object-fit:contain;"></div>
-                <span style="font-size:24px; font-weight:900; color:#fff; letter-spacing:1px;">${info.scoreStr}</span>
-                <!-- 🎯 RETTET TIL info.awayLogo -->
-                <div style="width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; padding:6px;"><img src="${info.awayLogo}" style="max-width:100%; max-height:100%; object-fit:contain;"></div>
+        <div style="display:flex; flex-direction:column; align-items:center; width:100%; padding:10px 10px 15px 10px; margin-bottom:20px; text-align:center; font-family: 'Gabarito', sans-serif;">
+            
+            <!-- CENTRAL SCOREBOARD-BLOK -->
+            <div style="display:flex; align-items:center; justify-content:center; gap:24px; width:100%;">
+                
+                <!-- VENSTRE: Hjemmeholdets store logo med farvet cirkel-kant (Ingen tekst) -->
+                <div style="width:58px; height:58px; border-radius:50%; background:rgba(255,255,255,0.02); border: 2.5px solid ${homeColor}; display:flex; align-items:center; justify-content:center; padding:6px; box-shadow: 0 0 15px rgba(${hexToRgb(homeColor)}, 0.25); flex-shrink:0;">
+                    <img src="${info.homeLogo}" style="max-width:100%; max-height:100%; object-fit:contain;">
+                </div>
+                
+                <!-- MIDTEN: Måltavle score -->
+                <div style="font-size:32px; font-weight:900; color:#fff; letter-spacing:1.5px; padding:0 10px; font-variant-numeric: tabular-nums;">
+                    ${homeGoals} - ${awayGoals}
+                </div>
+                
+                <!-- HØJRE: Udeholdets store logo med farvet cirkel-kant (Ingen tekst) -->
+                <div style="width:58px; height:58px; border-radius:50%; background:rgba(255,255,255,0.02); border: 2.5px solid ${awayColor}; display:flex; align-items:center; justify-content:center; padding:6px; box-shadow: 0 0 15px rgba(${hexToRgb(awayColor)}, 0.25); flex-shrink:0;">
+                    <img src="${info.awayLogo}" style="max-width:100%; max-height:100%; object-fit:contain;">
+                </div>
+                
             </div>
-            <div style="font-size:12px; font-weight:800; text-transform:uppercase; color:#fff; letter-spacing:0.5px;">${titleText}</div>
-            <div style="font-size:10px; font-weight:600; color:rgba(255,255,255,0.25); margin-top:4px;">Generated via per-90.streamlit.app | WhoScored Telemetry</div>
+            
+            <!-- SUBTITLE & TELEMETRI INFO -->
+            <div style="font-size:11px; font-weight:800; color:rgba(255,255,255,0.3); letter-spacing:1.5px; text-transform:uppercase; margin-top:14px;">
+                ${titleText}
+            </div>
         </div>
     `;
+}
+
+// 🎯 HJÆLPEFUNKTION: Omdanner hex-farver (#ff0000) til RGB, så vi kan lave en flot, blød skygge (box-shadow) under logoerne
+function hexToRgb(hex) {
+    let c = hex.replace('#', '');
+    if (c.length === 3) c = c.split('').map(x => x + x).join('');
+    let num = parseInt(c, 16);
+    return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
 }
 
 
@@ -164,83 +334,108 @@ function getMetricColorAndProps(metric) {
     };
     return conf[metric] || { c: '#fff', m: 'circle' };
 }
-// ==========================================================================
-// PER 90 - EVENTDATA.JS - DEL 6A AF 10 (FIG 1 – RETTET TIL BACKEND BASE64 LOGOER)
-// ==========================================================================
-
 function buildWhoScoredFig1Passmap() {
     const container = getEvEl("ev-capture-target-area");
     if (!EV_GLOBAL_DATA) return;
 
     const info = EV_GLOBAL_DATA.match_info;
-
     const subMinHome = info.homeFirstSubMin || 90;
     const subMinAway = info.awayFirstSubMin || 90;
     
-    // 1. Filtrering og databehandling for HOME TEAM
     let homePasses = EV_GLOBAL_DATA.events.filter(e => e.teamId == info.homeId && e.type === "Pass" && e.success && !e.isSetPiece && e.minute < subMinHome);
     let homePlayerStats = {}, homeNetworkPairs = {};
     processPassmapData(homePasses, homePlayerStats, homeNetworkPairs);
 
-    // 2. Filtrering og databehandling for AWAY TEAM
     let awayPasses = EV_GLOBAL_DATA.events.filter(e => e.teamId == info.awayId && e.type === "Pass" && e.success && !e.isSetPiece && e.minute < subMinAway);
     let awayPlayerStats = {}, awayNetworkPairs = {};
     processPassmapData(awayPasses, awayPlayerStats, awayNetworkPairs);
 
-    // CSS Grid-styling der splitter containeren op i 2 lige store lodrette kolonner side om side
+    const scores = (info.scoreStr || "0-0").split('-');
+    const homeGoals = scores[0] ? scores[0].trim() : "0";
+    const awayGoals = scores[1] ? scores[1].trim() : "0";
+    const homeColor = info.homeColor || "#00F0FF"; 
+    const awayColor = info.awayColor || "#FF0055";
+
     container.innerHTML = `
-        <div class="mr-capture-card" id="ev-capture-box" style="background:#0a0f1a; padding: 20px; border-radius: 12px; max-width: 820px; margin: 0 auto;">
-            ${generateWhoScoredHeaderHTML("TEAM PASSMAPS BEFORE 1ST SUB")}
+        <div style="width:100%; display:flex; flex-direction:column; align-items:stretch; font-family: 'Gabarito', sans-serif;">
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; width: 100%; margin-top: 10px;">
+            <!-- 🎯 NYT STRØMLINET HEADER-LAYOUT TIL FIG 1 -->
+            <div style="display:flex; flex-direction:column; align-items:center; width:100%; padding:10px 10px 15px 10px; margin-bottom:20px; text-align:center;">
                 
-                <!-- HOME TEAM COLUMN -->
-                <div style="display: flex; flex-direction: column; align-items: center;">
+                <!-- 1) Logoer og score placeret allerøverst -->
+                <div style="display:flex; align-items:center; justify-content:center; gap:20px; width:100%;">
+                    
+                    <!-- Hjemmehold Logo -->
+                    <div style="width:48px; height:48px; border-radius:50%; background:rgba(255,255,255,0.02); border: 2px solid ${homeColor}; display:flex; align-items:center; justify-content:center; padding:5px; box-shadow: 0 0 12px rgba(${hexToRgb(homeColor)}, 0.2); flex-shrink:0;">
+                        <img src="${info.homeLogo}" style="max-width:100%; max-height:100%; object-fit:contain;">
+                    </div>
+                    
+                    <!-- Score -->
+                    <div style="font-size:24px; font-weight:900; color:#fff; letter-spacing:1px; padding:0 4px; font-variant-numeric: tabular-nums;">
+                        ${homeGoals} - ${awayGoals}
+                    </div>
+                    
+                    <!-- Udehold Logo -->
+                    <div style="width:48px; height:48px; border-radius:50%; background:rgba(255,255,255,0.02); border: 2px solid ${awayColor}; display:flex; align-items:center; justify-content:center; padding:5px; box-shadow: 0 0 12px rgba(${hexToRgb(awayColor)}, 0.2); flex-shrink:0;">
+                        <img src="${info.awayLogo}" style="max-width:100%; max-height:100%; object-fit:contain;">
+                    </div>
+                </div>
+
+                <!-- 2) Hovedtitlen rykket under logoer, gjort stor og med god synlighed -->
+                <div style="font-size:16px; font-weight:900; color:rgba(255,255,255,0.85); letter-spacing:1.5px; text-transform:uppercase; margin-top:20px; margin-bottom:4px;">
+                    TEAM PASSMAPS BEFORE 1ST SUB
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; margin-top: 5px; box-sizing: border-box;">
+                <!-- HOME TEAM -->
+                <div style="display: flex; flex-direction: column; align-items: center; min-width:0;">
                     <div style="font-size: 11px; font-weight: 800; color: #fff; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                        <!-- 🎯 RETTET: Læser nu holdets cachede Base64 logo direkte fra din python-backend -->
-                        <img src="${info.homeLogo}" style="height: 18px; width: auto; object-fit: contain;">
-                        ${info.homeName} (1' - ${subMinHome}')
+                        <img src="${info.homeLogo}" style="height: 14px; width: auto; object-fit: contain;">
+                        ${info.homeName} (1'-${subMinHome}')
                     </div>
                     <div class="ev-pitch-box" style="width: 100%; aspect-ratio: 68 / 105; position: relative;">
                         ${generateVerticalPitchSVG(homePlayerStats, homeNetworkPairs, info.homeColor, true)}
                     </div>
                 </div>
 
-                <!-- AWAY TEAM COLUMN -->
-                <div style="display: flex; flex-direction: column; align-items: center;">
+                <!-- AWAY TEAM -->
+                <div style="display: flex; flex-direction: column; align-items: center; min-width:0;">
                     <div style="font-size: 11px; font-weight: 800; color: #fff; text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                        <!-- 🎯 RETTET: Læser nu holdets cachede Base64 logo direkte fra din python-backend -->
-                        <img src="${info.awayLogo}" style="height: 18px; width: auto; object-fit: contain;">
-                        ${info.awayName} (1' - ${subMinAway}')
+                        <img src="${info.awayLogo}" style="height: 14px; width: auto; object-fit: contain;">
+                        ${info.awayName} (1'-${subMinAway}')
                     </div>
                     <div class="ev-pitch-box" style="width: 100%; aspect-ratio: 68 / 105; position: relative;">
                         ${generateVerticalPitchSVG(awayPlayerStats, awayNetworkPairs, info.awayColor, false)}
                     </div>
                 </div>
-
             </div>
 
-            <!-- FÆLLES TEKSTINFO OG xT-LEGENDE I BUNDEN -->
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 25px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 9px; color: rgba(255,255,255,0.5); font-weight: 600;">
-                <div style="text-align: left; line-height: 1.4;">Circles are avg. pass locations<br>Lines are sized by pass frequency</div>
-                
-                <div style="display: flex; align-items: center; gap: 8px; font-weight: 800; text-transform: uppercase; color: #fff;">
+            <!-- FOOTER-LEGENDE -->
+            <div style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-top:30px; padding:15px 5px 0 5px; border-top:1px solid rgba(255,255,255,0.05); color:rgba(255,255,255,0.5); font-size:10px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase; box-sizing:border-box;">
+                <div style="text-align: left; line-height: 1.4; color: rgba(255,255,255,0.5);">
+                    Via per-90.streamlit.app
+                </div>
+                <div style="display:flex; align-items:center; gap:12px; justify-content: center; flex-grow: 1;">
                     <span>Low xT</span>
-                    <div style="width: 60px; height: 6px; background: linear-gradient(90deg, #1e293b, #00f0ff); border-radius: 3px;"></div>
+                    <div style="width:10px; height:10px; border:1.5px solid rgba(255,255,255,0.4); border-radius:50%; background:transparent;"></div>
+                    <div style="width:16px; height:16px; border:1.5px solid rgba(255,255,255,0.4); border-radius:50%; background:transparent;"></div>
+                    <div style="width:22px; height:22px; border:1.5px solid rgba(255,255,255,0.4); border-radius:50%; background:transparent;"></div>
                     <span>High xT</span>
                 </div>
-
-                <div style="text-align: right; line-height: 1.4;">Via per-90.streamlit.app<br>Data from WhoScored</div>
+                <div style="text-align: right; line-height: 1.4; color: rgba(255,255,255,0.5);">
+                    Circles are avg. locations<br>Lines mapped by frequency
+                </div>
             </div>
         </div>
-        <div style="text-align:center; margin-top:20px;">
-            <button class="mr-btn" style="margin:auto;" onclick="triggerMatchReportDownload('whoscored_passmap', 'ev-capture-box')">Download as PNG</button>
+        <div class="ev-interactive-buttons" style="text-align:center; margin-top:25px; width:100%;">
+            <button class="mr-btn" style="margin:0 auto;" onclick="triggerEventDataDownload('whoscored_passmap', 'ev-capture-target-area')">Download as PNG</button>
         </div>
     `;
 }
 
 // ==========================================================================
-// PER 90 - EVENTDATA.JS - DEL 6B (OPDATERET: ELEGANTE BUEDE KVALITETSKURVER)
+// PER 90 - EVENTDATA.JS - FIG 1 (DEL 2 AF 2: BANETEGNING & INITIAL-MOTOR)
 // ==========================================================================
 
 function generateVerticalPitchSVG(playerStats, networkPairs, teamColor, isHome) {
@@ -250,9 +445,30 @@ function generateVerticalPitchSVG(playerStats, networkPairs, teamColor, isHome) 
     const minPassThreshold = 2; 
     let maxPairCount = Math.max(...Object.values(networkPairs), 1);
 
-    // 1. GENERER RETNINGSBESTEMTE, BUEDE KURVER (BÉZIER-PATHWAYS)
+    // 🔥 TOP 3 FORBINDELSER FILTER: Sørger for, at hver spiller kun viser sine 3 mest hyppige modtagere
+    let filteredPairs = {};
+    let connectionsByPlayer = {};
+
+    // Grupper alle eksisterende pasningskombinationer ud fra afsenderen (fromId)
     for (const [pairKey, count] of Object.entries(networkPairs)) {
         if (count < minPassThreshold) continue;
+        const [fromId, toId] = pairKey.split("->");
+        if (!connectionsByPlayer[fromId]) connectionsByPlayer[fromId] = [];
+        connectionsByPlayer[fromId].push({ pairKey, count });
+    }
+
+    // Sorter forbindelserne for hver spiller efter antal pasninger og gem kun top 3
+    for (const fromId in connectionsByPlayer) {
+        connectionsByPlayer[fromId]
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 3)
+            .forEach(conn => {
+                filteredPairs[conn.pairKey] = conn.count;
+            });
+    }
+
+    // 1. GENERER DE FILTREREDE RETNINGSBESTEMTE, BUEDE KURVER (KUN TOP 3)
+    for (const [pairKey, count] of Object.entries(filteredPairs)) {
         const [fromId, toId] = pairKey.split("->");
         const p1 = playerStats[fromId];
         const p2 = playerStats[toId];
@@ -263,25 +479,16 @@ function generateVerticalPitchSVG(playerStats, networkPairs, teamColor, isHome) 
             let y1 = 100 - (p1.xSum / p1.count);
             let y2 = 100 - (p2.xSum / p2.count);
 
-            // Tykkelse og opacitet skalerer stadig flot efter frekvens
             let weight = 0.4 + (count / maxPairCount) * 1.8;
             let opacity = 0.08 + (count / maxPairCount) * 0.62;
 
-            // 🎯 BEREGN ET KONTOLPUNKT (MIDTPUNKT + FORSKYDNING) TIL AT SKABE BUEN
-            // Midtpunktet mellem de to spillere
             let midX = (x1 + x2) / 2;
             let midY = (y1 + y2) / 2;
-
-            // Beregn vektoren for linjen
             let dx = x2 - x1;
             let dy = y2 - y1;
-
-            // Find normalen til linjen og forskyd kontrolpunktet let til siden (0.12 = bue-intensitet)
-            // Dette sikrer, at kurven altid buer let med uret, hvilket viser retningen på spillet!
             let cx = midX - dy * 0.12;
             let cy = midY + dx * 0.12;
 
-            // Q (Quadratic Bézier) tegner en smuk, glat kurve fra (x1,y1) via kontrolpunktet (cx,cy) til (x2,y2)
             linesSVG += `
                 <path d="M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}" 
                       fill="none" 
@@ -292,46 +499,49 @@ function generateVerticalPitchSVG(playerStats, networkPairs, teamColor, isHome) 
         }
     }
 
-    // 2. GENERER SPILLER-CIRKLER (NODER)
+    // 2. GENERER SPILLER-CIRKLER (MED RETTET INITIAL-LOGIK)
     for (const [pId, p] of Object.entries(playerStats)) {
         let meta = EV_GLOBAL_DATA.players_map[pId] || { name: "Player", shirtNo: "" };
         if (!meta.isFirstEleven) continue;
 
         let avgX = p.xSum / p.count; 
         let avgY = p.ySum / p.count;
-        
         let leftPercent = 100 - avgY;
         let topPercent = 100 - avgX;
 
-        let initials = meta.name.split(' ').map(n => n).join('').substring(0,2).toUpperCase();
+        // 🎯 RETTET NAVNE-MOTOR: Finder forbogstavet i HVERT ord og samler dem (f.eks. "Virgil van Dijk" -> VVD)
+        let initials = meta.name
+            .split(' ')
+            .filter(word => word.length > 0)
+            .map(word => word[0])
+            .join('')
+            .toUpperCase()
+            .substring(0, 3); // Sikrer max 3 tegn så det ikke klemmer
+
         let size = 24 + Math.min(12, p.xtSum * 45); 
 
         nodesHTML += `
-            <div class="mr-shot-dot" style="left:${leftPercent}%; top:${topPercent}%; width:${size}px; height:${size}px; background:#0a0f1a; border:2.5px solid ${teamColor}; color:#fff; font-size: 9.5px; font-weight:900; line-height:${size-5}px; transform: translate(-50%, -50%); position: absolute; box-shadow: 0 4px 12px rgba(0,0,0,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 20;">
+            <div class="mr-shot-dot" style="left:${leftPercent}%; top:${topPercent}%; width:${size}px; height:${size}px; background: rgba(10, 15, 26, 0.85); border:2.5px solid ${teamColor}; color:#fff; font-size: 9.5px; font-weight:900; line-height:${size-5}px; transform: translate(-50%, -50%); position: absolute; box-shadow: 0 4px 12px rgba(0,0,0,0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 20; text-shadow: 0 1px 4px rgba(0,0,0,0.8), 0 0 2px #fff; pointer-events: auto; backdrop-filter: blur(1px);">
                 ${initials}
             </div>
         `;
     }
 
-    // 3. LODRET BANE OVERFLADE
+    // 3. LODRET BANE OVERFLADE (MED RETTEDE HARMONISKE PROPORTIONER)
     return `
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%; height:100%; display:block; z-index: 1;">
             <rect x="0" y="0" width="100" height="100" fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.4" />
             <line x1="0" y1="50" x2="100" y2="50" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.4" />
-            <circle cx="50" cy="50" r="12.5" fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.4" />
-            <circle cx="50" cy="50" r="0.4" fill="rgba(255,255,255,0.3)" />
+            
+            <ellipse cx="50" cy="50" rx="12.5" ry="8.5" fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.4" />
             
             <rect x="21.1" y="83.0" width="57.8" height="17.0" fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.4" />
             <rect x="36.8" y="94.2" width="26.4" height="5.8" fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.4" />
-            <circle cx="50" cy="88.5" r="0.4" fill="rgba(255,255,255,0.3)" />
-            <path d="M 40.0,83.0 A 6.5,6.5 0 0,1 60.0,83.0" fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.4" />
+            <path d="M 40.0,83.0 A 10.0,6.5 0 0,1 60.0,83.0" fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.4" />
 
             <rect x="21.1" y="0.0" width="57.8" height="17.0" fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.4" />
             <rect x="36.8" y="0.0" width="26.4" height="5.8" fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.4" />
-            <circle cx="50" cy="11.5" r="0.4" fill="rgba(255,255,255,0.3)" />
-            <path d="M 40.0,17.0 A 6.5,6.5 0 0,0 60.0,17.0" fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.4" />
-            
-            <!-- DE ELEGANTE BUEDE STREGER LANDER HER -->
+            <path d="M 40.0,17.0 A 10.0,6.5 0 0,0 60.0,17.0" fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="0.4" />
             <g>${linesSVG}</g>
         </svg>
         
@@ -341,477 +551,289 @@ function generateVerticalPitchSVG(playerStats, networkPairs, teamColor, isHome) 
     `;
 }
 
-
-
-// ==========================================================================
-// PER 90 - EVENTDATA.JS - OPPDATERET DATAPROCESSERING (SEKVENTIEL FEED LINK)
-// ==========================================================================
-
 function processPassmapData(passesArray, playerStats, networkPairs) {
-    // 1. Først beregner vi gennemsnitspositioner og akkumuleret xT for hver enkelt afsender
     passesArray.forEach(p => {
         if (!playerStats[p.playerId]) playerStats[p.playerId] = { xSum: 0, ySum: 0, count: 0, xtSum: 0 };
-        playerStats[p.playerId].xSum += p.x;
-        playerStats[p.playerId].ySum += p.y;
-        playerStats[p.playerId].count++;
-        playerStats[p.playerId].xtSum += (p.xtDiff || 0);
+        playerStats[p.playerId].xSum += p.x; playerStats[p.playerId].ySum += p.y;
+        playerStats[p.playerId].count++; playerStats[p.playerId].xtSum += (p.xtDiff || 0);
     });
-
-    // 2. Dernæst løber vi kronologisk igennem arrayet (ligesom din for-løkke i Python) 
-    // for at bygge netværksforbindelser mellem spiller (i) og modtager (i + 1)
     for (let i = 0; i < passesArray.length - 1; i++) {
-        const passer = passesArray[i].playerId;
-        const receiver = passesArray[i + 1].playerId;
-
-        // Vi linker dem kun sammen, hvis det er to forskellige spillere
+        const passer = passesArray[i].playerId; const receiver = passesArray[i + 1].playerId;
         if (passer && receiver && passer !== receiver) {
             const pairKey = `${passer}->${receiver}`;
             networkPairs[pairKey] = (networkPairs[pairKey] || 0) + 1;
         }
     }
 }
+
 // ==========================================================================
-// PER 90 - EVENTDATA.JS - DEL 7A AF 10 (PLAYER EVENTS - REPLICA MASTER HEADER)
+// PER 90 - EVENTDATA.JS - DEL 5 AF 7 (FIG 2 & 3 – PLAYER OG TEAM INDIVIDUELLE EVENTS)
 // ==========================================================================
 
 function buildWhoScoredFig2PlayerEvents() {
-    const container = getEvEl("ev-capture-target-area");
-    if (!EV_GLOBAL_DATA) return;
-
+    const container = getEvEl("ev-capture-target-area"); if (!EV_GLOBAL_DATA) return;
     const info = EV_GLOBAL_DATA.match_info;
     
-    // Generer dropdown-listen over alle spillere på holdet
     const pList = Object.entries(EV_GLOBAL_DATA.players_map)
         .map(([id, p]) => `<option value="${id}" ${id == EV_SELECTED_PLAYER ? 'selected' : ''}>${p.name} (${p.position})</option>`).join('');
         
     let dropdownHTML = `
-        <div style="margin-bottom:20px; display: flex; justify-content: center;">
-            <select class="table-drawer-select" style="max-width:350px; background:#1e293b; color:#fff; border:1px solid rgba(255,255,255,0.1); padding:8px 12px; border-radius:6px; font-weight:600;" onchange="EV_SELECTED_PLAYER=this.value; buildWhoScoredFig2PlayerEvents();">
+        <div class="ev-interactive-select" style="margin-bottom:20px; display: flex; justify-content: center; width:100%;">
+            <select class="table-drawer-select" style="width:100%; max-width:350px; background:#1e293b; color:#fff; border:1px solid rgba(255,255,255,0.1); padding:8px 12px; border-radius:6px; font-weight:600;" onchange="EV_SELECTED_PLAYER=this.value; buildWhoScoredFig2PlayerEvents();">
                 ${pList}
             </select>
         </div>
     `;
     
-    let markersHTML = "", arrowsSVG = "", gradientDefs = "", counts = {};
-    EV_SELECTED_METRICS.forEach(m => counts[m] = 0);
+    let counts = {}; EV_SELECTED_METRICS.forEach(m => counts[m] = 0);
+    const { markersHTML, arrowsSVG, gradientDefs } = processPlayerEventsGraphics(counts);
 
-    // Henter data og kiler fra beregningsmotoren (Del 7B)
-    const loopResult = processPlayerEventsGraphics(counts);
-    markersHTML = loopResult.markersHTML;
-    arrowsSVG = loopResult.arrowsSVG;
-    gradientDefs = loopResult.gradientDefs;
-
-    let legendHTML = '<div class="ev-legend-grid" style="justify-content:flex-end; padding-right:15px;">' + 
-        EV_SELECTED_METRICS.map(m => `<div class="ev-legend-item" style="font-size:11px; color:#cbd5e1;"><span class="ev-legend-marker" style="background:${getMetricColorAndProps(m).c}; width:10px; height:10px;"></span>— ${counts[m]}x ${m}</div>`).join('') + '</div>';
+    let legendHTML = '<div class="ev-legend-grid" style="justify-content:flex-end; gap:8px 14px; width:auto; margin:0;">' + 
+        EV_SELECTED_METRICS.map(m => `<div class="ev-legend-item" style="font-size:10px; color:#cbd5e1;"><span class="ev-legend-marker" style="background:${getMetricColorAndProps(m).c}; width:9px; height:9px;"></span>${counts[m]}x ${m}</div>`).join('') + '</div>';
     
     const playerName = EV_GLOBAL_DATA.players_map[EV_SELECTED_PLAYER]?.name.toUpperCase() || "PLAYER";
 
     container.innerHTML = `
-        ${dropdownHTML}
-        <div class="mr-capture-card" id="ev-player-events-capture" style="background:#0a0f1a; padding:25px; border-radius:12px; width:100%; max-width:820px; margin:0 auto; box-sizing:border-box; font-family: sans-serif;">
-            
-            <!-- 🎯 MASTER HEADER REPLICA: Samme struktur som dit godkendte passmap -->
+        <div style="width:100%; display:flex; flex-direction:column; align-items:stretch;">
+            ${dropdownHTML}
             ${generateWhoScoredHeaderHTML(`PLAYER EVENTS – ${playerName}`)}
             
-            <div class="ev-pitch-box" style="width:100%; max-width:660px; aspect-ratio:105/68; position:relative; margin:0 auto;">
-                <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%; height:100%; display:block;">
-                    <defs>${gradientDefs}</defs>
-                    
-                    <rect x="0" y="0" width="100" height="100" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
-                    <line x1="50" y1="0" x2="50" y2="100" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
-                    <ellipse cx="50" cy="50" rx="8.7" ry="13.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
-                    <circle cx="50" cy="50" r="0.4" fill="rgba(255,255,255,0.3)" />
-                    
-                    <rect x="0" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" /><rect x="0" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" /><circle cx="11.5" cy="50" r="0.4" fill="rgba(255,255,255,0.3)" /><path d="M 17,43.5 A 4.5,6.5 0 0,1 17,56.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
-                    <rect x="83" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" /><rect x="94.2" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" /><circle cx="88.5" cy="50" r="0.4" fill="rgba(255,255,255,0.3)" /><path d="M 83,43.5 A 4.5,6.5 0 0,0 83,56.5" fill="none" stroke="rgba(255, 255, 255, 0.18)" stroke-width="0.4" />
-                    
-                    <g>${arrowsSVG}</g>
-                </svg>
-                <div class="ev-markers-layer" style="position:absolute; inset:0; pointer-events:none;">${markersHTML}</div>
-            </div>
+            <div class="ev-pitch-box">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%; height:100%; display:block;">
+                <defs>${gradientDefs}</defs>
+                
+                <!-- Banens yderlinje og midterlinje -->
+                <rect x="0" y="0" width="100" height="100" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                <line x1="50" y1="0" x2="50" y2="100" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                
+                <!-- 🎯 RETTET MIDTERCIRKEL: Gjort til ellipse (rx < ry) for at kompensere for det liggende stræk -->
+                <ellipse cx="50" cy="50" rx="8.7" ry="13.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                <circle cx="50" cy="50" r="0.4" fill="rgba(255,255,255,0.3)" />
+                
+                <!-- VENSTRE FELT (Målfelt, straffesparksfelt og den manglende bue) -->
+                <rect x="0" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                <rect x="0" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                <!-- 🎯 TILFØJET BUE VENSTRE: Perfekt afrundet efter banens proportioner -->
+                <path d="M 17,43.5 A 4.5,6.5 0 0,1 17,56.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                
+                <!-- HØJRE FELT (Målfelt, straffesparksfelt og den manglende bue) -->
+                <rect x="83" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                <rect x="94.2" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                <!-- 🎯 TILFØJET BUE HØJRE: Perfekt afrundet efter banens proportioner -->
+                <path d="M 83,43.5 A 4.5,6.5 0 0,0 83,56.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                
+                <g>${arrowsSVG}</g>
+            </svg>
+            <div class="ev-markers-layer">${markersHTML}</div>
+        </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:660px; margin:20px auto 0 auto;">
-                <div style="display:flex; flex-direction:column; color:rgba(255,255,255,0.6); font-weight:700; font-size:10px;">
-                    <span style="font-size:9px; text-transform:uppercase;">Attacking Direction</span>
-                    <span style="font-size:14px; letter-spacing:-2px; color:rgba(255,255,255,0.4);">≫≫≫≫≫≫</span>
+            
+                        <!-- ULTRA-STILREN GRÅ SVG-VEKTOR-PIL I BUNDEN AF FIG 2 -->
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:20px; box-sizing:border-box; padding:0 5px;">
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <span style="font-size:9px; font-weight:800; text-transform:uppercase; color:rgba(255,255,255,0.35); letter-spacing:0.5px;">Attacking Direction</span>
+                    
+                    <!-- Låst til samme dæmpede systemfarve som i Fig 4 -->
+                    <div style="width: 80px; height: 12px; display: flex; align-items: center;">
+                        <svg viewBox="0 0 80 12" style="width: 100%; height: 100%; overflow: visible;">
+                            <path d="M 2,6 L 72,6 M 68,2 L 74,6 L 68,10" 
+                                  fill="none" 
+                                  stroke="rgba(255,255,255,0.3)" 
+                                  stroke-width="2.5" 
+                                  stroke-linecap="round" 
+                                  stroke-linejoin="round" />
+                        </svg>
+                    </div>
                 </div>
                 ${legendHTML}
             </div>
+
+
+
         </div>
-        <div style="text-align:center; margin-top:20px;"><button class="mr-btn" onclick="triggerMatchReportDownload('whoscored_player_events', 'ev-player-events-capture')">Download as PNG</button></div>
+
+        <div class="ev-interactive-buttons" style="display: flex; justify-content: center; margin: 25px auto 0 auto; width: 100%;">
+            <button class="mr-btn" onclick="triggerEventDataDownload('${playerName.replace(/\s+/g,'_')}_events', 'ev-capture-target-area')">Download as PNG</button>
+        </div>
     `;
 }
-
-// ==========================================================================
-// PER 90 - EVENTDATA.JS - DEL 7B AF 10 (OPDATERET: TYNDERE KILER & RENE CIRKLER)
-// ==========================================================================
-
-function processPlayerEventsGraphics(counts) {
-    let markersHTML = "";
-    let arrowsSVG = "";
-    let gradientDefs = "";
-    let idx = 0;
-
-    EV_GLOBAL_DATA.events.filter(e => e.playerId === EV_SELECTED_PLAYER).forEach(e => {
-        let cats = [];
-        if (e.type === "Pass") cats.push(e.xtDiff > 0.05 ? "Pass into Final ⅓" : (e.isSetPiece ? "Long Pass" : "Regular Pass"));
-        if (e.isTouch) cats.push(e.x > 83.0 && e.y > 21.1 && e.y < 78.9 ? "Opp. Box Touch" : "Touch");
-        if (["Tackle", "Interception", "Clearance"].includes(e.type)) cats.push("Defensive Action");
-
-        cats.forEach(cat => {
-            if (!EV_SELECTED_METRICS.includes(cat)) return;
-            counts[cat]++;
-            const props = getMetricColorAndProps(cat);
-            
-            let flipY = 100 - e.y;
-            let flipEndY = 100 - e.endY;
-            
-            if (props.m === "line" && e.endX !== null) {
-                idx++;
-                const gradId = `comet-grad-${idx}`;
-                
-                gradientDefs += `
-                    <linearGradient id="${gradId}" x1="${e.x}%" y1="${flipY}%" x2="${e.endX}%" y2="${flipEndY}%" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stop-color="${props.c}" stop-opacity="0.00" />
-                        <stop offset="65%" stop-color="${props.c}" stop-opacity="0.50" />
-                        <stop offset="100%" stop-color="${props.c}" stop-opacity="0.95" />
-                    </linearGradient>
-                `;
-
-                let dx = e.endX - e.x;
-                let dy = flipEndY - flipY;
-                let len = Math.sqrt(dx * dx + dy * dy) || 1;
-                
-                let nx = -dy / len;
-                let ny = dx / len;
-                
-                // 🎯 RECONFIGURERET TYKKELSE: WEnd er justeret ned til 0.42 for et mere strømlinet udtryk
-                let wStart = 0.03;
-                let wEnd = 0.42;
-                
-                let xStartLeft = e.x + nx * wStart;
-                let yStartLeft = flipY + ny * wStart;
-                let xStartRight = e.x - nx * wStart;
-                let yStartRight = flipY - ny * wStart;
-                
-                let xEndLeft = e.endX + nx * wEnd;
-                let yEndLeft = flipEndY + ny * wEnd;
-                let xEndRight = e.endX - nx * wEnd;
-                let yEndRight = flipEndY - ny * wEnd;
-
-                // 🎯 RENDERINGSLAG: Solid mørk baggrundscirkel skjuler nu kilen perfekt
-                arrowsSVG += `
-                    <!-- Det ekspanderende kile-polygon -->
-                    <path d="M ${xStartLeft} ${yStartLeft} L ${xEndLeft} ${yEndLeft} L ${xEndRight} ${yEndRight} L ${xStartRight} ${yStartRight} Z" 
-                          fill="url(#${gradId})" />
-                          
-                    <!-- Solid maskering med banens baggrundsfarve (#0a0f1a) -->
-                    <circle cx="${e.endX}" cy="${flipEndY}" r="0.75" fill="#0a0f1a" opacity="1" />
-                          
-                    <!-- Den åbne farvede modtager-ring helt i front -->
-                    <circle cx="${e.endX}" cy="${flipEndY}" r="0.75" fill="none" stroke="${props.c}" stroke-width="0.22" opacity="0.95" />
-                `;
-            } else if (props.m === "circle" || props.m === "square") {
-                markersHTML += `<div style="left:${e.x}%; top:${flipY}%; width:11px; height:11px; background:${props.c}; border:1.5px solid #fff; box-shadow:0 0 6px ${props.c}; position:absolute; transform:translate(-50%,-50%); border-radius:50%;"></div>`;
-            }
-        });
-    });
-
-    return { markersHTML, arrowsSVG, gradientDefs };
-}
-
-
-
-// ==========================================================================
-// PER 90 - EVENTDATA.JS - DEL 7C AF 10 (TEAM EVENTS - REPLICA MASTER HEADER)
-// ==========================================================================
 
 function buildWhoScoredFig3TeamEvents() {
-    const container = getEvEl("ev-capture-target-area");
-    if (!EV_GLOBAL_DATA) return;
-
+    const container = getEvEl("ev-capture-target-area"); if (!EV_GLOBAL_DATA) return;
     const info = EV_GLOBAL_DATA.match_info;
     
-    // Holdvælger-knapper i toppen
     let teamSelectHTML = `
-        <div style="display:flex; gap:10px; margin-bottom:15px; justify-content:center;">
-            <button class="mr-btn" style="background:${EV_SELECTED_TEAM == info.homeId ? '#00F0FF' : '#1e293b'}; color:${EV_SELECTED_TEAM == info.homeId ? '#000' : '#fff'}; font-weight:700;" onclick="EV_SELECTED_TEAM='${info.homeId}'; buildWhoScoredFig3TeamEvents();">${info.homeName}</button>
-            <button class="mr-btn" style="background:${EV_SELECTED_TEAM == info.awayId ? '#FF0055' : '#1e293b'}; color:#fff; font-weight:700;" onclick="EV_SELECTED_TEAM='${info.awayId}'; buildWhoScoredFig3TeamEvents();">${info.awayName}</button>
+        <div class="ev-interactive-buttons" style="display:flex; gap:10px; margin-bottom:20px; justify-content:center; width:100%;">
+            <button class="mr-btn" style="background:${EV_SELECTED_TEAM == info.homeId ? '#00F0FF' : '#1e293b'}; color:${EV_SELECTED_TEAM == info.homeId ? '#000' : '#fff'};" onclick="EV_SELECTED_TEAM='${info.homeId}'; buildWhoScoredFig3TeamEvents();">${info.homeName}</button>
+            <button class="mr-btn" style="background:${EV_SELECTED_TEAM == info.awayId ? '#FF0055' : '#1e293b'}; color:#fff;" onclick="EV_SELECTED_TEAM='${info.awayId}'; buildWhoScoredFig3TeamEvents();">${info.awayName}</button>
         </div>
     `;
     
-    let markersHTML = "", arrowsSVG = "", gradientDefs = "", counts = {};
-    EV_SELECTED_METRICS.forEach(m => counts[m] = 0);
+    let counts = {}; EV_SELECTED_METRICS.forEach(m => counts[m] = 0);
+    const { markersHTML, arrowsSVG, gradientDefs } = processTeamEventsGraphics(counts);
 
-    // Kald holdets specifikke datamotor (Del 3B)
-    const loopResult = processTeamEventsGraphics(counts);
-    markersHTML = loopResult.markersHTML;
-    arrowsSVG = loopResult.arrowsSVG;
-    gradientDefs = loopResult.gradientDefs;
-
-    let legendHTML = '<div class="ev-legend-grid" style="justify-content:flex-end; padding-right:15px;">' + 
-        EV_SELECTED_METRICS.map(m => `<div class="ev-legend-item" style="font-size:11px; color:#cbd5e1;"><span class="ev-legend-marker" style="background:${getMetricColorAndProps(m).c}; width:10px; height:10px;"></span>— ${counts[m]}x ${m}</div>`).join('') + '</div>';
+    let legendHTML = '<div class="ev-legend-grid" style="justify-content:flex-end; gap:8px 14px; width:auto; margin:0;">' + 
+        EV_SELECTED_METRICS.map(m => `<div class="ev-legend-item" style="font-size:10px; color:#cbd5e1;"><span class="ev-legend-marker" style="background:${getMetricColorAndProps(m).c}; width:9px; height:9px;"></span>${counts[m]}x ${m}</div>`).join('') + '</div>';
     
     const teamName = EV_SELECTED_TEAM == info.homeId ? info.homeName.toUpperCase() : info.awayName.toUpperCase();
 
     container.innerHTML = `
-        ${teamSelectHTML}
-        <div class="mr-capture-card" id="ev-team-events-capture" style="background:#0a0f1a; padding:25px; border-radius:12px; width:100%; max-width:820px; margin:0 auto; box-sizing:border-box; font-family: sans-serif;">
-            
-            <!-- 🎯 MASTER HEADER REPLICA: Nu fuldt synkroniseret med Base64-logoer -->
+        <div style="width:100%; display:flex; flex-direction:column; align-items:stretch;">
+            ${teamSelectHTML}
             ${generateWhoScoredHeaderHTML(`TEAM EVENTS – ${teamName}`)}
             
-            <div class="ev-pitch-box" style="width:100%; max-width:660px; aspect-ratio:105/68; position:relative; margin:0 auto;">
-                <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%; height:100%; display:block;">
-                    <defs>${gradientDefs}</defs>
-                    
-                    <!-- Banens kridtstreger -->
-                    <rect x="0" y="0" width="100" height="100" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
-                    <line x1="50" y1="0" x2="50" y2="100" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
-                    <ellipse cx="50" cy="50" rx="8.7" ry="13.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
-                    <circle cx="50" cy="50" r="0.4" fill="rgba(255,255,255,0.3)" />
-                    
-                    <rect x="0" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" /><rect x="0" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" /><circle cx="11.5" cy="50" r="0.4" fill="rgba(255,255,255,0.3)" /><path d="M 17,43.5 A 4.5,6.5 0 0,1 17,56.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
-                    <rect x="83" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" /><rect x="94.2" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" /><circle cx="88.5" cy="50" r="0.4" fill="rgba(255,255,255,0.3)" /><path d="M 83,43.5 A 4.5,6.5 0 0,0 83,56.5" fill="none" stroke="rgba(255, 255, 255, 0.18)" stroke-width="0.4" />
-                    
-                    <g>${arrowsSVG}</g>
-                </svg>
-                <div class="ev-markers-layer" style="position:absolute; inset:0; pointer-events:none;">${markersHTML}</div>
-            </div>
+            <div class="ev-pitch-box">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%; height:100%; display:block;">
+                <defs>${gradientDefs}</defs>
+                
+                <!-- Banens yderlinje og midterlinje -->
+                <rect x="0" y="0" width="100" height="100" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                <line x1="50" y1="0" x2="50" y2="100" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                
+                <!-- 🎯 RETTET MIDTERCIRKEL: Gjort til ellipse (rx < ry) for at kompensere for det liggende stræk -->
+                <ellipse cx="50" cy="50" rx="8.7" ry="13.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                <circle cx="50" cy="50" r="0.4" fill="rgba(255,255,255,0.3)" />
+                
+                <!-- VENSTRE FELT (Målfelt, straffesparksfelt og den manglende bue) -->
+                <rect x="0" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                <rect x="0" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                <!-- 🎯 TILFØJET BUE VENSTRE: Perfekt afrundet efter banens proportioner -->
+                <path d="M 17,43.5 A 4.5,6.5 0 0,1 17,56.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                
+                <!-- HØJRE FELT (Målfelt, straffesparksfelt og den manglende bue) -->
+                <rect x="83" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                <rect x="94.2" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                <!-- 🎯 TILFØJET BUE HØJRE: Perfekt afrundet efter banens proportioner -->
+                <path d="M 83,43.5 A 4.5,6.5 0 0,0 83,56.5" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.4" />
+                
+                <g>${arrowsSVG}</g>
+            </svg>
+            <div class="ev-markers-layer">${markersHTML}</div>
+        </div>
 
-            <!-- BUNDPANEL MED PILE -->
-            <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:660px; margin:20px auto 0 auto;">
-                <div style="display:flex; flex-direction:column; color:rgba(255,255,255,0.6); font-weight:700; font-size:10px;">
-                    <span style="font-size:9px; text-transform:uppercase;">Attacking Direction</span>
-                    <span style="font-size:14px; letter-spacing:-2px; color:rgba(255,255,255,0.4);">≫≫≫≫≫≫</span>
+                        <!-- ULTRA-STILREN GRÅ SVG-VEKTOR-PIL I BUNDEN AF FIG 3 -->
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:20px; box-sizing:border-box; padding:0 5px;">
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <span style="font-size:9px; font-weight:800; text-transform:uppercase; color:rgba(255,255,255,0.35); letter-spacing:0.5px;">Attacking Direction</span>
+                    
+                    <!-- Låst til samme dæmpede systemfarve som i Fig 4 -->
+                    <div style="width: 80px; height: 12px; display: flex; align-items: center;">
+                        <svg viewBox="0 0 80 12" style="width: 100%; height: 100%; overflow: visible;">
+                            <path d="M 2,6 L 72,6 M 68,2 L 74,6 L 68,10" 
+                                  fill="none" 
+                                  stroke="rgba(255,255,255,0.3)" 
+                                  stroke-width="2.5" 
+                                  stroke-linecap="round" 
+                                  stroke-linejoin="round" />
+                        </svg>
+                    </div>
                 </div>
                 ${legendHTML}
             </div>
+
+
+
         </div>
-        <div style="text-align:center; margin-top:20px;"><button class="mr-btn" onclick="triggerMatchReportDownload('whoscored_team_events', 'ev-team-events-capture')">Download as PNG</button></div>
+
+        <div class="ev-interactive-buttons" style="display: flex; justify-content: center; margin: 25px auto 0 auto; width: 100%;">
+            <button class="mr-btn" onclick="triggerEventDataDownload('${teamName.replace(/\s+/g,'_')}_events', 'ev-capture-target-area')">Download as PNG</button>
+        </div>
     `;
 }
-
-// ==========================================================================
-// PER 90 - EVENTDATA.JS - DEL 7D AF 10 (MATEMATISK KILE-MOTOR TIL HOLD-EVENTS)
-// ==========================================================================
-
-function processTeamEventsGraphics(counts) {
-    let markersHTML = "";
-    let arrowsSVG = "";
-    let gradientDefs = "";
-    let idx = 0;
-
-    // Filtrer kampens hændelser udelukkende for det valgte hold
-    EV_GLOBAL_DATA.events.filter(e => e.teamId == EV_SELECTED_TEAM).forEach(e => {
-        let cats = [];
-        
-        // 1. Tjek afleveringer
-        if (e.type === "Pass") {
-            cats.push(e.xtDiff > 0.05 ? "Pass into Final ⅓" : (e.isSetPiece ? "Long Pass" : "Regular Pass"));
-        }
-        
-        // 2. Tjek Touches (Uafhængigt tjek - sikrer korrekte volumener for hele holdet)
-        if (e.isTouch) {
-            cats.push(e.x > 83.0 && e.y > 21.1 && e.y < 78.9 ? "Opp. Box Touch" : "Touch");
-        }
-        
-        // 3. Tjek defensive aktioner
-        if (["Tackle", "Interception", "Clearance"].includes(e.type)) {
-            cats.push("Defensive Action");
-        }
-
-        cats.forEach(cat => {
-            if (!EV_SELECTED_METRICS.includes(cat)) return;
-            counts[cat]++;
-            const props = getMetricColorAndProps(cat);
-            
-            // Korrekt Y-flipping for det liggende Opta-grid
-            let flipY = 100 - e.y;
-            let flipEndY = 100 - e.endY;
-            
-            if (props.m === "line" && e.endX !== null) {
-                idx++;
-                const gradId = `team-comet-grad-${idx}`;
-                
-                // INVERTERET GRADIENT: Fader fra gennemsigtig (0%) ved start til fuld farve (100%) ved slut
-                gradientDefs += `
-                    <linearGradient id="${gradId}" x1="${e.x}%" y1="${flipY}%" x2="${e.endX}%" y2="${flipEndY}%" gradientUnits="userSpaceOnUse">
-                        <stop offset="0%" stop-color="${props.c}" stop-opacity="0.00" />
-                        <stop offset="65%" stop-color="${props.c}" stop-opacity="0.50" />
-                        <stop offset="100%" stop-color="${props.c}" stop-opacity="0.95" />
-                    </linearGradient>
-                `;
-
-                let dx = e.endX - e.x;
-                let dy = flipEndY - flipY;
-                let len = Math.sqrt(dx * dx + dy * dy) || 1;
-                
-                let nx = -dy / len;
-                let ny = dx / len;
-                
-                // Tykkelser i SVG enheder (Tynd 0.03 ved start, ekspanderer til 0.42 ved slut)
-                let wStart = 0.03;
-                let wEnd = 0.42;
-                
-                let xStartLeft = e.x + nx * wStart;
-                let yStartLeft = flipY + ny * wStart;
-                let xStartRight = e.x - nx * wStart;
-                let yStartRight = flipY - ny * wStart;
-                
-                let xEndLeft = e.endX + nx * wEnd;
-                let yEndLeft = flipEndY + ny * wEnd;
-                let xEndRight = e.endX - nx * wEnd;
-                let yEndRight = flipEndY - ny * wEnd;
-
-                // Tegner holdets ekspanderende kile-stier og masker modtager-ringen
-                arrowsSVG += `
-                    <!-- Det ekspanderende kile-polygon -->
-                    <path d="M ${xStartLeft} ${yStartLeft} L ${xEndLeft} ${yEndLeft} L ${xEndRight} ${yEndRight} L ${xStartRight} ${yStartRight} Z" 
-                          fill="url(#${gradId})" />
-                          
-                    <!-- Solid maskering med banens baggrundsfarve (#0a0f1a) -->
-                    <circle cx="${e.endX}" cy="${flipEndY}" r="0.75" fill="#0a0f1a" opacity="1" />
-                          
-                    <!-- Den åbne farvede modtager-ring helt i front -->
-                    <circle cx="${e.endX}" cy="${flipEndY}" r="0.75" fill="none" stroke="${props.c}" stroke-width="0.22" opacity="0.95" />
-                `;
-            } else if (props.m === "circle" || props.m === "square") {
-                // Store glødende cirkler til defensive aktioner og touches på holdniveau (11px)
-                markersHTML += `<div style="left:${e.x}%; top:${flipY}%; width:11px; height:11px; background:${props.c}; border:1.5px solid #fff; box-shadow:0 0 6px ${props.c}; position:absolute; transform:translate(-50%,-50%); border-radius:50%;"></div>`;
-            }
-        });
-    });
-
-    return { markersHTML, arrowsSVG, gradientDefs };
-}
-
-// ==========================================================================
-// PER 90 - EVENTDATA.JS - DEL 9A AF 10 (6x5 xT BLOCK GRID - INTERFACE)
-// ==========================================================================
-
-// ==========================================================================
-// PER 90 - EVENTDATA.JS - DEL 9A AF 10 (8x6 xT BLOCK GRID - REPLICA MASTER HEADER)
-// ==========================================================================
-
 function buildWhoScoredFig4XTHeatmap() {
-    const container = getEvEl("ev-capture-target-area");
-    if (!EV_GLOBAL_DATA) return;
-    
+    const container = getEvEl("ev-capture-target-area"); if (!EV_GLOBAL_DATA) return;
     const info = EV_GLOBAL_DATA.match_info;
     const baseColor = EV_SELECTED_TEAM == info.homeId ? info.homeColor : info.awayColor;
 
-    // Holdvælger-knapper i toppen
     let teamSelectHTML = `
-        <div style="display:flex; gap:10px; margin-bottom:15px; justify-content:center;">
-            <button class="mr-btn" style="background:${EV_SELECTED_TEAM == info.homeId ? '#00F0FF' : '#1e293b'}; color:${EV_SELECTED_TEAM == info.homeId ? '#000' : '#fff'}; font-weight:700;" onclick="EV_SELECTED_TEAM='${info.homeId}'; buildWhoScoredFig4XTHeatmap();">${info.homeName}</button>
-            <button class="mr-btn" style="background:${EV_SELECTED_TEAM == info.awayId ? '#FF0055' : '#1e293b'}; color:#fff; font-weight:700;" onclick="EV_SELECTED_TEAM='${info.awayId}'; buildWhoScoredFig4XTHeatmap();">${info.awayName}</button>
+        <div class="ev-interactive-buttons" style="display:flex; gap:10px; margin-bottom:20px; justify-content:center; width:100%;">
+            <button class="mr-btn" style="background:${EV_SELECTED_TEAM == info.homeId ? '#00F0FF' : '#1e293b'}; color:${EV_SELECTED_TEAM == info.homeId ? '#000' : '#fff'};" onclick="EV_SELECTED_TEAM='${info.homeId}'; buildWhoScoredFig4XTHeatmap();">${info.homeName}</button>
+            <button class="mr-btn" style="background:${EV_SELECTED_TEAM == info.awayId ? '#FF0055' : '#1e293b'}; color:#fff;" onclick="EV_SELECTED_TEAM='${info.awayId}'; buildWhoScoredFig4XTHeatmap();">${info.awayName}</button>
         </div>
     `;
 
-    // Filtrer holdets succesfulde xT-afleveringer
     let passes = EV_GLOBAL_DATA.events.filter(e => e.teamId == EV_SELECTED_TEAM && e.type === "Pass" && e.success && e.xtDiff > 0);
-
-    // Kald den proportionelle 6x5 datamotor (Del 4B)
-    const gridResult = processWhoScored6x5XTGrid(passes, baseColor);
-    let gridBlocksHTML = gridResult.gridBlocksHTML;
-
+    const { gridBlocksHTML } = processWhoScored6x5XTGrid(passes, baseColor);
     const teamName = EV_SELECTED_TEAM == info.homeId ? info.homeName.toUpperCase() : info.awayName.toUpperCase();
 
     container.innerHTML = `
-        ${teamSelectHTML}
-        <div class="mr-capture-card" id="ev-xt-capture" style="background:#0a0f1a; padding:25px; border-radius:12px; width:100%; max-width:820px; margin:0 auto; box-sizing:border-box; font-family: sans-serif;">
-            
-            <!-- 🎯 MASTER HEADER REPLICA: Nu fuldt synkroniseret med Base64-logoer og resultat -->
+        <div style="width:100%; display:flex; flex-direction:column; align-items:stretch;">
+            ${teamSelectHTML}
             ${generateWhoScoredHeaderHTML(`${teamName}'S EXPECTED THREAT VIA PASSES`)}
             
-            <div class="ev-pitch-box" style="width:100%; max-width:660px; aspect-ratio:105 / 68; position:relative; margin:0 auto; background:#0b0813; overflow: hidden; border-radius: 4px; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);">
-                <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%; height:100%; display:block; position: relative;">
-                    
+            <div class="ev-pitch-box" style="background:#0b0813; overflow: hidden; border-radius: 6px; box-shadow: inset 0 0 30px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.05);">
+                <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%; height:100%; display:block;">
                     <!-- LAYER A: DATA-GRID -->
                     <g id="ev-xt-6x5-grid-layer">${gridBlocksHTML}</g>
-
-                    <!-- LAYER B: BANELINJERNE OVENPÅ -->
+            
+                    <!-- LAYER B: DE RETTEDE BANELINJER OVENPÅ -->
                     <rect x="0" y="0" width="100" height="100" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
                     <line x1="50" y1="0" x2="50" y2="100" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
+                    
+                    <!-- REKTANGULÆRT STRÆK FOR MIDTEN -->
                     <ellipse cx="50" cy="50" rx="8.7" ry="13.5" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
                     <circle cx="50" cy="50" r="0.4" fill="rgba(255,255,255,0.4)" />
                     
-                    <rect x="0" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" /><rect x="0" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" /><circle cx="11.5" cy="50" r="0.4" fill="rgba(255,255,255,0.3)" /><path d="M 17,43.5 A 4.5,6.5 0 0,1 17,56.5" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
-                    <rect x="83" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" /><rect x="94.2" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" /><circle cx="88.5" cy="50" r="0.4" fill="rgba(255,255,255,0.3)" /><path d="M 83,43.5 A 4.5,6.5 0 0,0 83,56.5" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
+                    <!-- FELTER + BUER OVENPÅ GRIDDET -->
+                    <rect x="0" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
+                    <rect x="0" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
+                    <path d="M 17,43.5 A 4.5,6.5 0 0,1 17,56.5" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
+                    
+                    <rect x="83" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
+                    <rect x="94.2" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
+                    <path d="M 83,43.5 A 4.5,6.5 0 0,0 83,56.5" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
                 </svg>
             </div>
-            
-            <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:660px; margin:20px auto 0 auto; font-size:10px; font-weight:700; color:rgba(255,255,255,0.5);">
-                <div style="text-align:left; text-transform:uppercase;">Attacking Direction<br><span style="font-size:14px; letter-spacing:-2px; color:rgba(255,255,255,0.4);">≫≫≫≫≫≫</span></div>
-                <div style="display:flex; align-items:center; gap:8px; text-transform:uppercase;">
-                    <span>Zero xT</span>
-                    <div style="width:80px; height:6px; background:linear-gradient(90deg, #0c111e, ${baseColor}); border-radius:3px; border:0.5px solid rgba(255,255,255,0.1);"></div>
-                    <span>Max Threat</span>
+
+            <!-- 🔥 RETTET OG CENTRERET BUND-PANEL -->
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:20px; font-size:10px; font-weight:700; color:rgba(255,255,255,0.5); padding:0 5px; box-sizing:border-box;">
+                
+                <!-- Venstre side (Tom spacer for at skubbe indholdet mod midten) -->
+                <div style="flex:1; display:flex; justify-content:flex-start;"></div>
+                
+                <!-- Midterste boks: Angrebsretning + xT Farvebjælke samlet centreret -->
+                <div style="flex:2; display:flex; align-items:center; justify-content:center; gap:40px;">
+                    
+                    <!-- Centreret Angrebsretning -->
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center;">
+                        <span style="font-size:9px; font-weight:800; text-transform:uppercase; color:rgba(255,255,255,0.35); letter-spacing:0.5px;">Attacking Direction</span>
+                        <div style="width: 80px; height: 12px; display: flex; align-items: center; justify-content:center;">
+                            <svg viewBox="0 0 80 12" style="width: 100%; height: 100%; overflow: visible;">
+                                <path d="M 2,6 L 72,6 M 68,2 L 74,6 L 68,10" 
+                                      fill="none" 
+                                      stroke="rgba(255,255,255,0.3)" 
+                                      stroke-width="2.5" 
+                                      stroke-linecap="round" 
+                                      stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Centreret xT Legende -->
+                    <div style="display:flex; align-items:center; gap:8px; text-transform:uppercase; font-size:9px; font-weight:800; color:rgba(255,255,255,0.5); padding-top:4px;">
+                        <span>Zero xT</span>
+                        <div style="width:80px; height:6px; background:linear-gradient(90deg, #0c111e, ${baseColor}); border-radius:3px; border:0.5px solid rgba(255,255,255,0.1);"></div>
+                        <span>Max Threat</span>
+                    </div>
+
+                </div>
+                
+                <!-- 🔥 Højre side: Præcis placeret footer-tekst -->
+                <div style="flex:1; display:flex; justify-content:flex-end; font-size:10px; font-weight:700; color:rgba(255,255,255,0.25); letter-spacing:1px; text-transform:uppercase; padding-top:4px;">
+                    Via ://onrender.com
                 </div>
             </div>
+
         </div>
-        <div style="text-align:center; margin-top:20px;"><button class="mr-btn" onclick="triggerMatchReportDownload('whoscored_xt_map', 'ev-xt-capture')">Download as PNG</button></div>
+                    
+        <div class="ev-interactive-buttons" style="display: flex; justify-content: center; margin: 25px auto 0 auto; width: 100%;">
+            <button class="mr-btn" onclick="triggerEventDataDownload('${teamName.replace(/\s+/g,'_')}_xt_map', 'ev-capture-target-area')">Download as PNG</button>
+        </div>
     `;
 }
 
 // ==========================================================================
-// PER 90 - EVENTDATA.JS - DEL 9B AF 10 (6x5 Taktisk Grid Data Engine)
-// ==========================================================================
-
-function processWhoScored6x5XTGrid(passes, teamColor) {
-    // 🎯 OPRETTER EN STRØMLINET 6x5 REKTANGULÆR MATRIX (30 zoner totalt)
-    let grid = Array(5).fill(0).map(() => Array(6).fill(0));
-    let maxCellVal = 0.001;
-
-    // Fordel afleveringernes xT-værdier i det nye 6x5-system
-    passes.forEach(p => {
-        let c = Math.min(5, Math.floor((p.x / 100) * 6));
-        let r = Math.min(4, Math.floor((p.y / 100) * 5));
-        grid[r][c] += p.xtDiff;
-        if (grid[r][c] > maxCellVal) maxCellVal = grid[r][c];
-    });
-
-    let gridBlocksHTML = "";
-    const baseDarkColor = "#0c111e"; // Den faste basisfarve
-
-    // Gennemløb alle 30 rektangulære felter på banen
-    for (let r = 0; r < 5; r++) {
-        for (let c = 0; c < 6; c++) {
-            let val = grid[r][c];
-            let factor = maxCellVal > 0 ? (val / maxCellVal) : 0;
-            
-            // 4-r klarer den lodrette Y-flipping, så top og bund passer til banens layout
-            let flipRow = 4 - r;
-            let xPos = (c / 6) * 100;
-            let yPos = (flipRow / 5) * 100;
-            let width = 100 / 6;
-            let height = 100 / 5;
-
-            if (factor === 0) {
-                // Tomme zoner får den rene mørkeblå basisfarve med en solid dækning
-                gridBlocksHTML += `
-                    <rect x="${xPos}" y="${yPos}" width="${width}" height="${height}" 
-                          fill="${baseDarkColor}" fill-opacity="0.95" 
-                          stroke="rgba(0, 0, 0, 0.4)" stroke-width="0.3" />
-                `;
-            } else {
-                // Aktive zoner blender basisfarven i bunden med holdets farve ovenpå
-                gridBlocksHTML += `
-                    <rect x="${xPos}" y="${yPos}" width="${width}" height="${height}" fill="${baseDarkColor}" fill-opacity="1" />
-                    <rect x="${xPos}" y="${yPos}" width="${width}" height="${height}" 
-                          fill="${teamColor}" fill-opacity="${(factor * 0.85).toFixed(3)}" 
-                          stroke="rgba(0, 0, 0, 0.4)" stroke-width="0.3" />
-                `;
-            }
-        }
-    }
-
-    return { gridBlocksHTML };
-}
-
-// ==========================================================================
-// PER 90 - EVENTDATA.JS - DEL 10 AF 10 (FIG 5 – ZONAL CONTROL MATRIX - OPDATERET)
+// PER 90 - EVENTDATA.JS - DEL 7 AF 7 (OPDATERET FIG 5 MED NY TOP-HEADER & MINIMAL FOOTER)
 // ==========================================================================
 
 function buildWhoScoredFig5ZonalControl() {
@@ -839,7 +861,7 @@ function buildWhoScoredFig5ZonalControl() {
     });
 
     let zonesHTML = "";
-    const baseDarkColor = "#0c111e"; // Basisfarven
+    const baseDarkColor = "#0c111e";
     
     for (let r = 0; r < 3; r++) {
         for (let c = 0; c < 4; c++) {
@@ -879,63 +901,279 @@ function buildWhoScoredFig5ZonalControl() {
 
     const teamNameHome = info.homeName.toUpperCase();
     const teamNameAway = info.awayName.toUpperCase();
+    const homeColor = info.homeColor || '#00F0FF';
+    const awayColor = info.awayColor || '#FF0055';
 
     container.innerHTML = `
-        <div class="mr-capture-card" id="ev-zonal-capture" style="background:#0a0f1a; padding:25px; border-radius:12px; width:100%; max-width:820px; margin:0 auto; box-sizing:border-box; font-family: sans-serif;">
+        <div style="width:100%; display:flex; flex-direction:column; align-items:stretch;">
             
-            <!-- 🎯 RETTET TOP: Scoren er fjernet, og titlen er gjort markant større (22px) -->
-            <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:15px; color:#fff; text-align:center;">
-                <div style="font-size:22px; font-weight:900; color:#fff; letter-spacing:0.8px; text-transform:uppercase;">ZONAL CONTROL BY TOUCHES</div>
-                <div style="font-size:10px; font-weight:600; color:rgba(255,255,255,0.25); margin-top:5px;">Generated via per-90.streamlit.app | WhoScored Telemetry</div>
+            <!-- 🎯 NY ANRETTET TOP-HEADER: Præcis som på dit screenshot -->
+            <div style="display:flex; flex-direction:column; align-items:center; margin-bottom:25px; text-align:center; font-family: 'Gabarito', sans-serif;">
+                <div style="font-size:26px; font-weight:900; color:#fff; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px;">ZONAL CONTROL BY TOUCHES</div>
+                
+                <!-- Tekst-baseret legende under titlen -->
+                <div style="font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:8px;">
+                    <span style="color:${homeColor};">${teamNameHome}</span>
+                    <span style="color:rgba(255,255,255,0.15);">|</span>
+                    <span style="color:${awayColor};">${teamNameAway}</span>
+                    <span style="color:rgba(255,255,255,0.15);">|</span>
+                    <span style="color:#64748b;">CONTESTED</span>
+                </div>
+
+                <!-- Blok med de store logoer, "VS" og retningspile -->
+                <div style="display:flex; align-items:center; justify-content:center; gap:20px; margin-top:20px;">
+                    
+                    <!-- Venstre Logo + Pil -->
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                        <div style="width:58px; height:58px; border-radius:50%; background:rgba(255,255,255,0.02); border: 2.5px solid ${homeColor}; display:flex; align-items:center; justify-content:center; padding:6px; box-shadow: 0 0 15px rgba(${hexToRgb(homeColor)}, 0.25);">
+                            <img src="${info.homeLogo}" style="max-width:100%; max-height:100%; object-fit:contain;">
+                        </div>
+                        <span style="color:${homeColor}; font-size:16px; font-weight:900; line-height:1;">➡</span>
+                    </div>
+
+                    <!-- "VS." adskiller i midten -->
+                    <div style="font-size:14px; font-weight:800; color:rgba(255,255,255,0.15); text-transform:uppercase; padding-bottom:24px;">vs.</div>
+
+                    <!-- Højre Logo + Pil -->
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                        <div style="width:58px; height:58px; border-radius:50%; background:rgba(255,255,255,0.02); border: 2.5px solid ${awayColor}; display:flex; align-items:center; justify-content:center; padding:6px; box-shadow: 0 0 15px rgba(${hexToRgb(awayColor)}, 0.25);">
+                            <img src="${info.awayLogo}" style="max-width:100%; max-height:100%; object-fit:contain;">
+                        </div>
+                        <span style="color:${awayColor}; font-size:16px; font-weight:900; line-height:1;">⬅</span>
+                    </div>
+
+                </div>
             </div>
 
-            <!-- MIDTERSTE BANERAMME -->
-            <div class="ev-pitch-box" style="width:100%; max-width:660px; aspect-ratio:105/68; position:relative; margin:0 auto; background:#0b0813; overflow: hidden; border-radius: 4px; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);">
+
+            <div class="ev-pitch-box" style="background:#0b0813; overflow: hidden; border-radius: 6px; box-shadow: inset 0 0 30px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.05);">
                 <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width:100%; height:100%; display:block;">
+                    
+                    <!-- LAYER A: MATRIX FARVER (Rettet til zonesHTML) -->
                     <g id="ev-zonal-matrix-layer">${zonesHTML}</g>
+                    
+                    <!-- LAYER B: DE RIGTIGE BANELINJER -->
                     <rect x="0" y="0" width="100" height="100" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
                     <line x1="50" y1="0" x2="50" y2="100" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
+                    
                     <ellipse cx="50" cy="50" rx="8.7" ry="13.5" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
                     <circle cx="50" cy="50" r="0.4" fill="rgba(255,255,255,0.4)" />
-                    <rect x="0" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" /><rect x="0" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" /><circle cx="11.5" cy="50" r="0.4" fill="rgba(255,255,255,0.3)" /><path d="M 17,43.5 A 4.5,6.5 0 0,1 17,56.5" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
-                    <rect x="83" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" /><rect x="94.2" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" /><circle cx="88.5" cy="50" r="0.4" fill="rgba(255,255,255,0.3)" /><path d="M 83,43.5 A 4.5,6.5 0 0,0 83,56.5" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
+                    
+                    <rect x="0" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
+                    <rect x="0" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
+                    <path d="M 17,43.5 A 4.5,6.5 0 0,1 17,56.5" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
+                    
+                    <rect x="83" y="21.1" width="17" height="57.8" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
+                    <rect x="94.2" y="36.8" width="5.8" height="26.4" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
+                    <path d="M 83,43.5 A 4.5,6.5 0 0,0 83,56.5" fill="none" stroke="rgba(255, 255, 255, 0.16)" stroke-width="0.38" />
                 </svg>
             </div>
-            
-            <!-- BUNDPANEL: LOGOER OG RETNINGSPILE -->
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 660px; margin: 25px auto 0 auto; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); font-family: sans-serif;">
-                
-                <!-- VENSTRE: Hjemmehold -->
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; padding:4px;">
-                        <img src="${info.homeLogo}" style="max-width:100%; max-height:100%; object-fit:contain;">
-                    </div>
-                    <div style="display: flex; flex-direction: column; line-height: 1.2;">
-                        <span style="font-size: 11px; font-weight: 800; color: ${info.homeColor};">${teamNameHome}</span>
-                        <span style="font-size: 14px; letter-spacing: -2px; color: rgba(255,255,255,0.3); margin-top: -2px;">≫≫≫≫</span>
-                    </div>
-                </div>
 
-                <!-- 🎯 RETTET LOGO-BOX: Firkanten har nu fået en skarp, hvid kant (border: 1px solid #fff) -->
-                <div style="display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase;">
-                    <span style="background: ${baseDarkColor}; width: 10px; height: 10px; border-radius: 2px; border: 1px solid #fff; display: inline-block; box-sizing: border-box;"></span>
-                    Contested Zone
-                </div>
 
-                <!-- HØJRE: Udehold -->
-                <div style="display: flex; align-items: center; gap: 10px; flex-direction: row-reverse; text-align: right;">
-                    <div style="width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; padding:4px;">
-                        <img src="${info.awayLogo}" style="max-width:100%; max-height:100%; object-fit:contain;">
-                    </div>
-                    <div style="display: flex; flex-direction: column; line-height: 1.2;">
-                        <span style="font-size: 11px; font-weight: 800; color: ${info.awayColor};">${teamNameAway}</span>
-                        <span style="font-size: 14px; letter-spacing: -2px; color: rgba(255,255,255,0.3); margin-top: -2px;">≪≪≪≪</span>
-                    </div>
-                </div>
-
+            <div style="width:100%; text-align:center; font-size:10px; font-weight:700; color:rgba(255,255,255,0.25); letter-spacing:1px; margin-top:20px; text-transform:uppercase; padding-top:12px; border-top:1px solid rgba(255,255,255,0.03);">
+                Via per-90.streamlit.app
             </div>
+
+        </div> <!-- Lukker hoved-div'en -->
+
+        <!-- 🎯 TILFØJET: Interaktiv download-knap til Figur 5 -->
+        <div class="ev-interactive-buttons" style="text-align:center; margin-top:25px; width:100%;">
+            <button class="mr-btn" style="margin:0 auto;" onclick="triggerEventDataDownload('zonal_control', 'ev-capture-target-area')">Download as PNG</button>
         </div>
-        <div style="text-align:center; margin-top:20px;"><button class="mr-btn" onclick="triggerMatchReportDownload('zonal_control', 'ev-zonal-capture')">Download as PNG</button></div>
     `;
 }
 
+
+// ==========================================================================
+// PER 90 - EVENTDATA.JS - GRAFISK DATAMOTOR TIL SPILLER-EVENTS (FIG 2)
+// ==========================================================================
+function processPlayerEventsGraphics(counts) {
+    let markersHTML = "";
+    let arrowsSVG = "";
+    let gradientDefs = "";
+    let idx = 0;
+
+    if (!EV_GLOBAL_DATA || !EV_GLOBAL_DATA.events) return { markersHTML, arrowsSVG, gradientDefs };
+
+    EV_GLOBAL_DATA.events.filter(e => e.playerId == EV_SELECTED_PLAYER).forEach(e => {
+        let cats = [];
+        if (e.type === "Pass") cats.push(e.xtDiff > 0.05 ? "Pass into Final ⅓" : (e.isSetPiece ? "Long Pass" : "Regular Pass"));
+        if (e.isTouch) cats.push(e.x > 83.0 && e.y > 21.1 && e.y < 78.9 ? "Opp. Box Touch" : "Touch");
+        if (["Tackle", "Interception", "Clearance"].includes(e.type)) cats.push("Defensive Action");
+
+        cats.forEach(cat => {
+            if (!EV_SELECTED_METRICS.includes(cat)) return;
+            counts[cat]++;
+            const props = getMetricColorAndProps(cat);
+            
+            let flipY = 100 - e.y;
+            let flipEndY = 100 - e.endY;
+            
+            if (props.m === "line" && e.endX !== null) {
+                idx++;
+                const gradId = `comet-grad-${idx}`;
+                
+                gradientDefs += `
+                    <linearGradient id="${gradId}" x1="${e.x}%" y1="${flipY}%" x2="${e.endX}%" y2="${flipEndY}%" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="${props.c}" stop-opacity="0.00" />
+                        <stop offset="65%" stop-color="${props.c}" stop-opacity="0.50" />
+                        <stop offset="100%" stop-color="${props.c}" stop-opacity="0.95" />
+                    </linearGradient>
+                `;
+
+                let dx = e.endX - e.x;
+                let dy = flipEndY - flipY;
+                let len = Math.sqrt(dx * dx + dy * dy) || 1;
+                let nx = -dy / len;
+                let ny = dx / len;
+                
+                let wStart = 0.03;
+                let wEnd = 0.42;
+                
+                let xStartLeft = e.x + nx * wStart;
+                let yStartLeft = flipY + ny * wStart;
+                let xStartRight = e.x - nx * wStart;
+                let yStartRight = flipY - ny * wStart;
+                
+                let xEndLeft = e.endX + nx * wEnd;
+                let yEndLeft = flipEndY + ny * wEnd;
+                let xEndRight = e.endX - nx * wEnd;
+                let yEndRight = flipEndY - ny * wEnd;
+
+                arrowsSVG += `
+                    <path d="M ${xStartLeft} ${yStartLeft} L ${xEndLeft} ${yEndLeft} L ${xEndRight} ${yEndRight} L ${xStartRight} ${yStartRight} Z" fill="url(#${gradId})" />
+                    <circle cx="${e.endX}" cy="${flipEndY}" r="0.75" fill="#0a0f1a" opacity="1" />
+                    <circle cx="${e.endX}" cy="${flipEndY}" r="0.75" fill="none" stroke="${props.c}" stroke-width="0.22" opacity="0.95" />
+                `;
+            } else if (props.m === "circle" || props.m === "square") {
+                markersHTML += `<div style="left:${e.x}%; top:${flipY}%; width:11px; height:11px; background:${props.c}; border:1.5px solid #fff; box-shadow:0 0 6px ${props.c}; position:absolute; transform:translate(-50%,-50%); border-radius:50%;"></div>`;
+            }
+        });
+    });
+
+    return { markersHTML, arrowsSVG, gradientDefs };
+}
+
+// ==========================================================================
+// PER 90 - EVENTDATA.JS - MATEMATISK KILE-MOTOR TIL HOLD-EVENTS (FIG 3)
+// ==========================================================================
+function processTeamEventsGraphics(counts) {
+    let markersHTML = "";
+    let arrowsSVG = "";
+    let gradientDefs = "";
+    let idx = 0;
+
+    if (!EV_GLOBAL_DATA || !EV_GLOBAL_DATA.events) return { markersHTML, arrowsSVG, gradientDefs };
+
+    EV_GLOBAL_DATA.events.filter(e => e.teamId == EV_SELECTED_TEAM).forEach(e => {
+        let cats = [];
+        if (e.type === "Pass") {
+            cats.push(e.xtDiff > 0.05 ? "Pass into Final ⅓" : (e.isSetPiece ? "Long Pass" : "Regular Pass"));
+        }
+        if (e.isTouch) {
+            cats.push(e.x > 83.0 && e.y > 21.1 && e.y < 78.9 ? "Opp. Box Touch" : "Touch");
+        }
+        if (["Tackle", "Interception", "Clearance"].includes(e.type)) {
+            cats.push("Defensive Action");
+        }
+
+        cats.forEach(cat => {
+            if (!EV_SELECTED_METRICS.includes(cat)) return;
+            counts[cat]++;
+            const props = getMetricColorAndProps(cat);
+            
+            let flipY = 100 - e.y;
+            let flipEndY = 100 - e.endY;
+            
+            if (props.m === "line" && e.endX !== null) {
+                idx++;
+                const gradId = `team-comet-grad-${idx}`;
+                
+                gradientDefs += `
+                    <linearGradient id="${gradId}" x1="${e.x}%" y1="${flipY}%" x2="${e.endX}%" y2="${flipEndY}%" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="${props.c}" stop-opacity="0.00" />
+                        <stop offset="65%" stop-color="${props.c}" stop-opacity="0.50" />
+                        <stop offset="100%" stop-color="${props.c}" stop-opacity="0.95" />
+                    </linearGradient>
+                `;
+
+                let dx = e.endX - e.x;
+                let dy = flipEndY - flipY;
+                let len = Math.sqrt(dx * dx + dy * dy) || 1;
+                let nx = -dy / len;
+                let ny = dx / len;
+                
+                let wStart = 0.03;
+                let wEnd = 0.42;
+                
+                let xStartLeft = e.x + nx * wStart;
+                let yStartLeft = flipY + ny * wStart;
+                let xStartRight = e.x - nx * wStart;
+                let yStartRight = flipY - ny * wStart;
+                
+                let xEndLeft = e.endX + nx * wEnd;
+                let yEndLeft = flipEndY + ny * wEnd;
+                let xEndRight = e.endX - nx * wEnd;
+                let yEndRight = flipEndY - ny * wEnd;
+
+                arrowsSVG += `
+                    <path d="M ${xStartLeft} ${yStartLeft} L ${xEndLeft} ${yEndLeft} L ${xEndRight} ${yEndRight} L ${xStartRight} ${yStartRight} Z" fill="url(#${gradId})" />
+                    <circle cx="${e.endX}" cy="${flipEndY}" r="0.75" fill="#0a0f1a" opacity="1" />
+                    <circle cx="${e.endX}" cy="${flipEndY}" r="0.75" fill="none" stroke="${props.c}" stroke-width="0.22" opacity="0.95" />
+                `;
+            } else if (props.m === "circle" || props.m === "square") {
+                markersHTML += `<div style="left:${e.x}%; top:${flipY}%; width:11px; height:11px; background:${props.c}; border:1.5px solid #fff; box-shadow:0 0 6px ${props.c}; position:absolute; transform:translate(-50%,-50%); border-radius:50%;"></div>`;
+            }
+        });
+    });
+
+    return { markersHTML, arrowsSVG, gradientDefs };
+}
+
+// ==========================================================================
+// PER 90 - EVENTDATA.JS - TACTICAL 6x5 EXPECTED THREAT MATRIX DATA ENGINE (FIG 4)
+// ==========================================================================
+function processWhoScored6x5XTGrid(passes, teamColor) {
+    let grid = Array(5).fill(0).map(() => Array(6).fill(0));
+    let maxCellVal = 0.001;
+
+    passes.forEach(p => {
+        let c = Math.min(5, Math.floor((p.x / 100) * 6));
+        let r = Math.min(4, Math.floor((p.y / 100) * 5));
+        grid[r][c] += p.xtDiff;
+        if (grid[r][c] > maxCellVal) maxCellVal = grid[r][c];
+    });
+
+    let gridBlocksHTML = "";
+    const baseDarkColor = "#0c111e";
+
+    for (let r = 0; r < 5; r++) {
+        for (let c = 0; c < 6; c++) {
+            let val = grid[r][c];
+            let factor = maxCellVal > 0 ? (val / maxCellVal) : 0;
+            
+            let flipRow = 4 - r;
+            let xPos = (c / 6) * 100;
+            let yPos = (flipRow / 5) * 100;
+            let width = 100 / 6;
+            let height = 100 / 5;
+
+            if (factor === 0) {
+                gridBlocksHTML += `
+                    <rect x="${xPos}" y="${yPos}" width="${width}" height="${height}" 
+                          fill="${baseDarkColor}" fill-opacity="0.95" 
+                          stroke="rgba(0, 0, 0, 0.4)" stroke-width="0.3" />
+                `;
+            } else {
+                gridBlocksHTML += `
+                    <rect x="${xPos}" y="${yPos}" width="${width}" height="${height}" fill="${baseDarkColor}" fill-opacity="1" />
+                    <rect x="${xPos}" y="${yPos}" width="${width}" height="${height}" 
+                          fill="${teamColor || '#ffffff'}" fill-opacity="${(factor * 0.85).toFixed(3)}" 
+                          stroke="rgba(0, 0, 0, 0.4)" stroke-width="0.3" />
+                `;
+            }
+        }
+    }
+
+    return { gridBlocksHTML };
+}

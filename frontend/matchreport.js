@@ -1,5 +1,5 @@
 // ==========================================================================
-// PER 90 - MATCHREPORT.JS - DEL 1 AF 10 (MASTER STATES & ISOLERET SELEKTOR)
+// PER 90 - MATCHREPORT.JS - DEL 1 AF 4 (MASTER STATES & ISOLERET SELEKTOR)
 // ==========================================================================
 
 let MATCH_GLOBAL_DATA = null;       // Indeholder den komplette JSON-datapakke fra matchreport.py
@@ -10,29 +10,37 @@ let MATCH_SELECTED_PLAYER = null;   // Den nuværende valgte spiller i Fig 5 (Pl
 const getMatchReportEl = id => document.getElementById(id);
 
 // ==========================================================================
-// PER 90 - MATCHREPORT.JS - DEL 2 AF 10 (UFEJLBARLIG SCALE CSS - DEL A)
+// PER 90 - MATCHREPORT.JS - DEL 2 AF 4 (INTEGRERET CSS - DEL A)
 // ==========================================================================
 document.addEventListener("DOMContentLoaded", () => {
-    if (document.getElementById('match-report-core-styles')) return;
+    // FORCE OVERRIDE: Vi fjerner det gamle style-tag, hvis det findes, så de nye centreringer slår fejlfrit igennem live
+    const oldStyle = document.getElementById('match-report-core-styles');
+    if (oldStyle) oldStyle.remove();
+
     const style = document.createElement('style');
     style.id = 'match-report-core-styles';
     style.innerHTML = `
         .mr-main-container { width: 100%; max-width: 820px; margin: 0 auto; padding: 0 15px; box-sizing: border-box; }
         
-        /* 🔥 NY VIEWPORT WRAPPER: Forhindrer kortet i at skubbe sig ud af skærmen eller blive cuttet */
-        .mr-scale-viewport { width: 100%; overflow: hidden; position: relative; display: block; }
+        /* 🔥 CENTRERINGS-FIX: Sørger for at indholdet (visualiseringerne) indeni altid står absolut midt på skærmen */
+        .mr-scale-viewport { width: 100%; overflow: hidden; position: relative; display: flex; justify-content: center; align-items: flex-start; }
         
-        .mr-search-box { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 20px; margin-bottom: 20px; display: flex; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); box-sizing: border-box; }
+        .mr-search-box { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; padding: 20px; margin-bottom: 20px; display: flex; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); box-sizing: border-box; width: 100%; }
         .mr-input-field { flex-grow: 1; background: #07030c; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px 16px; color: #fff; font-size: 14px; outline: none; }
         .mr-input-field:focus { border-color: var(--accent-purple); }
         .mr-btn { background: var(--accent-purple); color: #06140c; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
-        .mr-tabs-nav { display: flex; overflow-x: auto; gap: 6px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 4px; margin-bottom: 25px; }
-        .mr-tab-item { padding: 10px 18px; font-size: 12.5px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.8px; border-radius: 7px; cursor: pointer; border: none; background: transparent; transition: all 0.15s; }
+        
+        /* 🔥 FULL WIDTH & SPREAD FIX: Fanelinjen fylder nu 100% og knapperne fordeler sig helt ligeligt ud over bredden */
+        .mr-tabs-nav { display: flex; overflow-x: auto; gap: 6px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; padding: 4px; margin-bottom: 25px; width: 100%; box-sizing: border-box; justify-content: space-between; }
+        
+        /* 🔥 TYDELIGERE FANE-TEKST OG HOVER: Givet en markant lysere nuance så den er letlæselig mod det grønne underlag */
+        .mr-tab-item { flex: 1; text-align: center; padding: 10px 12px; font-size: 12.5px; font-weight: 800; color: rgba(255, 255, 255, 0.55); text-transform: uppercase; letter-spacing: 0.8px; border-radius: 7px; cursor: pointer; border: none; background: transparent; transition: all 0.15s; white-space: nowrap; }
+        .mr-tab-item:hover { color: #ffffff; }
         .mr-tab-item.active { color: #fff; background: #1e293b; }
         
-        /* 🔥 FAST PC-LOOK: Kortet er ALTID præcis 680px under motorhjelmen. transform-origin sættes til top left */
-        .mr-capture-card { position: relative; width: 680px; min-width: 680px; max-width: 680px; padding: 35px 25px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); background: radial-gradient(circle at top, #111A2E 0%, #070A13 100%); display: flex; flex-direction: column; align-items: center; box-shadow: 0 25px 60px rgba(0,0,0,0.4); box-sizing: border-box; transform-origin: top left; margin: 0; }
-        
+        /* 🔥 ABSOLUT CENTRERING: Kortet er låst til 680px og tvinges ind på midten af sin flex-parent */
+        .mr-capture-card { position: relative; width: 680px; min-width: 680px; max-width: 680px; padding: 35px 25px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); background: radial-gradient(circle at top, #111A2E 0%, #070A13 100%); display: flex; flex-direction: column; align-items: center; box-shadow: 0 25px 60px rgba(0,0,0,0.4); box-sizing: border-box; transform-origin: top center; margin: 0 auto; }
+
         .mr-pitch-wrapper { width: 100%; max-width: 620px; aspect-ratio: 105 / 68; position: relative; overflow: visible; background: transparent; margin-bottom: 10px; }
         .mr-pitch-line { stroke: rgba(255, 255, 255, 0.12); stroke-width: 0.6; fill: none; }
         .mr-markers-layer { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
@@ -40,9 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
         .mr-shot-dot.own-goal { border: none; box-shadow: none; background: transparent !important; }
         .mr-stats-overlay { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 190px; padding: 14px; background: rgba(11, 18, 32, 0.88); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; display: flex; flex-direction: column; gap: 11px; z-index: 15; backdrop-filter: blur(4px); box-sizing: border-box; }
         .mr-stat-row { display: flex; flex-direction: column; gap: 4px; }
-// ==========================================================================
-// PER 90 - MATCHREPORT.JS - DEL 2 AF 10 (UFEJLBARLIG SCALE CSS - DEL B)
-// ==========================================================================
         .mr-stat-meta { display: flex; justify-content: space-between; align-items: center; font-size: 10.5px; font-weight: 700; text-transform: uppercase; }
         .mr-stat-lbl { color: rgba(255,255,255,0.6); font-size: 8.5px; letter-spacing: 0.5px; font-weight: 800; text-align: center; flex-grow: 1; }
         .mr-bar-track { width: 100%; height: 3px; background: rgba(255,255,255,0.05); border-radius: 1.5px; display: flex; overflow: hidden; }
@@ -81,15 +86,12 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
     document.head.appendChild(style);
 
-    // 🔥 AUTOMATISK JAVASCRIPT AUTOFIT MOTOR:
-    // Måler den reelle skærmplads og krymper både kortet og containerens højde/bredde proportionalt live!
     const applyMatchReportScale = () => {
         const cards = document.querySelectorAll('.mr-capture-card');
         cards.forEach(card => {
             const container = card.parentElement;
             if (!container) return;
             
-            // Hvis kortet ikke ligger i en viewport wrapper, opretter vi den automatisk live
             if (!container.classList.contains('mr-scale-viewport')) {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'mr-scale-viewport';
@@ -99,15 +101,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             
             const viewportWidth = container.getBoundingClientRect().width;
-            const targetWidth = 680; // Matcher kortets bredde i CSS'en
+            const targetWidth = 680;
             
             if (viewportWidth < targetWidth && viewportWidth > 0) {
                 const scaleFactor = viewportWidth / targetWidth;
-                
-                // Udregner og tvinger det perfekte pc-look ned i præcis mobil-bredde
                 card.style.transform = `scale(${scaleFactor})`;
-                
-                // Korrigerer containerens højde, så der ikke opstår et enormt tomt felt under kortet
                 const calculatedHeight = card.offsetHeight * scaleFactor;
                 container.style.height = `${calculatedHeight}px`;
             } else {
@@ -117,14 +115,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
 
-    // Trigger skaleringen ved resize, dom-ændringer og ved load
     window.addEventListener('resize', applyMatchReportScale);
     const observer = new MutationObserver(applyMatchReportScale);
     observer.observe(document.body, { childList: true, subtree: true });
     setTimeout(applyMatchReportScale, 150);
 });
 
-
+// ==========================================================================
+// PER 90 - MATCHREPORT.JS - DEL 3 AF 4 (DOWNLOAD-SANDBOX & INITIALISERING)
+// ==========================================================================
 
 function triggerMatchReportDownload(filename, elementId) {
     const originalEl = getMatchReportEl(elementId);
@@ -146,7 +145,7 @@ function triggerMatchReportDownload(filename, elementId) {
         width: "820px", minWidth: "820px", maxWidth: "820px",
         height: "auto", minHeight: "auto", maxHeight: "none",
         background: "#0B1220", boxSizing: "border-box",
-        display: "flex", opacity: "1"
+        display: "flex", opacity: "1", transform: "none"
     });
 
     // Fjern spillervælger-dropdown'en fra download-billedet, hvis det er Fig 5
@@ -192,19 +191,24 @@ function triggerMatchReportDownload(filename, elementId) {
     });
 }
 
-
 function initMatchReportView(container) {
     container.innerHTML = `
-        <div class="mr-main-container">
-            <!-- URL SØGEBJÆLKE -->
+        <div class="mr-main-container" style="padding-top: 10px;">
+            <!-- 🎯 APPSYNKRONISERING: Sektions-header der matcher stilen fra table.js -->
+            <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-file-invoice" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
+                <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Match report</span>
+            </div>
+
+            <!-- URL SØGEBJÆLKE (Spinner fjernet fra knappen) -->
             <div class="mr-search-box">
-                <input type="text" id="mr-url-input" class="mr-input-field" placeholder="Indsæt FotMob kamp-URL (f.eks. https://fotmob.com...)" value="https://www.fotmob.com/en-GB/matches/bournemouth-vs-newcastle/2ysbu8#5795443">
+                <input type="text" id="mr-url-input" class="mr-input-field" placeholder="Indsæt FotMob kamp-URL (f.eks. https://fotmob.com...)" value="https://www.fotmob.com/en-GB/matches/bodoglimt-vs-bayern-munchen/2qvz54#6106240">
                 <button class="mr-btn" id="mr-submit-btn" onclick="fetchMatchReportFeed()">
                     <span id="mr-btn-text">Load data</span>
                 </button>
             </div>
 
-            <!-- FANE NAVIGATION -->
+            <!-- FANE NAVIGATION (Bredde sat til 100% via CSS i Del 1) -->
             <div class="mr-tabs-nav" id="mr-tabs-bar" style="display:none;">
                 <button class="mr-tab-item active" id="tab-btn-stats" onclick="switchMatchTab('stats')">Match Stats</button>
                 <button class="mr-tab-item" id="tab-btn-xg" onclick="switchMatchTab('xg')">Accumulated xG</button>
@@ -213,10 +217,12 @@ function initMatchReportView(container) {
                 <button class="mr-tab-item" id="tab-btn-player" onclick="switchMatchTab('player')">Player Stats</button>
             </div>
 
-            <!-- CENTRAL INFOGRAFIK VISNING & PLACEHOLDER -->
-            <div id="mr-display-target-area">
-                <div id="mr-placeholder-msg" style="text-align:center; padding:80px 20px; color:rgba(255,255,255,0.4); font-size:14px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase;">
-                    Press 'Load Data' to view the different visualizations
+            <!-- CENTRAL INFOGRAFIK VISNING OG SKALERINGS-VIEWPORT -->
+            <div class="mr-scale-viewport" id="mr-display-viewport" style="display:block; width:100%;">
+                <div id="mr-display-target-area" style="width:100%;">
+                    <div id="mr-placeholder-msg" style="text-align:center; padding:80px 20px; color:rgba(255,255,255,0.4); font-size:14px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase;">
+                        Press 'Load Data' to view the different visualizations
+                    </div>
                 </div>
             </div>
         </div>
@@ -225,17 +231,12 @@ function initMatchReportView(container) {
 
 function switchMatchTab(tabId) {
     MATCH_ACTIVE_TAB = tabId;
-    document.querySelectorAll('.mr-tab-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.mr-tabs-nav .mr-tab-item').forEach(b => b.classList.remove('active'));
     const activeBtn = getMatchReportEl(`tab-btn-${tabId}`);
     if (activeBtn) activeBtn.classList.add('active');
     
     renderActiveMatchVisualization();
 }
-
-// ==========================================================================
-// PER 90 - MATCHREPORT.JS - DEL 4 AF 10 (API INTEGRATION & ASYNKRON STYRING)
-// ==========================================================================
-
 async function fetchMatchReportFeed() {
     const urlInput = getMatchReportEl("mr-url-input");
     const targetArea = getMatchReportEl("mr-display-target-area");
@@ -243,11 +244,16 @@ async function fetchMatchReportFeed() {
     if (!urlInput || !urlInput.value.trim()) return;
 
     targetArea.innerHTML = `
-        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:100px 20px; gap:16px; color:rgba(255,255,255,0.6);">
-            <div style="width:42px; height:42px; display:flex; align-items:center; justify-content:center;">
-                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 42px; color: #2563eb; width:1em; height:1em; text-align:center;"></i>
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:100px 20px; gap:16px; color:rgba(255,255,255,0.6); width:100%; box-sizing:border-box;">
+            <style>
+                @keyframes mrPerfectSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                .mr-smooth-loader { animation: mrPerfectSpin 0.85s linear infinite; display: inline-block; line-height: 1; transform-origin: center center; }
+            </style>
+            <div style="width:42px; height:42px; display:flex; align-items:center; justify-content:center; box-sizing:border-box; overflow:visible;">
+                <i class="fa-solid fa-circle-notch mr-smooth-loader" style="font-size: 42px; color: #2563eb; width:42px; height:42px; text-align:center;"></i>
             </div>
-            <span style="font-size: 16px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #475569;">Loading...</span>
+            <!-- 🔥 TEKST-FIX: Tvunget til ren, skarp hvid farve -->
+            <span style="font-size: 16px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #ffffff; display:block; text-align:center; margin:0; padding:0;">Loading...</span>
         </div>
     `;
 
@@ -276,6 +282,7 @@ async function fetchMatchReportFeed() {
     }
 }
 
+
 async function renderActiveMatchVisualization() {
     if (!MATCH_GLOBAL_DATA) return;
     
@@ -283,7 +290,7 @@ async function renderActiveMatchVisualization() {
     else if (MATCH_ACTIVE_TAB === "xg") buildFig2AccumulatedXG();
     else if (MATCH_ACTIVE_TAB === "momentum") buildFig3GameState();
     else if (MATCH_ACTIVE_TAB === "performers") buildFig4TopPerformers();
-    else if (MATCH_ACTIVE_TAB === "player") await buildFig5PlayerStats(); // KUN Fig 5 afventer on-demand
+    else if (MATCH_ACTIVE_TAB === "player") await buildFig5PlayerStats();
 }
 
 function resetLoadingState(targetArea) {
@@ -293,6 +300,7 @@ function resetLoadingState(targetArea) {
         </div>
     `;
 }
+
 
 // Hjælpefunktion til at genskabe placeholderen, hvis fetchen fejler
 function resetLoadingState(targetArea) {
@@ -430,7 +438,9 @@ function triggerMatchReportDownload(filename, elementId) {
     });
 }
 
-
+// ==========================================================================
+// PER 90 - MATCHREPORT.JS - DEL 6 AF 10 (FIG 1 – MATCH STATS PITCH)
+// ==========================================================================
 // ==========================================================================
 // PER 90 - MATCHREPORT.JS - DEL 6 AF 10 (FIG 1 – MATCH STATS PITCH)
 // ==========================================================================
@@ -461,12 +471,12 @@ function buildFig1MatchStats() {
     // 2. Map dine 8 Streamlit-metrics til rækker
     const statMapping = [
         { apiKey: 'Expected goals (xG)', label: 'xG' },
+        { apiKey: 'xG set play', label: 'SET PIECE xG' },
         { apiKey: 'xG on target (xGOT)', label: 'xGOT' },
         { apiKey: 'Total shots', label: 'SHOTS' },
         { apiKey: 'Corners', label: 'CORNERS' },
         { apiKey: 'Touches in opposition box', label: 'OPP. BOX TOUCHES' },
         { apiKey: 'Ball possession', label: 'POSSESSION (%)' },
-        { apiKey: 'Passes', label: 'PASSES' },
         { apiKey: 'Duels won', label: 'DUELS WON' }
     ];
 
@@ -478,13 +488,13 @@ function buildFig1MatchStats() {
         const aNum = parseFloat(originalStat.away.toString().replace('%', '').split('/')) || 0;
         const hPct = (hNum + aNum) > 0 ? (hNum / (hNum + aNum)) * 100 : 50;
 
-        // 🔥 EFFEKTIVT ALIGNMENT FIX: Vi tvinger venstre tal yderst til venstre, midten centreret, og højre tal yderst til højre med fast bredde
+        // Elementerne samles centreret og tæt om midten med et naturligt gap
         return `
             <div class="mr-stat-row">
-                <div class="mr-stat-meta" style="display: flex !important; justify-content: space-between !important; align-items: center !important; width: 100% !important;">
-                    <span style="color:${homeColor}; font-weight:900; width: 45px; text-align: left; flex-shrink: 0;">${originalStat.home}</span>
-                    <span class="mr-stat-lbl" style="font-size:9px; font-weight:800; color:rgba(255,255,255,0.7); text-align: center; flex-grow: 1; padding: 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${mapping.label}</span>
-                    <span style="color:${awayColor}; font-weight:900; width: 45px; text-align: right; flex-shrink: 0;">${originalStat.away}</span>
+                <div class="mr-stat-meta" style="display: flex !important; justify-content: center !important; align-items: center !important; width: 100% !important; gap: 8px !important;">
+                    <span style="color:${homeColor}; font-weight:900; font-size: 14px; line-height: 1; flex-shrink: 0;">${originalStat.home}</span>
+                    <span class="mr-stat-lbl" style="font-size:9px; font-weight:800; color:rgba(255,255,255,0.7); text-align: center; white-space: nowrap;">${mapping.label}</span>
+                    <span style="color:${awayColor}; font-weight:900; font-size: 14px; line-height: 1; flex-shrink: 0;">${originalStat.away}</span>
                 </div>
                 <div class="mr-bar-track" style="height:4px; background:rgba(255,255,255,0.08); border-radius:2px;">
                     <div style="width:${hPct}%; background:${homeColor}; height:100%;"></div>
@@ -501,7 +511,8 @@ function buildFig1MatchStats() {
             <div class="mr-pitch-wrapper">
                 <svg viewBox="0 0 105 68"><rect x="0" y="0" width="105" height="68" class="mr-pitch-line" /><line x1="52.5" y1="0" x2="52.5" y2="68" class="mr-pitch-line" /><circle cx="52.5" cy="34" r="9.15" class="mr-pitch-line" /><rect x="0" y="13.85" width="16.5" height="40.3" class="mr-pitch-line" /><rect x="0" y="24.85" width="5.5" height="18.3" class="mr-pitch-line" /><rect x="88.5" y="13.85" width="16.5" height="40.3" class="mr-pitch-line" /><rect x="99.5" y="24.85" width="5.5" height="18.3" class="mr-pitch-line" /></svg>
                 <div class="mr-markers-layer">${shotsHTML}</div>
-                <div class="mr-stats-overlay" style="width:210px; background:rgba(11, 18, 32, 0.85); padding:15px; border-radius:12px;">${statsOverlayRows}</div>
+                <!-- 🎯 ULTRA-SLIM REPARATION: Sættes nu til 165px bredde, så den sidder knivskarpt på midten af banen -->
+                <div class="mr-stats-overlay" style="width:165px; background:rgba(11, 18, 32, 0.85); padding:12px 10px; border-radius:12px;">${statsOverlayRows}</div>
             </div>
 
             <!-- LEGENDE -->
@@ -519,9 +530,18 @@ function buildFig1MatchStats() {
                 <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
                     <span style="color:rgba(255,255,255,0.3); font-size:9px; letter-spacing:1px;">Attacking Direction</span>
                     <div style="display:flex; align-items:center;">
-                        <div style="width:40px; height:2px; position:relative; background:#ff4d4d;"><div style="position:absolute; left:0; top:-3px; border-top:4px solid transparent; border-bottom:4px solid transparent; border-right:6px solid #ff4d4d;"></div></div>
+                        <!-- Udeholdets pil: Højre mod venstre -->
+                        <div style="width:40px; height:2px; position:relative; background:${awayColor};">
+                            <div style="position:absolute; left:0; top:-3px; border-top:4px solid transparent; border-bottom:4px solid transparent; border-right:6px solid ${awayColor};"></div>
+                        </div>
+                        
+                        <!-- Lodret adskiller -->
                         <div style="width:1px; height:12px; background:rgba(255,255,255,0.15); margin:0 6px;"></div>
-                        <div style="width:40px; height:2px; position:relative; background:#ffffff;"><div style="position:absolute; right:0; top:-3px; border-top:4px solid transparent; border-bottom:4px solid transparent; border-left:6px solid #ffffff;"></div></div>
+                        
+                        <!-- Hjemmeholdets pil: Venstre mod højre -->
+                        <div style="width:40px; height:2px; position:relative; background:${homeColor};">
+                            <div style="position:absolute; right:0; top:-3px; border-top:4px solid transparent; border-bottom:4px solid transparent; border-left:6px solid ${homeColor};"></div>
+                        </div>
                     </div>
                 </div>
 

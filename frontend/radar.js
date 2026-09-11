@@ -24,8 +24,8 @@ const $r = id => document.getElementById(id);
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
-        #view-radar .wrap { max-width: 100%; margin: auto; padding: 10px; background: #0B1220; display: flex; flex-direction: column; align-items: center; }
-        #view-radar .chart-container { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); padding: 30px; border-radius: 20px; width: 100%; max-width: 710px; margin: 10px auto; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); box-sizing: border-box; }
+        #view-radar .wrap { max-width: 100%; margin: auto; padding: 10px; background: transparent; display: flex; flex-direction: column; align-items: center; }
+        #view-radar .chart-container { background: linear-gradient(180deg, #0f172a 0%, #020617 100%); padding: 30px; border-radius: 24px; opacity: .90; width: 100%; max-width: 710px; margin: 10px auto; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); box-sizing: border-box; }
         
         /* 🌐 SEMANTISK TOP-PANEL: Tabellen tvinger en perfekt 50/50 fordeling uden overlap */
         .radar-header-table {
@@ -65,9 +65,9 @@ document.addEventListener("DOMContentLoaded", () => {
         .radar-header-table .td-right .p-row { justify-content: flex-end; }
         
         #view-radar .info-tag { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); color: #f1f5f9; letter-spacing: 0.5px; text-transform: uppercase; display: inline-block; white-space: nowrap; }
-        .radar-header-table .td-left .info-tag { border-left: 2px solid #00f0ff; }
-        .radar-header-table .td-right .info-tag { border-right: 2px solid #d946ef; }
-        
+        .radar-header-table .td-left .info-tag { border-left: 2px solid var(--radar-p1-color, #00f0ff) !important; }
+        .radar-header-table .td-right .info-tag { border-right: 2px solid var(--radar-p2-color, #d946ef) !important; }
+
         #radar-svg-element { display: block; margin: 0 auto; overflow: visible; max-width: 100%; height: auto; }
         #view-radar .grid-poly { fill: rgba(255,255,255,0.005); stroke: rgba(255,255,255,0.1); }
         #view-radar .grid-line { stroke: rgba(255,255,255,0.075); stroke-dasharray: 4,4; }
@@ -138,8 +138,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 letter-spacing: 0px !important;
             }
             
-            .radar-header-table .td-left .info-tag { border-left: 2px solid #00f0ff !important; border-right: none !important; }
-            .radar-header-table .td-right .info-tag { border-right: 2px solid #d946ef !important; border-left: none !important; }
+            .radar-header-table .td-left .info-tag { border-left: 2px solid var(--radar-p1-color, #00f0ff) !important; border-right: none !important; }
+            .radar-header-table .td-right .info-tag { border-right: 2px solid var(--radar-p2-color, #d946ef) !important; border-left: none !important; }
+
             
             /* 🎯 SKJUL LIGA-TEKST OG BOKS KUN PÅ MOBIL */
             #view-radar .p-row .info-tag:nth-child(3) {
@@ -339,6 +340,8 @@ function updateRadarColors(playerNum) {
         const input1 = $r("radar-color1-input");
         if (input1) {
             RADAR_COLOR_1 = input1.value;
+            document.documentElement.style.setProperty('--radar-p1-color', RADAR_COLOR_1);
+            
             const name1 = document.querySelector(".radar-header-table .td-left .p-nm");
             if (name1) name1.style.color = RADAR_COLOR_1;
         }
@@ -346,12 +349,15 @@ function updateRadarColors(playerNum) {
         const input2 = $r("radar-color2-input");
         if (input2) {
             RADAR_COLOR_2 = input2.value;
+            document.documentElement.style.setProperty('--radar-p2-color', RADAR_COLOR_2);
+            
             const name2 = document.querySelector(".radar-header-table .td-right .p-nm");
             if (name2) name2.style.color = RADAR_COLOR_2;
         }
     }
     onRadarFilterChange();
 }
+
 
 async function onRadarFilterChange() {
     if (!RADAR_PLAYER_1) return;
@@ -512,7 +518,7 @@ async function loadRadarChartDataWithFilters(p1, p2, metricsList) {
                 </table>
                 
                 <!-- 🎯 NYT COV-OVERLAY: Smækker advarslen på hvis der er 2 eller færre metrics (skjult som default) -->
-                <div id="radar-warning-overlay" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 6, 18, 0.95); border-radius: 20px; justify-content: center; align-items: center; z-index: 150;">
+                <div id="radar-warning-overlay" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 6, 18, 0.95); border-radius: 0px; justify-content: center; align-items: center; z-index: 150;">
                     <div style="color: #ff007f; font-weight: 800; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; font-family: 'Gabarito', sans-serif;">Choose at least 3 metrics</div>
                 </div>
                 
@@ -649,9 +655,9 @@ function downloadRadarPNG() {
             height: 18px !important;
             box-sizing: border-box !important;
         }
-        #radar-download-clone table.radar-header-table td.td-left .info-tag { border-left: 2px solid #00f0ff !important; }
-        #radar-download-clone table.radar-header-table td.td-right .info-tag { border-right: 2px solid #d946ef !important; }
-        
+        #radar-download-clone table.radar-header-table td.td-left .info-tag { border-left: 2px solid var(--radar-p1-color, #00f0ff) !important; }
+        #radar-download-clone table.radar-header-table td.td-right .info-tag { border-right: 2px solid var(--radar-p2-color, #d946ef) !important; }
+
         #radar-download-clone .p-row .info-tag:nth-child(3) { display: inline-block !important; }
         
         #radar-download-clone .ax-lbl { font-size: 10px !important; font-weight: 800 !important; }
@@ -678,8 +684,6 @@ function downloadRadarPNG() {
     
     document.body.appendChild(hiddenContainer);
     document.body.appendChild(overrideStyle);
-
-
 
 
     setTimeout(() => {

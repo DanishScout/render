@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .custom-option-item:hover { background-color: rgba(168, 85, 247, 0.25) !important; color: #ffffff !important; padding-left: 18px; }
         .custom-option-item.selected-active { background-color: var(--accent-purple) !important; color: #ffffff !important; }
         
-        #chart-only { position: relative; padding: 15px 15px 35px; border-radius: 24px; width: 100%; max-width: 710px; border: 1px solid rgba(0,240,255,.08); box-shadow: 0 30px 60px -15px #000, inset 0 1px 0 rgba(255,255,255,.05); box-sizing: border-box; opacity: .85; overflow: hidden; background: #0B1220; display: flex; flex-direction: column; align-items: center; margin: 20px auto !important; font-family: 'Gabarito', sans-serif; color: #e5e7eb; }
+        #chart-only { position: relative; padding: 15px 15px 35px; border-radius: 24px; width: 100%; max-width: 710px; border: 1px solid rgba(0,240,255,.08); box-shadow: 0 30px 60px -15px #000, inset 0 1px 0 rgba(255,255,255,.05); box-sizing: border-box; opacity: .90; overflow: hidden; background: #0B1220; display: flex; flex-direction: column; align-items: center; margin: 20px auto !important; font-family: 'Gabarito', sans-serif; color: #e5e7eb; }
         #chart-only::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(#0f172a, #020617); z-index: 0; border-radius: 24px; }
         
         .pizza-header-profile-table {
@@ -241,14 +241,6 @@ async function initPizzaView(container) {
     buildCategorizedMetrics();
     await initCustomPizzaSelectors();
 }
-// ==========================================================================
-// PER 90 - PIZZA.JS - DEL 4 AF 7 (PIZZA VEKTOR-MATEMATIK TEGNING)
-// ==========================================================================
-
-// ==========================================================================
-// PER 90 - PIZZA.JS - DEL 4 AF 7 (PIZZA VEKTOR-MATEMATIK TEGNING) - PERFEKT CENTRERET
-// ==========================================================================
-
 function buildPizzaVektorChart(data, selectedColor) {
     const svg = $("pizza-svg-element"); if (!svg) return;
     const CX = 355, CY = 285, MAX_R = 230, total = data.metrics.length, angle = (2 * Math.PI) / total;
@@ -271,22 +263,38 @@ function buildPizzaVektorChart(data, selectedColor) {
         
         const ord = metric.split(" ");
         
-        // 🎯 GEOMETRISK AFSTAND: Vi placerer tekstens absolutte ankerpunkt 262 pixels ude (32 pixels uden for cirkelkanten)
-        // Det sikrer, at teksten svæver i en flot, jævn cirkel uden om diagrammet.
+        // 🎯 GEOMETRISK AFSTAND: Placerer teksten i en flot cirkel uden om diagrammet
         const textX = CX + 262 * cos;
         const textY = CY + 262 * sin;
 
         if (ord.length > 1) {
-            // Splitter efter det allerførste ord
-            const linje1 = ord[0];
-            const linje2 = ord.slice(1).join(" ");
+            // 🧠 INTELLIGENT COMPACT BREAK
+            let linje1 = ord[0];
+            let linje2 = ord.slice(1).join(" ");
+
+            if (ord.length === 3) {
+                const alt1 = ord[0];                             
+                const alt2 = ord.slice(1).join(" ");            
+                
+                const test1 = ord.slice(0, 2).join(" ");        
+                const test2 = ord[2];                           
+                
+                if (Math.max(alt1.length, alt2.length) < Math.max(test1.length, test2.length)) {
+                    linje1 = alt1;
+                    linje2 = alt2;
+                } else {
+                    linje1 = test1;
+                    linje2 = test2;
+                }
+            } else if (ord.length > 3) {
+                const midtpunkt = Math.ceil(ord.length / 2);
+                linje1 = ord.slice(0, midtpunkt).join(" ");
+                linje2 = ord.slice(midtpunkt).join(" ");
+            }
             
-            // Da vi bruger text-anchor="middle", vil begge linjer centrere sig præcist på 'textX'-aksen.
-            // Vi forskyder dem vertikalt med hhv. -7px og +9px for at skabe en perfekt linjeafstand.
             markup += `<text x="${textX}" y="${textY - 7}" class="ax-lbl" style="font-family: 'Gabarito', sans-serif;" text-anchor="middle" dominant-baseline="middle" fill="#94a3b8">${linje1}</text>`;
             markup += `<text x="${textX}" y="${textY + 9}" class="ax-lbl" style="font-family: 'Gabarito', sans-serif;" text-anchor="middle" dominant-baseline="middle" fill="#94a3b8">${linje2}</text>`;
         } else {
-            // Hvis det er et enkelt ord, centrerer vi det direkte på det geometriske punkt
             markup += `<text x="${textX}" y="${textY}" class="ax-lbl" style="font-family: 'Gabarito', sans-serif;" text-anchor="middle" dominant-baseline="middle" fill="#94a3b8">${metric}</text>`;
         }
 
@@ -294,8 +302,11 @@ function buildPizzaVektorChart(data, selectedColor) {
             markup += `<g><rect x="${CX + currentR * cos - 13}" y="${CY + currentR * sin - 7}" width="26" height="14" rx="3" class="box-bg-rect" stroke="${c}" stroke-width="1.5" /><text x="${CX + currentR * cos}" y="${CY + currentR * sin}" class="tx-b" style="font-family: 'Gabarito', sans-serif; fill: ${c} !important;" text-anchor="middle" dominant-baseline="central">${score}</text></g>`;
         }
     });
-    svg.innerHTML = markup + `<circle cx="${CX}" cy="${CY}" r="12" fill="#FFFFFF" />`;
+
+    // 🌟 MULIGHED 1: Mørk center-cirkel med neon-glød i spillerens primære farve
+    svg.innerHTML = markup + `<circle cx="${CX}" cy="${CY}" r="12" fill="#0B1220" stroke="${selectedColor}" stroke-width="2.5" filter="drop-shadow(0 0 5px ${selectedColor})" />`;
 }
+
 
 // ==========================================================================
 // PER 90 - PIZZA.JS - DEL 5 AF 7 (CACHET SPILLERSØGNING & DROPDOWN SYNC)

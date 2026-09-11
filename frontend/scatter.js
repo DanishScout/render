@@ -118,13 +118,15 @@ document.addEventListener("DOMContentLoaded", () => {
 // PER 90 - SCATTER.JS - DEL 3 AF 7 (HTML INITIALISERING & QUICK-TOOLBAR)
 // ==========================================================================
 
+// EFTER (Opdateret med det rigtige diagram-ikon)
 async function initScatterView(container) {
     container.innerHTML = `
         <section id="view-scatter" class="content-view active" style="padding-top: 10px;">
             <div style="background: none; border: none; box-shadow: none; padding: 0; margin: 0 auto 20px auto; text-align: center; width: fit-content; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                <i class="fa-solid fa-circle-nodes" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
+                <i class="fa-solid fa-chart-line" style="font-size: 65px; color: #ffffff; opacity: 0.8; filter: none; width: auto;"></i>
                 <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Scatter Plot</span>
             </div>
+
 
             <div class="control-trigger-wrapper" style="margin-bottom: 25px; display: flex; justify-content: center; width: 100%;">
                 <button class="open-drawer-btn" onclick="openGlobalDrawer()">Customize Plot <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
@@ -377,10 +379,6 @@ function hideScatterLiveTooltip() {
 // PER 90 - SCATTER.JS - DEL 6 AF 7 (SETTINGS DRAWER PANEL GENERATOR)
 // ==========================================================================
 
-// ==========================================================================
-// PER 90 - SCATTER.JS - DEL 6 AF 7 (SETTINGS DRAWER PANEL GENERATOR)
-// ==========================================================================
-
 function buildAndAppendScatterDrawerHTML() {
     const gammelDrawer = document.querySelector('.scatter-filter-drawer');
     if (gammelDrawer) gammelDrawer.remove();
@@ -388,7 +386,6 @@ function buildAndAppendScatterDrawerHTML() {
     const list = SCATTER_GLOBAL_DATA.players;
     const availableAxes = SCATTER_GLOBAL_DATA.available_axes;
 
-    // 1. 🎯 Beregn de ÆGTE globale min/max værdier på tværs af ALLE data til input-felterne én gang
     const allAges = list.map(p => p.age).filter(v => typeof v === 'number');
     const allMins = list.map(p => p.mins_played).filter(v => typeof v === 'number');
 
@@ -397,7 +394,6 @@ function buildAndAppendScatterDrawerHTML() {
     const absoluteMinMins = allMins.length ? Math.min(...allMins) : 0;
     const absoluteMaxMins = allMins.length ? Math.max(...allMins) : 99999;
 
-    // Hvis koden kører for første gang, sættes de ægte værdier som default i stedet for 0 og 99999
     if (SCATTER_FILTERS.minAge === 0 && SCATTER_FILTERS.maxAge === 100 && SCATTER_FILTERS.minMins === 0 && SCATTER_FILTERS.maxMins === 99999) {
         SCATTER_FILTERS.minAge = absoluteMinAge;
         SCATTER_FILTERS.maxAge = absoluteMaxAge;
@@ -405,17 +401,12 @@ function buildAndAppendScatterDrawerHTML() {
         SCATTER_FILTERS.maxMins = absoluteMaxMins;
     }
 
-    // 2. 🎯 Filtrering af dropdown-lister baseret på dine specifikke regler:
-    
-    // Hold-liste: Kun 'leagues' filteret applier her
     const playersForTeams = list.filter(p => SCATTER_FILTERS.leagues.length === 0 || SCATTER_FILTERS.leagues.includes(p.league));
     const dynamicTeams = [...new Set(playersForTeams.map(p => p.team).filter(Boolean).sort())];
 
-    // Spiller-liste: ALLE aktive filtre (liga, nationalitet, position, alder, minutter) applier her
     const playersForPlayers = getFilteredPlayersList(true);
     const dynamicPlayers = [...new Set(playersForPlayers.map(p => p.player_name).filter(Boolean).sort())];
 
-    // Generer HTML-optioner og afkrydsningsfelter
     const leagues = [...new Set(list.map(p => p.league).filter(Boolean).sort())];
     const nationalities = [...new Set(list.map(p => p.nationality).filter(Boolean).sort())];
     const positions = [...new Set(list.map(p => p.position).filter(Boolean).sort())];
@@ -423,12 +414,18 @@ function buildAndAppendScatterDrawerHTML() {
     const xOptions = availableAxes.map(ax => `<option value="${ax}" ${ax === SCATTER_X_AXIS ? 'selected' : ''}>${ax}</option>`).join('');
     const yOptions = availableAxes.map(ax => `<option value="${ax}" ${ax === SCATTER_Y_AXIS ? 'selected' : ''}>${ax}</option>`).join('');
     
-    const lCheckboxes = leagues.map(l => {
+    // --- LIGA CHECKBOXES MED INTRA-LOGIK FOR "ALL" ---
+    const isAllLeaguesChecked = SCATTER_FILTERS.leagues.length === 0;
+    let lCheckboxes = `<label class="sc-drawer-checkbox-label" style="opacity: ${isAllLeaguesChecked ? 1 : 0.4}; font-weight: bold; color: var(--accent-purple);"><input type="checkbox" value="ALL" ${isAllLeaguesChecked ? "checked" : ""} onchange="handleScatterCheckboxToggle(this, 'leagues')" style="accent-color: var(--accent-purple);"> [ALL]</label>`;
+    lCheckboxes += leagues.map(l => {
         const checked = SCATTER_FILTERS.leagues.includes(l);
         return `<label class="sc-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${l}" ${checked ? "checked" : ""} onchange="handleScatterCheckboxToggle(this, 'leagues')" style="accent-color: var(--accent-purple);"> ${l}</label>`;
     }).join('');
 
-    const nCheckboxes = nationalities.map(n => {
+    // --- NATIONALITET CHECKBOXES MED INTRA-LOGIK FOR "ALL" ---
+    const isAllNationalitiesChecked = SCATTER_FILTERS.nationalities.length === 0;
+    let nCheckboxes = `<label class="sc-drawer-checkbox-label" style="opacity: ${isAllNationalitiesChecked ? 1 : 0.4}; font-weight: bold; color: var(--accent-purple);"><input type="checkbox" value="ALL" ${isAllNationalitiesChecked ? "checked" : ""} onchange="handleScatterCheckboxToggle(this, 'nationalities')" style="accent-color: var(--accent-purple);"> [ALL]</label>`;
+    nCheckboxes += nationalities.map(n => {
         const checked = SCATTER_FILTERS.nationalities.includes(n);
         return `<label class="sc-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${n}" ${checked ? "checked" : ""} onchange="handleScatterCheckboxToggle(this, 'nationalities')" style="accent-color: var(--accent-purple);"> ${n}</label>`;
     }).join('');
@@ -438,14 +435,12 @@ function buildAndAppendScatterDrawerHTML() {
         return `<label class="sc-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${pos}" ${checked ? "checked" : ""} onchange="handleScatterCheckboxToggle(this, 'positions')" style="accent-color: var(--accent-purple);"> ${pos}</label>`;
     }).join('');
 
-    // 🎯 NY GENERERING: Byg tjekbokse til det nye multiselect af hold
     const teamCheckboxes = dynamicTeams.map(t => {
         const tLower = t.toLowerCase();
         const checked = SCATTER_FILTERS.highlightTeam.includes(tLower);
         return `<label class="sc-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${tLower}" ${checked ? "checked" : ""} onchange="handleScatterHighlightToggle(this, 'highlightTeam')" style="accent-color: var(--accent-purple);"> ${t}</label>`;
     }).join('');
 
-    // 🎯 NY GENERERING: Byg tjekbokse til det nye multiselect af spillere
     const playerCheckboxes = dynamicPlayers.map(p => {
         const pLower = p.toLowerCase();
         const checked = SCATTER_FILTERS.highlightPlayer.includes(pLower);
@@ -457,18 +452,25 @@ function buildAndAppendScatterDrawerHTML() {
     drawerDiv.innerHTML = `
         <div class="drawer-header"><span class="drawer-title">Plot Settings</span><button class="close-drawer-btn" onclick="closeGlobalDrawer()">✕</button></div>
         <div class="filter-panel" style="display: flex; flex-direction: column; gap: 14px; width: 100%; max-height: 85vh; overflow-y: auto;">
+            
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Stat Type</label><select id="sc-opt-stat-type" class="scatter-drawer-select" onchange="handleScatterConfigChange()"><option value="Per 90" ${SCATTER_STAT_TYPE === "Per 90" ? "selected" : ""}>Per 90</option><option value="Total" ${SCATTER_STAT_TYPE === "Total" ? "selected" : ""}>Total</option></select></div>
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">X Axis Metric</label><select id="sc-opt-x-axis" class="scatter-drawer-select" onchange="handleScatterConfigChange()">${xOptions}</select></div>
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Y Axis Metric</label><select id="sc-opt-y-axis" class="scatter-drawer-select" onchange="handleScatterConfigChange()">${yOptions}</select></div>
-            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Leagues</label><div class="sc-drawer-checkbox-box">${lCheckboxes}</div></div>
-            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Nationalities</label><div class="sc-drawer-checkbox-box">${nCheckboxes}</div></div>
+            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Leagues</label><div class="sc-drawer-checkbox-box" id="sc-container-leagues">${lCheckboxes}</div></div>
+            <div class="scatter-drawer-group"><label class="scatter-drawer-label">Nationalities</label><div class="sc-drawer-checkbox-box" id="sc-container-nationalities">${nCheckboxes}</div></div>
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Positions</label><div class="sc-drawer-checkbox-box">${pCheckboxes}</div></div>
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Age (Min / Max)</label><div class="scatter-drawer-input-row"><input type="number" id="sc-filt-min-age" class="scatter-drawer-input" value="${SCATTER_FILTERS.minAge}" oninput="handleScatterFilterInputChange()"><input type="number" id="sc-filt-max-age" class="scatter-drawer-input" value="${SCATTER_FILTERS.maxAge}" oninput="handleScatterFilterInputChange()"></div></div>
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Minutes (Min / Max)</label><div class="scatter-drawer-input-row"><input type="number" id="sc-filt-min-mins" class="scatter-drawer-input" value="${SCATTER_FILTERS.minMins}" oninput="handleScatterFilterInputChange()"><input type="number" id="sc-filt-max-mins" class="scatter-drawer-input" value="${SCATTER_FILTERS.maxMins}" oninput="handleScatterFilterInputChange()"></div></div>
             
-            <!-- 🎯 HER SÆTTES DE NYE MULTISELECT-BOKSE IND I STEDET FOR DE GAMLE DROP-DOWNS -->
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Highlight Hold</label><div class="sc-drawer-checkbox-box" id="sc-container-team">${teamCheckboxes}</div></div>
             <div class="scatter-drawer-group"><label class="scatter-drawer-label">Highlight Spillere</label><div class="sc-drawer-checkbox-box" id="sc-container-player">${playerCheckboxes}</div></div>
+            
+            <!-- 🎯 REDESIGNET RESET BUTTON PLACERET SMUKT I BUNDEN AF SKUFFEN -->
+            <div style="margin-top: 15px; width: 100%;">
+                <button onclick="resetAllScatterFilters()" style="width: 100%; padding: 12px; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; font-family: Gabarito, sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.15s ease;" onmouseover="this.style.background='rgba(239, 68, 68, 0.25)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.15)'">
+                    Reset To Default <i class="fa-solid fa-rotate-left" style="margin-left: 6px;"></i>
+                </button>
+            </div>
         </div>
     `;
     document.body.appendChild(drawerDiv);
@@ -482,8 +484,17 @@ function activateScatterGridVisibility() {
     gridLines.innerHTML = ` .scatter-grid-line { stroke: rgba(255,255,255,0.12) !important; } `;
     if (!document.getElementById('sc-grid-density-styles')) document.head.appendChild(gridLines);
 }
+
+
+
+function activateScatterGridVisibility() {
+    const gridLines = document.getElementById('sc-grid-density-styles') || document.createElement('style');
+    gridLines.id = 'sc-grid-density-styles';
+    gridLines.innerHTML = ` .scatter-grid-line { stroke: rgba(255,255,255,0.12) !important; } `;
+    if (!document.getElementById('sc-grid-density-styles')) document.head.appendChild(gridLines);
+}
 // ==========================================================================
-// PER 90 - SCATTER.JS - DEL 7 AF 7 (API SYNC & DOWNLOAD MOTOR)
+// PER 90 - SCATTER.JS - DEL 7 AF 7 (API SYNC & RUNTIME EVENT LOGIK) - DEL A
 // ==========================================================================
 
 async function loadScatterAPIDataFeed() {
@@ -513,7 +524,6 @@ function handleScatterFilterInputChange() {
     SCATTER_FILTERS.minMins = parseInt($sc("sc-filt-min-mins").value) || 0;
     SCATTER_FILTERS.maxMins = parseInt($sc("sc-filt-max-mins").value) || 99999;
     
-    // Nulstil valgte highlight-spillere, hvis de ikke længere er en del af det filtrerede datasæt
     const filteredPlayers = getFilteredPlayersList(true);
     SCATTER_FILTERS.highlightPlayer = SCATTER_FILTERS.highlightPlayer.filter(pLower => 
         filteredPlayers.some(p => p.player_name.toLowerCase() === pLower)
@@ -523,7 +533,29 @@ function handleScatterFilterInputChange() {
     buildScatterPlotVektorEngine();
 }
 
+// 🎯 OPDATERET TOGGLE-FUNKTION MED STRØMLINET OPACITY FOR ALLE POSITIONER
 function handleScatterCheckboxToggle(cb, key) {
+    const val = cb.value;
+
+    if (val === "ALL") {
+        SCATTER_FILTERS[key] = [];
+    } else {
+        if (cb.checked) {
+            if (!SCATTER_FILTERS[key].includes(val)) SCATTER_FILTERS[key].push(val);
+        } else {
+            SCATTER_FILTERS[key] = SCATTER_FILTERS[key].filter(v => v !== val);
+        }
+    }
+
+    // 🎯 FIX: Sætter opacity med det samme på det element, du lige har trykket på
+    cb.parentElement.style.opacity = cb.checked ? '1' : '0.4';
+
+    updateDynamicHighlightDropdownsOnly();
+    buildScatterPlotVektorEngine();
+}
+
+
+function handleScatterHighlightToggle(cb, key) {
     const val = cb.value;
     if (cb.checked) {
         if (!SCATTER_FILTERS[key].includes(val)) SCATTER_FILTERS[key].push(val);
@@ -531,10 +563,35 @@ function handleScatterCheckboxToggle(cb, key) {
         SCATTER_FILTERS[key] = SCATTER_FILTERS[key].filter(v => v !== val);
     }
     cb.parentElement.style.opacity = cb.checked ? '1' : '0.4';
-    
-    updateDynamicHighlightDropdownsOnly();
     buildScatterPlotVektorEngine();
 }
+// 🎯 OPDATERET RESET-FUNKTION DER IKKE GØR SKÆRMEN BLURRY
+function resetAllScatterFilters() {
+    SCATTER_FILTERS = {
+        leagues: ["Bundesliga", "Eliteserien"],
+        nationalities: [],
+        positions: ["CM/AM"], // CM/AM genaktiveres som default i koden
+        minAge: 0,
+        maxAge: 100,
+        minMins: 0,
+        maxMins: 99999,
+        highlightTeam: [],    
+        highlightPlayer: []   
+    };
+    
+    SCATTER_QUICK_HIGHLIGHTS = {
+        top10x: true,
+        top10y: false,
+        u21: false,
+        u19: false
+    };
+
+    // 🎯 FIX: I stedet for buildAndAppend, kalder vi kun update-motoren live inline
+    updateDynamicHighlightDropdownsOnly(); 
+    buildScatterQuickToolbarUI();
+    buildScatterPlotVektorEngine();
+}
+
 
 // 🎯 NY FUNKTION: Håndterer tilføjelse/fjernelse af multiselect for hold og spillere
 function handleScatterHighlightToggle(cb, key) {
@@ -548,14 +605,45 @@ function handleScatterHighlightToggle(cb, key) {
     buildScatterPlotVektorEngine();
 }
 
-// 🎯 OPPDATERET HJÆLPEFUNKTION: Opdaterer nu de nye tjekboks-containere i stedet for select-menuer
+// ==========================================================================
+// PER 90 - SCATTER.JS - DEL 7 AF 7 (API SYNC & RUNTIME EVENT LOGIK) - DEL B
+// ==========================================================================
+
+// 🎯 DYNAMISK LIVE-OPDATERING AF INDHOLD: Genbygger boksene inline uden at lukke draweren
 function updateDynamicHighlightDropdownsOnly() {
     if (!SCATTER_GLOBAL_DATA || !SCATTER_GLOBAL_DATA.players) return;
     
     const list = SCATTER_GLOBAL_DATA.players;
+    const leaguesBox = $sc("sc-container-leagues");
+    const natBox = $sc("sc-container-nationalities");
     const teamBox = $sc("sc-container-team");
     const playerBox = $sc("sc-container-player");
     
+    // 1. Opdater Liga-tjekbokse live baseret på om arrayet er tomt (ALL)
+    if (leaguesBox) {
+        const leagues = [...new Set(list.map(p => p.league).filter(Boolean).sort())];
+        const isAllChecked = SCATTER_FILTERS.leagues.length === 0;
+        let html = `<label class="sc-drawer-checkbox-label" style="opacity: ${isAllChecked ? 1 : 0.4}; font-weight: bold; color: var(--accent-purple);"><input type="checkbox" value="ALL" ${isAllChecked ? "checked" : ""} onchange="handleScatterCheckboxToggle(this, 'leagues')" style="accent-color: var(--accent-purple);"> [ALL]</label>`;
+        html += leagues.map(l => {
+            const checked = SCATTER_FILTERS.leagues.includes(l);
+            return `<label class="sc-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${l}" ${checked ? "checked" : ""} onchange="handleScatterCheckboxToggle(this, 'leagues')" style="accent-color: var(--accent-purple);"> ${l}</label>`;
+        }).join('');
+        leaguesBox.innerHTML = html;
+    }
+
+    // 2. Opdater Nationalitet-tjekbokse live baseret på om arrayet er tomt (ALL)
+    if (natBox) {
+        const nationalities = [...new Set(list.map(p => p.nationality).filter(Boolean).sort())];
+        const isAllChecked = SCATTER_FILTERS.nationalities.length === 0;
+        let html = `<label class="sc-drawer-checkbox-label" style="opacity: ${isAllChecked ? 1 : 0.4}; font-weight: bold; color: var(--accent-purple);"><input type="checkbox" value="ALL" ${isAllChecked ? "checked" : ""} onchange="handleScatterCheckboxToggle(this, 'nationalities')" style="accent-color: var(--accent-purple);"> [ALL]</label>`;
+        html += nationalities.map(n => {
+            const checked = SCATTER_FILTERS.nationalities.includes(n);
+            return `<label class="sc-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${n}" ${checked ? "checked" : ""} onchange="handleScatterCheckboxToggle(this, 'nationalities')" style="accent-color: var(--accent-purple);"> ${n}</label>`;
+        }).join('');
+        natBox.innerHTML = html;
+    }
+    
+    // 3. Opdater Highlight Hold baseret på de valgte ligaer
     if (teamBox) {
         const playersForTeams = list.filter(p => SCATTER_FILTERS.leagues.length === 0 || SCATTER_FILTERS.leagues.includes(p.league));
         const dynamicTeams = [...new Set(playersForTeams.map(p => p.team).filter(Boolean).sort())];
@@ -566,6 +654,7 @@ function updateDynamicHighlightDropdownsOnly() {
         }).join('');
     }
     
+    // 4. Opdater Highlight Spillere baseret på alle aktive filtre
     if (playerBox) {
         const playersForPlayers = getFilteredPlayersList(true);
         const dynamicPlayers = [...new Set(playersForPlayers.map(p => p.player_name).filter(Boolean).sort())];
@@ -577,41 +666,12 @@ function updateDynamicHighlightDropdownsOnly() {
     }
 }
 
-
-
-
-function handleScatterCheckboxToggle(cb, key) {
-    const val = cb.value;
-    if (cb.checked) {
-        if (!SCATTER_FILTERS[key].includes(val)) SCATTER_FILTERS[key].push(val);
-    } else {
-        SCATTER_FILTERS[key] = SCATTER_FILTERS[key].filter(v => v !== val);
-    }
-    cb.parentElement.style.opacity = cb.checked ? '1' : '0.4';
-    
-    // 🎯 Genbyg draweren så listerne tilpasses afkrydsningerne med det samme
-    buildAndAppendScatterDrawerHTML();
-    buildScatterPlotVektorEngine();
-}
-
-function handleToolbarFilterChange(type) {
-    if (type === 'team') {
-        const select = $sc("sc-toolbar-team");
-        SCATTER_FILTERS.highlightTeam = select ? select.value.trim().toLowerCase() : "";
-    } else if (type === 'player') {
-        const select = $sc("sc-toolbar-player");
-        SCATTER_FILTERS.highlightPlayer = select ? select.value.trim().toLowerCase() : "";
-    }
-    buildScatterPlotVektorEngine();
-}
-
-
-
 function toggleScatterQuickHighlight(key) {
     SCATTER_QUICK_HIGHLIGHTS[key] = !SCATTER_QUICK_HIGHLIGHTS[key];
     buildScatterQuickToolbarUI();
     buildScatterPlotVektorEngine();
 }
+
 
 function downloadScatterPNG() {
     const originalEl = $sc("scatter-capture-target-area"); if (!originalEl) return;

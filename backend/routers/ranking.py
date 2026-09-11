@@ -82,7 +82,7 @@ def get_ranking_config():
 def get_performance_ranking(
     position_group: str = Query("CBs"),
     role_name: str = Query("Quarterback"),
-    leagues: List[str] = Query(["All"]),
+    leagues: List[str] = Query(None), # Ændret til valfri liste
     min_age: int = Query(0),
     max_age: int = Query(100),
     min_mins: int = Query(0),
@@ -99,11 +99,26 @@ def get_performance_ranking(
     pos_col = 'Pos.' if 'Pos.' in df.columns else ('Position' if 'Position' in df.columns else 'Position')
     df["PositionGroup"] = df[pos_col].apply(get_position_group)
 
-    # Filter 1: Lås til den valgte positionsgruppe med det samme før normalisering
+    # 🎯 1. FILTRERING: Lås til positionsgruppen med det samme
     df = df[df["PositionGroup"] == position_group].reset_index(drop=True)
     if df.empty:
         return {"role_name": role_name, "players": []}
 
+    # 🎯 2. FILTRERING: Ligaer (Håndterer multivalg og skipper hvis "All" eller tom)
+    if leagues and "All" not in leagues:
+        df = df[df["League"].isin(leagues)]
+
+    # 🎯 3. FILTRERING: Alder og Minutter Spillet på det FULDE datasæt
+    extracted_mins_col = 'total mins played' if 'total mins played' in df.columns else 'Mins'
+    if "Age" in df.columns:
+        df = df[(df["Age"] >= min_age) & (df["Age"] <= max_age)]
+    if extracted_mins_col in df.columns:
+        df = df[(df[extracted_mins_col] >= min_mins) & (df[extracted_mins_col] <= max_mins)]
+
+    if df.empty:
+        return {"position_group": position_group, "role_name": role_name, "metrics_used": ROLES_DB[role_name]["metrics"], "players": []}
+
+    # 🎯 4. BEREGNING: Min-Max normalisering sker NU kun på de spillere, der klarede filteret!
     role_metrics = ROLES_DB[role_name]["metrics"]
     role_weights = np.array(ROLES_DB[role_name]["weights"], dtype=float)
 
@@ -111,7 +126,6 @@ def get_performance_ranking(
         if m not in df.columns:
             df[m] = 0.0
 
-    # 4. Min-Max normalisering inden for positionsgruppen (Præcis som i din Streamlit)
     score_columns = []
     for metric in role_metrics:
         max_val = df[metric].max()
@@ -127,20 +141,7 @@ def get_performance_ranking(
     weights_sum = role_weights.sum() if role_weights.sum() > 0 else 1.0
     df["role_score"] = df[score_columns].dot(role_weights) / weights_sum
 
-    # Filter 2: Ligaer
-    if "All" not in leagues and leagues:
-        df = df[df["League"].isin(leagues)]
-
-    # Filter 3: Alder og Minutter Spillet
-    extracted_mins_col = 'total mins played' if 'total mins played' in df.columns else 'Mins'
-    df = df[
-        (df["Age"] >= min_age) & (df["Age"] <= max_age) &
-        (df[extracted_mins_col] >= min_mins) & (df[extracted_mins_col] <= max_mins)
-    ]
-
-    if df.empty:
-        return {"role_name": role_name, "metrics_used": role_metrics, "players": []}
-
+    # Sorter efter højeste score og tag de sande top 9 (eller top 10 til API-pakken)
     df_sorted = df.sort_values("role_score", ascending=False).reset_index(drop=True)
     top_10 = df_sorted.head(10)
 
@@ -173,3 +174,4 @@ def get_performance_ranking(
         "metrics_used": role_metrics,
         "players": rows_list
     }
+

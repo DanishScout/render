@@ -271,12 +271,31 @@ function buildAndAppendSimilarityDrawerHTML(playerList = []) {
     const leagues = [...new Set(sourceList.map(p => p.league || p.League).filter(Boolean).sort())];
     const positions = [...new Set(sourceList.map(p => p.position || p['Pos.'] || p.Position).filter(Boolean).sort())];
 
-    const generateCheckboxesHTML = (items, key) => {
-        return items.map(item => {
-            const checked = SIM_FILTERS[key].includes(item);
-            return `<label class="table-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${item}" ${checked ? "checked" : ""} onchange="handleSimCheckboxToggle(this, '${key}')" style="accent-color: var(--accent-purple);"> ${item}</label>`;
-        }).join('');
-    };
+    const allAges = sourceList.map(p => p.age || p.Age).filter(v => typeof v === 'number');
+    const allMins = sourceList.map(p => p.mins_played || p['Mins Played'] || p.Mins).filter(v => typeof v === 'number');
+    if (SIM_FILTERS.minAge === 0 && SIM_FILTERS.maxAge === 100) {
+        SIM_FILTERS.minAge = allAges.length ? Math.min(...allAges) : 0;
+        SIM_FILTERS.maxAge = allAges.length ? Math.max(...allAges) : 100;
+        SIM_FILTERS.minMins = allMins.length ? Math.min(...allMins) : 0;
+        SIM_FILTERS.maxMins = allMins.length ? Math.max(...allMins) : 99999;
+    }
+
+
+    // --- LIGA CHECKBOXES MED INTRA-LOGIK FOR "ALL" ---
+    const isAllLeaguesChecked = SIM_FILTERS.leagues.length === 0;
+    let lCheckboxes = `<label class="table-drawer-checkbox-label" style="opacity: ${isAllLeaguesChecked ? 1 : 0.4}; font-weight: bold; color: var(--accent-purple);"><input type="checkbox" value="ALL" ${isAllLeaguesChecked ? "checked" : ""} onchange="handleSimCheckboxToggle(this, 'leagues')" style="accent-color: var(--accent-purple);"> [ALLE LIGAER]</label>`;
+    lCheckboxes += leagues.map(l => {
+        const checked = SIM_FILTERS.leagues.includes(l);
+        return `<label class="table-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${l}" ${checked ? "checked" : ""} onchange="handleSimCheckboxToggle(this, 'leagues')" style="accent-color: var(--accent-purple);"> ${l}</label>`;
+    }).join('');
+
+    // --- POSITION CHECKBOXES MED INTRA-LOGIK FOR "ALL" ---
+    const isAllPositionsChecked = SIM_FILTERS.positions.length === 0;
+    let pCheckboxes = `<label class="table-drawer-checkbox-label" style="opacity: ${isAllPositionsChecked ? 1 : 0.4}; font-weight: bold; color: var(--accent-purple);"><input type="checkbox" value="ALL" ${isAllPositionsChecked ? "checked" : ""} onchange="handleSimCheckboxToggle(this, 'positions')" style="accent-color: var(--accent-purple);"> [ALLE POSITIONER]</label>`;
+    pCheckboxes += positions.map(pos => {
+        const checked = SIM_FILTERS.positions.includes(pos);
+        return `<label class="table-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${pos}" ${checked ? "checked" : ""} onchange="handleSimCheckboxToggle(this, 'positions')" style="accent-color: var(--accent-purple);"> ${pos}</label>`;
+    }).join('');
 
     const drawerDiv = document.createElement('div');
     drawerDiv.className = 'filter-drawer stats-filter-drawer table-filter-drawer similarity-filter-drawer';
@@ -295,15 +314,16 @@ function buildAndAppendSimilarityDrawerHTML(playerList = []) {
                     </div>
                 </div>
             </div>
-            <div class="table-drawer-group"><label class="table-drawer-label">Leagues</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(leagues, 'leagues')}</div></div>
-            <div class="table-drawer-group"><label class="table-drawer-label">Positions</label><div class="table-drawer-checkbox-box">${generateCheckboxesHTML(positions, 'positions')}</div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Leagues</label><div class="table-drawer-checkbox-box" id="sim-container-leagues">${lCheckboxes}</div></div>
+            <div class="table-drawer-group"><label class="table-drawer-label">Positions</label><div class="table-drawer-checkbox-box" id="sim-container-positions">${pCheckboxes}</div></div>
             <div class="table-drawer-group"><label class="table-drawer-label">Age (Min / Max)</label><div class="table-drawer-input-row"><input type="number" id="sim-filt-min-age" class="table-drawer-input" value="${SIM_FILTERS.minAge}" oninput="handleSimFilterInputChange()"><input type="number" id="sim-filt-max-age" class="table-drawer-input" value="${SIM_FILTERS.maxAge}" oninput="handleSimFilterInputChange()"></div></div>
             <div class="table-drawer-group"><label class="table-drawer-label">Minutes (Min / Max)</label><div class="table-drawer-input-row"><input type="number" id="sim-filt-min-mins" class="table-drawer-input" value="${SIM_FILTERS.minMins}" oninput="handleSimFilterInputChange()"><input type="number" id="sim-filt-max-mins" class="table-drawer-input" value="${SIM_FILTERS.maxMins}" oninput="handleSimFilterInputChange()"></div></div>
         </div>`;
     document.body.appendChild(drawerDiv);
 }
+
 // ==========================================================================
-// PER 90 - SIMILARITY.JS - DEL 8 AF 8 (API DATAMOTOR & MATRIX ENGINE)
+// PER 90 - SIMILARITY.JS - DEL 8 AF 8 (API DATAMOTOR & MATRIX ENGINE) - DEL 1/3
 // ==========================================================================
 
 async function bootstrapSimilarityFilters() {
@@ -313,10 +333,24 @@ async function bootstrapSimilarityFilters() {
             const dataData = await res.json();
             if (dataData && dataData.players) {
                 window.GLOBAL_DATASET_CACHE = dataData.players;
+                
+                // 🎯 HER ER RETTELSEN: Beregn de ægte min/max værdier ud fra datasættet
+                const list = dataData.players;
+                if (list.length > 0) {
+                    const ages = list.map(p => p.age || p.Age).filter(a => typeof a === 'number' && a > 0);
+                    const mins = list.map(p => p.mins_played || p['Mins Played'] || p.Mins).filter(m => typeof m === 'number' && m > 0);
+                    
+                    SIM_FILTERS.minAge = ages.length ? Math.min(...ages) : 0;
+                    SIM_FILTERS.maxAge = ages.length ? Math.max(...ages) : 100;
+                    SIM_FILTERS.minMins = mins.length ? Math.min(...mins) : 0;
+                    SIM_FILTERS.maxMins = mins.length ? Math.max(...mins) : 99999;
+                }
+
                 if (!SIM_TARGET_PLAYER && dataData.players.length > 0) {
                     SIM_TARGET_PLAYER = dataData.players[0].player_name || dataData.players[0]['Player Name'];
                     if (typeof CURRENT_SELECTED_PLAYER !== 'undefined') CURRENT_SELECTED_PLAYER = SIM_TARGET_PLAYER;
                 }
+                
                 buildAndAppendSimilarityDrawerHTML(dataData.players);
                 if (SIM_TARGET_PLAYER) await loadSimilarityAPIDataFeed();
                 return;
@@ -325,6 +359,7 @@ async function bootstrapSimilarityFilters() {
     } catch (e) { console.error("Fejl under bootstrap af similarity filtre:", e); }
     buildAndAppendSimilarityDrawerHTML([]);
 }
+
 
 async function loadSimilarityAPIDataFeed() {
     if (!SIM_TARGET_PLAYER) return;
@@ -337,26 +372,27 @@ async function loadSimilarityAPIDataFeed() {
         ];
         
         let metricsParams = officialMetrics.map(m => `selected_metrics=${encodeURIComponent(m)}`).join('&');
-        const url = `${API_BASE_URL}/api/similarity-search?target_player=${encodeURIComponent(SIM_TARGET_PLAYER)}&${metricsParams}`;
+        let filterParams = `&min_age=${SIM_FILTERS.minAge}&max_age=${SIM_FILTERS.maxAge}&min_mins=${SIM_FILTERS.minMins}&max_mins=${SIM_FILTERS.maxMins}`;
+        
+        if (SIM_FILTERS.leagues && SIM_FILTERS.leagues.length > 0) {
+            filterParams += SIM_FILTERS.leagues.map(l => `&leagues=${encodeURIComponent(l)}`).join('');
+        }
+        if (SIM_FILTERS.positions && SIM_FILTERS.positions.length > 0) {
+            filterParams += SIM_FILTERS.positions.map(p => `&positions=${encodeURIComponent(p)}`).join('');
+        }
+
+        const url = `${API_BASE_URL}/api/similarity-search?target_player=${encodeURIComponent(SIM_TARGET_PLAYER)}&${metricsParams}${filterParams}`;
 
         const res = await fetch(url);
         if (res.ok) {
             SIM_GLOBAL_DATA = await res.json();
-            const list = SIM_GLOBAL_DATA.similar_players;
-
-            if (list.length > 0 && SIM_FILTERS.minMins === 0 && SIM_FILTERS.maxMins === 99999) {
-                const ages = list.map(p => p.age).filter(a => a > 0);
-                const mins = list.map(p => p.mins_played).filter(m => m > 0);
-                if (ages.length > 0) { SIM_FILTERS.minAge = Math.min(...ages); SIM_FILTERS.maxAge = Math.max(...ages); }
-                if (mins.length > 0) { SIM_FILTERS.minMins = Math.min(...mins); SIM_FILTERS.maxMins = Math.max(...mins); }
-            }
-
-            const cachedList = window.GLOBAL_DATASET_CACHE || list;
-            buildAndAppendSimilarityDrawerHTML(cachedList);
             buildSimilarityLeaderboardEngine();
         }
     } catch (e) { console.error("Similarity API fejl:", e); }
 }
+// ==========================================================================
+// PER 90 - SIMILARITY.JS - DEL 8 AF 8 (API DATAMOTOR & MATRIX ENGINE) - DEL 2/3
+// ==========================================================================
 
 async function selectSimPlayerItem(value) {
     SIM_TARGET_PLAYER = value;
@@ -370,44 +406,102 @@ async function selectSimPlayerItem(value) {
     await loadSimilarityAPIDataFeed();
 }
 
+let SIM_INPUT_DEBOUNCE_TIMER = null;
 function handleSimFilterInputChange() {
     if (!getSimEl("sim-filt-min-age")) return;
     SIM_FILTERS.minAge = parseInt(getSimEl("sim-filt-min-age").value) || 0;
     SIM_FILTERS.maxAge = parseInt(getSimEl("sim-filt-max-age").value) || 100;
     SIM_FILTERS.minMins = parseInt(getSimEl("sim-filt-min-mins").value) || 0;
     SIM_FILTERS.maxMins = parseInt(getSimEl("sim-filt-max-mins").value) || 99999;
-    buildSimilarityLeaderboardEngine();
+    
+    clearTimeout(SIM_INPUT_DEBOUNCE_TIMER);
+    SIM_INPUT_DEBOUNCE_TIMER = setTimeout(() => {
+        loadSimilarityAPIDataFeed();
+    }, 300);
 }
 
 function handleSimCheckboxToggle(cb, key) {
     const val = cb.value;
-    if (cb.checked) {
-        if (!SIM_FILTERS[key].includes(val)) SIM_FILTERS[key].push(val);
+
+    if (val === "ALL") {
+        if (cb.checked) {
+            SIM_FILTERS[key] = [];
+        }
     } else {
-        SIM_FILTERS[key] = SIM_FILTERS[key].filter(v => v !== val);
+        if (cb.checked) {
+            if (!SIM_FILTERS[key].includes(val)) {
+                SIM_FILTERS[key].push(val);
+            }
+        } else {
+            SIM_FILTERS[key] = SIM_FILTERS[key].filter(v => v !== val);
+        }
     }
-    cb.parentElement.style.opacity = cb.checked ? '1' : '0.4';
-    buildSimilarityLeaderboardEngine();
+
+    const containerId = key === 'leagues' ? 'sim-container-leagues' : 'sim-container-positions';
+    const container = getSimEl(containerId);
+    
+    if (container) {
+        const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+        const isAllActive = SIM_FILTERS[key].length === 0;
+
+        checkboxes.forEach(input => {
+            if (input.value === "ALL") {
+                input.checked = isAllActive;
+                input.parentElement.style.opacity = isAllActive ? '1' : '0.4';
+            } else {
+                const shouldBeChecked = SIM_FILTERS[key].includes(input.value);
+                input.checked = shouldBeChecked;
+                input.parentElement.style.opacity = shouldBeChecked ? '1' : '0.4';
+            }
+        });
+    }
+
+    loadSimilarityAPIDataFeed();
+}
+// ==========================================================================
+// PER 90 - SIMILARITY.JS - DEL 8 AF 8 (API DATAMOTOR & MATRIX ENGINE) - DEL 3/3
+// ==========================================================================
+
+function updateDynamicSimDropdownsOnly() {
+    if (!SIM_GLOBAL_DATA || !SIM_GLOBAL_DATA.similar_players) return;
+    
+    const sourceList = window.GLOBAL_DATASET_CACHE || SIM_GLOBAL_DATA.similar_players;
+    const leaguesBox = getSimEl("sim-container-leagues");
+    const posBox = getSimEl("sim-container-positions");
+    
+    if (leaguesBox && leaguesBox.children.length <= 1) {
+        const leagues = [...new Set(sourceList.map(p => p.league || p.League).filter(Boolean).sort())];
+        const isAllChecked = SIM_FILTERS.leagues.length === 0;
+        let html = `<label class="table-drawer-checkbox-label" style="opacity: ${isAllChecked ? 1 : 0.4}; font-weight: bold; color: var(--accent-purple);"><input type="checkbox" value="ALL" ${isAllChecked ? "checked" : ""} onchange="handleSimCheckboxToggle(this, 'leagues')" style="accent-color: var(--accent-purple);"> [ALLE LIGAER]</label>`;
+        html += leagues.map(l => {
+            const checked = SIM_FILTERS.leagues.includes(l);
+            return `<label class="table-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${l}" ${checked ? "checked" : ""} onchange="handleSimCheckboxToggle(this, 'leagues')" style="accent-color: var(--accent-purple);"> ${l}</label>`;
+        }).join('');
+        leaguesBox.innerHTML = html;
+    }
+    
+    if (posBox && posBox.children.length <= 1) {
+        const positions = [...new Set(sourceList.map(p => p.position || p['Pos.'] || p.Position).filter(Boolean).sort())];
+        const isAllChecked = SIM_FILTERS.positions.length === 0;
+        let html = `<label class="table-drawer-checkbox-label" style="opacity: ${isAllChecked ? 1 : 0.4}; font-weight: bold; color: var(--accent-purple);"><input type="checkbox" value="ALL" ${isAllChecked ? "checked" : ""} onchange="handleSimCheckboxToggle(this, 'positions')" style="accent-color: var(--accent-purple);"> [ALLE POSITIONER]</label>`;
+        html += positions.map(pos => {
+            const checked = SIM_FILTERS.positions.includes(pos);
+            return `<label class="table-drawer-checkbox-label" style="opacity: ${checked ? 1 : 0.4};"><input type="checkbox" value="${pos}" ${checked ? "checked" : ""} onchange="handleSimCheckboxToggle(this, 'positions')" style="accent-color: var(--accent-purple);"> ${pos}</label>`;
+        }).join('');
+        posBox.innerHTML = html;
+    }
 }
 
 function buildSimilarityLeaderboardEngine() {
     const container = getSimEl("sim-capture-target-area"); if (!container || !SIM_GLOBAL_DATA) return;
     container.innerHTML = "";
 
-    const filtered = SIM_GLOBAL_DATA.similar_players.filter(p => {
-        if (SIM_FILTERS.leagues.length > 0 && !SIM_FILTERS.leagues.includes(p.league)) return false;
-        if (SIM_FILTERS.positions.length > 0 && !SIM_FILTERS.positions.includes(p.position)) return false;
-        if (p.age < SIM_FILTERS.minAge || p.age > SIM_FILTERS.maxAge) return false;
-        if (p.mins_played < SIM_FILTERS.minMins || p.mins_played > SIM_FILTERS.maxMins) return false;
-        return true;
-    });
+    const top10 = SIM_GLOBAL_DATA.similar_players;
 
-    if (filtered.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding:50px; color:#64748b; font-weight:700;">NO MATCHES</div>`;
+    if (!top10 || top10.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:50px; color:#64748b; font-weight:700;">NO MATCHES WITHIN FILTERS</div>`;
         return;
     }
-
-    const top10 = filtered.sort((a, b) => b.similarity_score - a.similarity_score).slice(0, 10);
 
     let markup = `
         <table class="sim-scouting-table">
@@ -442,13 +536,13 @@ function buildSimilarityLeaderboardEngine() {
                             <div class="sim-row-player-name">${p.player_name}</div>
                             <div class="sim-row-subtext">
                                 <span class="sim-pc-meta-span">${p.team} | ${p.league}</span>
-                                <span class="sim-mobile-meta-span" style="display: none;">${p.position} • ${p.age} år • ${p.mins_played}m</span>
+                                <span class="sim-mobile-meta-span" style="display: none;">${p.position} • ${p.age} y/o • ${p.mins_played} min.</span>
                             </div>
                         </div>
                     </td>
                     <td class="sim-col-pos text-center sim-row-meta-val">${p.position}</td>
-                    <td class="sim-col-age text-center sim-row-meta-val">${p.age} År</td>
-                    <td class="sim-col-min text-center sim-row-meta-val">${p.mins_played}m</td>
+                    <td class="sim-col-age text-center sim-row-meta-val">${p.age}</td>
+                    <td class="sim-col-min text-center sim-row-meta-val">${p.mins_played}</td>
                     <td class="sim-col-metric">
                         <div class="sim-row-bar-container">
                             <div class="sim-row-score-value">${score.toFixed(1)}%</div>
@@ -493,3 +587,5 @@ function buildSimilarityLeaderboardEngine() {
         }
     });
 }
+
+
