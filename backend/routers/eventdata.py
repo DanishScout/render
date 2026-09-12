@@ -1,5 +1,5 @@
 # ==========================================================================
-# PER 90 - EVENTDATA.PY (KOMPLET API ROUTER OPTIMERET TIL RENDER SCRIPT-INSTALL)
+# PER 90 - EVENTDATA.PY (KOMPLET API ROUTER MED VIRKENDE CHROME FLAGS)
 # ==========================================================================
 import os
 from fastapi import APIRouter, HTTPException, Query
@@ -37,7 +37,6 @@ def lookup_xt(x: float, y: float) -> float:
     col_idx = int((x / 100) * 12) if x < 100 else 11
     return XT_MATRIX[max(0, min(7, row_idx))][max(0, min(11, col_idx))]
 
-# 🎯 DYNAMISK BACKEND FETCH OG BASE64-CACHING AF HOLDLOGOER
 def get_team_logo_base64(team_id: int) -> str:
     url = f"https://cloudfront.net{team_id}.png"
     try:
@@ -65,20 +64,23 @@ def get_whoscored_event_data(url: str = Query(...)):
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-gpu")
+        
+        # 🚀 DISSE TO LINJER LØSER DEVTOOLSACTIVEPORT / CRASH FEJLEN PÅ RENDER:
+        options.add_argument("--remote-debugging-port=9222")
+        options.add_argument("--single-process")
 
-        # 🚀 SIKRER AT SELENIUM FINDER CHROME PÅ RENDER
+        # Sikrer at Selenium finder Chrome på Render
         render_chrome_path = "/opt/render/project/.render/chrome-linux64/chrome"
         if os.path.exists(render_chrome_path):
             options.binary_location = render_chrome_path
         else:
-            # Fallback hvis stien på Render hedder noget andet internt i filstrukturen
             options.binary_location = "/opt/render/project/src/.render/chrome-linux64/chrome"
 
-        # 🚀 INITIALISERING MED WEBDRIVER-MANAGER FRA DIN STREAMLIT APP
+        # Initialisering med Webdriver-Manager
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=options)
         
-        # 🛡️ STEALTH MODUL FOR AT OMGÅ CLOUDFLARE BLOKERING
+        # Stealth modul
         stealth(driver,
                 languages=["en-US", "en"],
                 vendor="Google Inc.",
@@ -94,12 +96,11 @@ def get_whoscored_event_data(url: str = Query(...)):
         )
         html = driver.page_source
 
-        # 🎯 MÅLRETTET REGEX-MØNSTER TIL AT ISOLERE VARIABLEN
+        # Målrettet regex-mønster til at isolere variablen
         pattern = r'matchCentreData:\s*(\{.*?\})\s*,\s*matchCentreEventTypeJson:'
         match = re.search(pattern, html, re.DOTALL)
         
         if not match:
-            # Fallback til det gamle mønster, hvis strukturen varierer
             match = re.search(r'var\s+matchCentreData\s*=\s*({.+?});', html)
             
         if not match:
@@ -206,6 +207,5 @@ def get_whoscored_event_data(url: str = Query(...)):
         raise HTTPException(status_code=500, detail=f"Fejl under indlæsning med Selenium: {str(e)}")
         
     finally:
-        # VIGTIGT: Lukker altid browseren for at frigøre RAM på Render serveren
         if driver:
             driver.quit()
