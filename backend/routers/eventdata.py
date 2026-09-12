@@ -55,9 +55,16 @@ def get_whoscored_event_data(url: str = Query(...)):
     options = Options()
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_argument("--start-maximized")
-    options.add_argument("--headless")  # Sikrer at API'et ikke prøver at åbne et fysisk vindue på serveren
+    options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
+    
+    # 🔥 NYE OPTIMERINGER: Forbyd Chrome at loade billeder og eksterne scripts
+    options.add_argument("--disable-gpu")
+    options.add_argument("--blink-settings=imagesEnabled=false")  # INGEN BILLEDER = HALV INDLÆSNINGSTID
+    options.add_argument("--disable-extensions")
+    options.add_argument("--page-load-strategy=eager")  # Vent kun på DOM'en, ikke på langsomme reklame-scripts
+
 
     driver = webdriver.Chrome(options=options)
 
