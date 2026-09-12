@@ -66,10 +66,13 @@ def get_whoscored_event_data(url: str = Query(...)):
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-gpu")
 
-        # 🚀 SIKRER AT SELENIUM FINDER DEN MANUELT INSTALLEREDE CHROME BROWSER PÅ RENDER:
+        # 🚀 SIKRER AT SELENIUM FINDER CHROME PÅ RENDER
         render_chrome_path = "/opt/render/project/.render/chrome-linux64/chrome"
         if os.path.exists(render_chrome_path):
             options.binary_location = render_chrome_path
+        else:
+            # Fallback hvis stien på Render hedder noget andet internt i filstrukturen
+            options.binary_location = "/opt/render/project/src/.render/chrome-linux64/chrome"
 
         # 🚀 INITIALISERING MED WEBDRIVER-MANAGER FRA DIN STREAMLIT APP
         service = Service(ChromeDriverManager().install())
