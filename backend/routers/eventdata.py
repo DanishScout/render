@@ -2,7 +2,8 @@
 # PER 90 - EVENTDATA.PY (KOMPLET API ROUTER MED UNIVERSEL DATA-LOKALISERING)
 # ==========================================================================
 from fastapi import APIRouter, HTTPException, Query
-from curl_cffi import requests  # 🔥 ULTRA-HURTIGT CLOUDFLARE BYPASS (0 MB RAM, under 1 sekund)
+from curl_cffi import requests as curl_requests  # 🔥 Bruges udelukkende til WhoScored (Cloudflare Bypass)
+import urllib.request                           # 🔥 Bruges udelukkende til logoer (Sikker standard download)
 import json
 import re
 import base64
@@ -28,13 +29,13 @@ def lookup_xt(x: float, y: float) -> float:
     col_idx = int((x / 100) * 12) if x < 100 else 11
     return XT_MATRIX[max(0, min(7, row_idx))][max(0, min(11, col_idx))]
 
-# 🎯 SIKKER LOGO-FETCH SOM OGSÅ BRUGER CHROMES TLS-FINGERAFTRYK
+# 🎯 RETTET LOGO-FETCH: Bruker standard urllib for å unngå trådkonflikter i curl_cffi
 def get_team_logo_base64(team_id: int) -> str:
     url = f"https://cloudfront.net{team_id}.png"
     try:
-        res = requests.get(url, impersonate="chrome", timeout=5)
-        if res.status_code == 200:
-            encoded = base64.b64encode(res.content).decode("utf-8")
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=5) as response:
+            encoded = base64.b64encode(response.read()).decode("utf-8")
             return f"data:image/png;base64,{encoded}"
     except Exception:
         pass
@@ -46,28 +47,27 @@ def get_whoscored_event_data(url: str = Query(...)):
         raise HTTPException(status_code=400, detail="Ugyldig URL. Indtast venligst en gyldig WhoScored URL.")
 
     try:
-        # 🔥 ANMODNING: Tvinger netværkshåndtrykket til at ligne en ægte Google Chrome.
-        # Slipper for at loade billeder og eksterne scripts, hvilket gør det lynhurtigt.
-        response = requests.get(url, impersonate="chrome", timeout=12)
+        # 🔥 ANMODNING VIA CURL_CFFI: Lynhurtig indlæsning uden browser- eller RAM-forbrug
+        response = curl_requests.get(url, impersonate="chrome", timeout=12)
         
         if response.status_code != 200:
             raise HTTPException(
                 status_code=response.status_code, 
-                detail=f"WhoScored svarede ikke korrekt. Statuskode: {response.status_code}."
+                detail=f"WhoScored svarede med statuskode {response.status_code}."
             )
 
         html = response.text
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Kunne ikke oprette forbindelse til WhoScored: {str(e)}")
 
-    # 🔥 UNIVERSEL DATALOKALISERING (MED RE.DOTALL FIX FRA DIN FIG.PY SETUP)
+    # 🔥 SIKKER DATALOKALISERING: Leder efter matchCentreData uanset linjeskift (re.DOTALL)
     match_data_match = re.search(r'matchCentreData\s*:\s*(\{.*?\})\s*,\s*\n', html, re.DOTALL)
     if not match_data_match:
         match_data_match = re.search(r'var\s+matchCentreData\s*=\s*(\{.*?\});', html, re.DOTALL)
     if not match_data_match:
         match_data_match = re.search(r'matchCentreData:\s*(\{.*?\})\s*,\s*matchCentreEventTypeJson:', html, re.DOTALL)
     if not match_data_match:
-        # Nødbremse: Isolerer udelukkende ud fra start-klammen, hvis WhoScored rykker rundt på deres JavaScript-struktur
+        # Ultimativ nødbremse
         match_data_match = re.search(r'matchCentreData\s*:\s*(\{.*?\})', html, re.DOTALL)
         
     if not match_data_match:
@@ -82,7 +82,7 @@ def get_whoscored_event_data(url: str = Query(...)):
         home_id = home.get("teamId")
         away_id = away.get("teamId")
 
-        # Hent og gem begge logoer som base64 i JSON-svaret
+        # Hent holdslogoer (fejlfrit og sikkert)
         home_logo_data = get_team_logo_base64(home_id)
         away_logo_data = get_team_logo_base64(away_id)
 
@@ -149,7 +149,6 @@ def get_whoscored_event_data(url: str = Query(...)):
                 elif q_name in ['CornerTaken', 'FreekickTaken', 'ThrowIn', 'GoalKick']:
                     is_set_piece = True
 
-            text_diff = 0.0
             if ev_type == "Pass" and is_success and not is_set_piece and end_x is not None and end_y is not None:
                 start_xt = lookup_xt(ev.get("x"), ev.get("y"))
                 end_xt = lookup_xt(end_x, end_y)
@@ -179,4 +178,4 @@ def get_whoscored_event_data(url: str = Query(...)):
             "events": processed_events
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Fejl under databehandling af kampscriptet: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Fejl under databehandling: {str(e)}")
