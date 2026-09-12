@@ -1,16 +1,21 @@
 # ==========================================================================
-# PER 90 - EVENTDATA.PY (KOMPLET API ROUTER MED UNIVERSEL DATA-LOKALISERING)
+# PER 90 - EVENTDATA.PY (FEJLSIKRET API ROUTER MED TYPE-KONVERTERING)
 # ==========================================================================
 from fastapi import APIRouter, HTTPException, Query
-from curl_cffi import requests as curl_requests  # 🔥 Bruges udelukkende til WhoScored (Cloudflare Bypass)
-import urllib.request                           # 🔥 Bruges udelukkende til logoer (Sikker standard download)
+from curl_cffi import requests as curl_requests
+import urllib.request
 import json
 import re
 import base64
+import logging
 from io import BytesIO
 from typing import List, Dict, Any
 
 router = APIRouter(prefix="/api", tags=["eventdata"])
+
+# Konfigurer basal logging så du kan se eventuelle fejl i Render logs
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # 🎯 OFFICIEL 8x12 OPTA xT WEIGHT MATRIX FRA DIN STREAMLIT-LOGIK
 XT_MATRIX = [
@@ -29,7 +34,7 @@ def lookup_xt(x: float, y: float) -> float:
     col_idx = int((x / 100) * 12) if x < 100 else 11
     return XT_MATRIX[max(0, min(7, row_idx))][max(0, min(11, col_idx))]
 
-# 🎯 RETTET LOGO-FETCH: Bruker standard urllib for å unngå trådkonflikter i curl_cffi
+# 🎯 SIKKER LOGO-FETCH: Bruger urllib for at undgå asynkrone konflikter
 def get_team_logo_base64(team_id: int) -> str:
     url = f"https://cloudfront.net{team_id}.png"
     try:
@@ -47,42 +52,35 @@ def get_whoscored_event_data(url: str = Query(...)):
         raise HTTPException(status_code=400, detail="Ugyldig URL. Indtast venligst en gyldig WhoScored URL.")
 
     try:
-        # 🔥 ANMODNING VIA CURL_CFFI: Lynhurtig indlæsning uden browser- eller RAM-forbrug
+        # 🔥 LYNHURTIG DETEKTION: Omgår Cloudflare på under 1 sekund
         response = curl_requests.get(url, impersonate="chrome", timeout=12)
-        
         if response.status_code != 200:
-            raise HTTPException(
-                status_code=response.status_code, 
-                detail=f"WhoScored svarede med statuskode {response.status_code}."
-            )
-
+            raise HTTPException(status_code=response.status_code, detail=f"WhoScored svarede med status {response.status_code}")
         html = response.text
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Kunne ikke oprette forbindelse til WhoScored: {str(e)}")
+        logger.error(f"WhoScored download fejlede: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Kunne ikke hente siden: {str(e)}")
 
-    # 🔥 SIKKER DATALOKALISERING: Leder efter matchCentreData uanset linjeskift (re.DOTALL)
+    # Fleksibel datalokalisering fra fig.py mønstrene
     match_data_match = re.search(r'matchCentreData\s*:\s*(\{.*?\})\s*,\s*\n', html, re.DOTALL)
     if not match_data_match:
         match_data_match = re.search(r'var\s+matchCentreData\s*=\s*(\{.*?\});', html, re.DOTALL)
     if not match_data_match:
         match_data_match = re.search(r'matchCentreData:\s*(\{.*?\})\s*,\s*matchCentreEventTypeJson:', html, re.DOTALL)
     if not match_data_match:
-        # Ultimativ nødbremse
         match_data_match = re.search(r'matchCentreData\s*:\s*(\{.*?\})', html, re.DOTALL)
         
     if not match_data_match:
-        raise HTTPException(status_code=404, detail="Kunne ikke lokalisere kampdata (matchCentreData) i sidens kildekode.")
+        raise HTTPException(status_code=404, detail="Kunne ikke lokalisere matchCentreData i HTML-koden.")
 
     try:
         match_centre_data = json.loads(match_data_match.group(1))
 
-        # Metadata extraction
         home = match_centre_data.get("home", {})
         away = match_centre_data.get("away", {})
         home_id = home.get("teamId")
         away_id = away.get("teamId")
 
-        # Hent holdslogoer (fejlfrit og sikkert)
         home_logo_data = get_team_logo_base64(home_id)
         away_logo_data = get_team_logo_base64(away_id)
 
@@ -98,10 +96,8 @@ def get_whoscored_event_data(url: str = Query(...)):
             "scoreStr": f"{home.get('scores', {}).get('fullTime', 0)} - {away.get('scores', {}).get('fullTime', 0)}"
         }
 
-        # Find minutter for første udskiftning pr. hold
         raw_events = match_centre_data.get("events", [])
-        sub_home_min = 90
-        sub_away_min = 90
+        sub_home_min, sub_away_min = 90, 90
 
         for ev in raw_events:
             if ev.get("type", {}).get("displayName") == "SubstitutionOff":
@@ -114,7 +110,6 @@ def get_whoscored_event_data(url: str = Query(...)):
         match_info["homeFirstSubMin"] = sub_home_min
         match_info["awayFirstSubMin"] = sub_away_min
 
-        # Spiller mapping ordbog (playerId -> metadata)
         players_map = {}
         for team in ["home", "away"]:
             for p in match_centre_data.get(team, {}).get("players", []):
@@ -125,7 +120,6 @@ def get_whoscored_event_data(url: str = Query(...)):
                     "isFirstEleven": bool(p.get("isFirstEleven", False))
                 }
 
-        # Genindlæs navneordbogen hvis den findes separat
         if "playerIdNameDictionary" in match_centre_data:
             for k, v in match_centre_data["playerIdNameDictionary"].items():
                 if k in players_map:
@@ -140,19 +134,32 @@ def get_whoscored_event_data(url: str = Query(...)):
             is_success = bool(ev.get("outcomeType", {}).get("value", 1) == 1)
             is_touch = bool(ev.get("isTouch", False))
 
+            # Sikker tal-konvertering (Løser TypeErrors hvis værdierne er strenge)
+            start_x = float(ev.get("x", 0.0))
+            start_y = float(ev.get("y", 0.0))
+
             end_x, end_y = None, None
             is_set_piece = False
             for q in ev.get("qualifiers", []):
                 q_name = q.get("type", {}).get("displayName")
-                if q_name == "PassEndX": end_x = float(q.get("value", 0.0))
-                elif q_name == "PassEndY": end_y = float(q.get("value", 0.0))
+                if q_name == "PassEndX": 
+                    try: end_x = float(q.get("value", 0.0))
+                    except: pass
+                elif q_name == "PassEndY": 
+                    try: end_y = float(q.get("value", 0.0))
+                    except: pass
                 elif q_name in ['CornerTaken', 'FreekickTaken', 'ThrowIn', 'GoalKick']:
                     is_set_piece = True
 
+            xt_diff = 0.0
             if ev_type == "Pass" and is_success and not is_set_piece and end_x is not None and end_y is not None:
-                start_xt = lookup_xt(ev.get("x"), ev.get("y"))
-                end_xt = lookup_xt(end_x, end_y)
-                xt_diff = max(0.0, end_xt - start_xt)
+                try:
+                    # 🔥 FIXED: Værdierne sendes nu garanteret som rene floats til matrixen
+                    start_xt = lookup_xt(start_x, start_y)
+                    end_xt = lookup_xt(end_x, end_y)
+                    xt_diff = max(0.0, end_xt - start_xt)
+                except Exception as e:
+                    xt_diff = 0.0
             else:
                 xt_diff = 0.0
 
@@ -163,8 +170,8 @@ def get_whoscored_event_data(url: str = Query(...)):
                 "type": ev_type,
                 "success": is_success,
                 "isTouch": is_touch,
-                "x": float(ev.get("x", 0.0)),
-                "y": float(ev.get("y", 0.0)),
+                "x": start_x,
+                "y": start_y,
                 "endX": end_x,
                 "endY": end_y,
                 "isSetPiece": is_set_piece,
@@ -178,4 +185,5 @@ def get_whoscored_event_data(url: str = Query(...)):
             "events": processed_events
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Fejl under databehandling: {str(e)}")
+        logger.error(f"Fejl under JSON-parsing eller event-mapping: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internt datanedbrud: {str(e)}")
