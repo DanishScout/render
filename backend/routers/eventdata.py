@@ -1,5 +1,5 @@
 # ==========================================================================
-# PER 90 - EVENTDATA.PY (KOMPLET API ROUTER OPTIMERET TIL RENDER OG STEALTH)
+# PER 90 - EVENTDATA.PY (KOMPLET API ROUTER OPTIMERET TIL RENDER LINUX)
 # ==========================================================================
 import os
 from fastapi import APIRouter, HTTPException, Query
@@ -60,28 +60,32 @@ def get_whoscored_event_data(url: str = Query(...)):
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_argument("--start-maximized")
         
-        # 🚀 MODERNE HEADLESS LOGIK - SENDER DE RIGTIGE BROWSER-HEADERNE SÅ CLOUDFLARE ACCEPTERER OS
-        options.add_argument("--headless=new")
+        # 🚀 RETUR TIL DEN KLASSISKE LINUX-HEADLESS SOM IKKE CRASHER PÅ RENDER
+        options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
         
-        # Ekstra flag til cloud-miljøer
+        # 🚀 DISSE TO SIMULERER EN RIGTIG BROWSER-PROFIL MOD CLOUDFLARE I KLASSISK HEADLESS
+        options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
+        options.add_argument("--window-size=1920,1080")
+        
         options.add_argument("--disable-software-rasterizer")
         options.add_argument("--disable-setuid-sandbox")
         options.add_argument("--disable-extensions")
 
-        # Sikrer at Selenium finder Chrome på Render
+        # Find Chrome binæren på Render
         render_chrome_path = "/opt/render/project/.render/chrome-linux64/chrome"
         if os.path.exists(render_chrome_path):
             options.binary_location = render_chrome_path
         else:
             options.binary_location = "/opt/render/project/src/.render/chrome-linux64/chrome"
 
-        # Tvinger driveren til at matche Chrome version 122 præcist
+        # Webdriver-Manager parring
         service = Service(ChromeDriverManager(driver_version="122.0.6261.94").install())
         driver = webdriver.Chrome(service=service, options=options)
         
-        # Avanceret Stealth opsætning
+        # Stealth påføres for at skjule WebDriver-flag
         stealth(driver,
                 languages=["en-US", "en"],
                 vendor="Google Inc.",
@@ -91,7 +95,7 @@ def get_whoscored_event_data(url: str = Query(...)):
 
         driver.get(url)
 
-        # Vent på den vitale variabel i op til 25 sekunder (giver tid til Cloudflare tjek)
+        # Vent på data i op til 25 sekunder
         WebDriverWait(driver, 25).until(
             lambda d: "matchCentreData" in d.page_source
         )
