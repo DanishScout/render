@@ -6,4 +6,6 @@ bs4
 Pillow
 selenium==4.20.0
 selenium-stealth==1.0.6
+curl_cffi==0.7.4
+
 
