@@ -79,7 +79,7 @@ def get_whoscored_event_data(url: str = Query(...)):
             options.binary_location = "/opt/render/project/src/.render/chrome-linux64/chrome"
 
         # Initialisering med Webdriver-Manager
-        service = Service(ChromeDriverManager().install())
+        service = Service(ChromeDriverManager(driver_version="122.0.6261.94").install())
         driver = webdriver.Chrome(service=service, options=options)
         
         # Stealth modul
