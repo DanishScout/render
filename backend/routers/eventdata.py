@@ -1,5 +1,5 @@
 # ==========================================================================
-# PER 90 - EVENTDATA.PY (OPDATERET API ROUTER MED LYNHURTIG CURL_CFFI BYPASS)
+# PER 90 - EVENTDATA.PY (KOMPLET API ROUTER MED UNIVERSEL DATA-LOKALISERING)
 # ==========================================================================
 from fastapi import APIRouter, HTTPException, Query
 from curl_cffi import requests  # 🔥 ULTRA-HURTIGT CLOUDFLARE BYPASS (0 MB RAM, under 1 sekund)
@@ -46,7 +46,7 @@ def get_whoscored_event_data(url: str = Query(...)):
         raise HTTPException(status_code=400, detail="Ugyldig URL. Indtast venligst en gyldig WhoScored URL.")
 
     try:
-        # 🔥 ANMODNING: Tvinger netværkshåndtrykket til at ligne en ægte Google Chrome til punkt og prikke.
+        # 🔥 ANMODNING: Tvinger netværkshåndtrykket til at ligne en ægte Google Chrome.
         # Slipper for at loade billeder og eksterne scripts, hvilket gør det lynhurtigt.
         response = requests.get(url, impersonate="chrome", timeout=12)
         
@@ -60,12 +60,15 @@ def get_whoscored_event_data(url: str = Query(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Kunne ikke oprette forbindelse til WhoScored: {str(e)}")
 
-    # Prøv de forskellige kendte Regex-mønstre for matchCentreData
-    match_data_match = re.search(r'matchCentreData\s*:\s*({.+?})\s*,\s*\n', html)
+    # 🔥 UNIVERSEL DATALOKALISERING (MED RE.DOTALL FIX FRA DIN FIG.PY SETUP)
+    match_data_match = re.search(r'matchCentreData\s*:\s*(\{.*?\})\s*,\s*\n', html, re.DOTALL)
     if not match_data_match:
-        match_data_match = re.search(r'var\s+matchCentreData\s*=\s*({.+?});', html)
+        match_data_match = re.search(r'var\s+matchCentreData\s*=\s*(\{.*?\});', html, re.DOTALL)
     if not match_data_match:
         match_data_match = re.search(r'matchCentreData:\s*(\{.*?\})\s*,\s*matchCentreEventTypeJson:', html, re.DOTALL)
+    if not match_data_match:
+        # Nødbremse: Isolerer udelukkende ud fra start-klammen, hvis WhoScored rykker rundt på deres JavaScript-struktur
+        match_data_match = re.search(r'matchCentreData\s*:\s*(\{.*?\})', html, re.DOTALL)
         
     if not match_data_match:
         raise HTTPException(status_code=404, detail="Kunne ikke lokalisere kampdata (matchCentreData) i sidens kildekode.")
@@ -146,11 +149,13 @@ def get_whoscored_event_data(url: str = Query(...)):
                 elif q_name in ['CornerTaken', 'FreekickTaken', 'ThrowIn', 'GoalKick']:
                     is_set_piece = True
 
-            xt_diff = 0.0
+            text_diff = 0.0
             if ev_type == "Pass" and is_success and not is_set_piece and end_x is not None and end_y is not None:
                 start_xt = lookup_xt(ev.get("x"), ev.get("y"))
                 end_xt = lookup_xt(end_x, end_y)
                 xt_diff = max(0.0, end_xt - start_xt)
+            else:
+                xt_diff = 0.0
 
             processed_events.append({
                 "minute": ev.get("minute", 0),
