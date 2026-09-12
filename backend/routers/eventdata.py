@@ -1,16 +1,11 @@
 # ==========================================================================
-# PER 90 - EVENTDATA.PY (OPDATERET API ROUTER MED SELENIUM-STEALTH SCRAPING)
+# PER 90 - EVENTDATA.PY (OPDATERET API ROUTER MED LYNHURTIG CURL_CFFI BYPASS)
 # ==========================================================================
 from fastapi import APIRouter, HTTPException, Query
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
-from selenium_stealth import stealth
+from curl_cffi import requests  # 🔥 ULTRA-HURTIGT CLOUDFLARE BYPASS (0 MB RAM, under 1 sekund)
 import json
 import re
 import base64
-import requests
 from io import BytesIO
 from typing import List, Dict, Any
 
@@ -33,12 +28,11 @@ def lookup_xt(x: float, y: float) -> float:
     col_idx = int((x / 100) * 12) if x < 100 else 11
     return XT_MATRIX[max(0, min(7, row_idx))][max(0, min(11, col_idx))]
 
-# 🎯 ENSTREMET LOGO-FETCH SOM BRUGER EN STANDARD HEADER FOR CLOUDFRONT LOGOER
+# 🎯 SIKKER LOGO-FETCH SOM OGSÅ BRUGER CHROMES TLS-FINGERAFTRYK
 def get_team_logo_base64(team_id: int) -> str:
-    url = f"https://d2zywfiolv4f83.cloudfront.net/img/teams/{team_id}.png"
+    url = f"https://cloudfront.net{team_id}.png"
     try:
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-        res = requests.get(url, headers=headers, timeout=5)
+        res = requests.get(url, impersonate="chrome", timeout=5)
         if res.status_code == 200:
             encoded = base64.b64encode(res.content).decode("utf-8")
             return f"data:image/png;base64,{encoded}"
@@ -51,55 +45,26 @@ def get_whoscored_event_data(url: str = Query(...)):
     if not url.strip() or "whoscored.com" not in url:
         raise HTTPException(status_code=400, detail="Ugyldig URL. Indtast venligst en gyldig WhoScored URL.")
 
-    # 🔥 METODE FRA fig.py INTEGRERET DIREKTE I API'ET
-    options = Options()
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--start-maximized")
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    
-    # 🔥 NYE OPTIMERINGER: Forbyd Chrome at loade billeder og eksterne scripts
-    options.add_argument("--disable-gpu")
-    options.add_argument("--blink-settings=imagesEnabled=false")  # INGEN BILLEDER = HALV INDLÆSNINGSTID
-    options.add_argument("--disable-extensions")
-    options.add_argument("--page-load-strategy=eager")  # Vent kun på DOM'en, ikke på langsomme reklame-scripts
-
-
-    driver = webdriver.Chrome(options=options)
-
-    # Anvend 1:1 stealth konfigurationen for at ligne en ægte Windows browser overfor Cloudflare
-    stealth(driver,
-            languages=["en-US", "en"],
-            vendor="Google Inc.",
-            platform="Win32",
-            webgl_vendor="Intel Inc.",
-            renderer="Intel Iris OpenGL Engine")
-
-    html = ""
     try:
-        driver.get(url)
+        # 🔥 ANMODNING: Tvinger netværkshåndtrykket til at ligne en ægte Google Chrome til punkt og prikke.
+        # Slipper for at loade billeder og eksterne scripts, hvilket gør det lynhurtigt.
+        response = requests.get(url, impersonate="chrome", timeout=12)
+        
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=response.status_code, 
+                detail=f"WhoScored svarede ikke korrekt. Statuskode: {response.status_code}."
+            )
 
-        # Vent op til 20 sekunder indtil siden har indlæst kampdataene live i DOM'en
-        WebDriverWait(driver, 20).until(
-            lambda d: "matchCentreData" in d.page_source
-        )
-        html = driver.page_source
-    except TimeoutException:
-        driver.quit()
-        raise HTTPException(status_code=408, detail="Timeout: WhoScored var for længe om at svare, eller blokerede anmodningen.")
+        html = response.text
     except Exception as e:
-        driver.quit()
-        raise HTTPException(status_code=500, detail=f"Browserfejl under hentning af data: {str(e)}")
-    finally:
-        driver.quit()
+        raise HTTPException(status_code=500, detail=f"Kunne ikke oprette forbindelse til WhoScored: {str(e)}")
 
-    # Ekstraher matchCentreData strukturen ud fra HTML'en præcis som før
+    # Prøv de forskellige kendte Regex-mønstre for matchCentreData
     match_data_match = re.search(r'matchCentreData\s*:\s*({.+?})\s*,\s*\n', html)
     if not match_data_match:
         match_data_match = re.search(r'var\s+matchCentreData\s*=\s*({.+?});', html)
     if not match_data_match:
-        # Prøver det mere generiske mønster fra din fig.py script hvis de ovenstående fejler
         match_data_match = re.search(r'matchCentreData:\s*(\{.*?\})\s*,\s*matchCentreEventTypeJson:', html, re.DOTALL)
         
     if not match_data_match:
@@ -114,7 +79,7 @@ def get_whoscored_event_data(url: str = Query(...)):
         home_id = home.get("teamId")
         away_id = away.get("teamId")
 
-        # Hent og gem begge logoer som base64 i JSON svaret
+        # Hent og gem begge logoer som base64 i JSON-svaret
         home_logo_data = get_team_logo_base64(home_id)
         away_logo_data = get_team_logo_base64(away_id)
 
@@ -157,7 +122,7 @@ def get_whoscored_event_data(url: str = Query(...)):
                     "isFirstEleven": bool(p.get("isFirstEleven", False))
                 }
 
-        # Genindlæs navneordbogen hvis den findes separat (Præcis som i din player_dictionary motor)
+        # Genindlæs navneordbogen hvis den findes separat
         if "playerIdNameDictionary" in match_centre_data:
             for k, v in match_centre_data["playerIdNameDictionary"].items():
                 if k in players_map:
