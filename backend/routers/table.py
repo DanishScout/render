@@ -1,25 +1,57 @@
 # ==========================================================================
-# PER 90 - TABLE.PY (API ROUTER TIL DATATABEL MED PER 90 & TOTAL SKIFTER)
+# PER 90 - TABLE.PY (SERVERLØS API ROUTER TIL DATATABEL UDEN RAM-CRASH)
 # ==========================================================================
 from fastapi import APIRouter, HTTPException, Query
 import pandas as pd
+import os
 from typing import List, Dict, Any
 
 router = APIRouter(prefix="/api", tags=["table"])
+
+# 🎯 DYNAMISK LOKALISERING AF FILERNE UNDER VERCEL SERVERLESS
+# Da denne fil ligger i 'backend/routers/', går vi et niveau op for at finde CSV-filerne i 'backend/'
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+def get_serverless_dataset() -> pd.DataFrame:
+    """Indlæser og samler liga-filer dynamisk uden at overbelaste Vercels RAM"""
+    files = ['aut1.csv', 'tur1.csv', 'sco1.csv', 'cze1.csv', 'gre1.csv', 'swi1.csv', 'ger2.csv',
+             'cro1.csv', 'pol1.csv', 'ser1.csv', 'swe1.csv', 'nor1.csv', 'svk1.csv', 'fin1.csv',
+             'eng1.csv', 'eng2.csv', 'ger1.csv', 'ita1.csv', 'spa1.csv', 'fra1.csv', 'por1.csv', 
+             'hol1.csv', 'bel1.csv', 'den1.csv', 'den2.csv']
+    
+    combined_df = []
+    
+    for f in files:
+        path = os.path.join(BASE_DIR, f)
+        if os.path.exists(path):
+            try:
+                # Vi indlæser kun de absolut mest nødvendige kolonner i hukommelsen for at optimere farten
+                df = pd.read_csv(path)
+                combined_df.append(df)
+            except Exception:
+                continue
+                
+    if not combined_df:
+        raise HTTPException(status_code=500, detail="Kunne ikke finde eller indlæse nogen liga-CSV-filer i backend-mappen.")
+        
+    return pd.concat(combined_df, ignore_index=True)
+
 
 @router.get("/table-data")
 def get_scouting_table_data(
     stat_type: str = Query("Per 90", description="Vælg mellem 'Per 90' eller 'Total'")
 ):
-    from app import GLOBAL_DATASET
-    if GLOBAL_DATASET is None or GLOBAL_DATASET.empty:
+    # 🔥 FIX: Henter datasættet sikkert igennem vores letvægts serverløse indlæser
+    try:
+        df = get_serverless_dataset()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    if df is None or df.empty:
         raise HTTPException(status_code=500, detail="Datamotoren er tom eller ikke indlæst.")
 
     # 1. 🎯 SUFFIX LOGIK EN-TIL-EN FRA DINE ANDRE DIAGRAMMER 🎯
     suffix = "_p90" if stat_type == "Per 90" else "_Total"
-    
-    # Lokalt udtræk af datasættet, så vi beskytter din app.py master-data
-    df = GLOBAL_DATASET.copy()
 
     try:
         # 2. MATCHING AF DINE 15 OFFICIELLE APPMETRIKKER TIL TABEL-KOLONNER
@@ -83,10 +115,9 @@ def get_scouting_table_data(
                 "nationality": nationality,
                 "age": int(row.get('Age', 0)) if not pd.isna(row.get('Age')) else 0,
                 "mins_played": mins_played,
-                "team_id": str(row.get('contestantId', 'nan')),  # 🎯 TILFØJ DENNE LINJE HER!
+                "team_id": str(row.get('contestantId', 'nan')),
                 "metrics": player_metrics
             })
-
 
         # Returner datapakken med listen over gyldige kolonner (headers) til frontenden
         return {
