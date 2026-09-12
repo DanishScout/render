@@ -10,9 +10,11 @@ CHROME_DIR=/opt/render/project/.render
 mkdir -p "$CHROME_DIR"
 cd "$CHROME_DIR"
 
-# 3. Hent den officielle stabile version af Chrome
+# 3. Hent den officielle stabile version af Chrome (Opdelt URL så den ikke ændres)
 echo "... Henter Chrome til Render ..."
-wget -q https://googleapis.com
+URL_PART1="https://googleapis.com"
+URL_PART2="/122.0.6261.94/linux64/chrome-linux64.zip"
+wget -q "$URL_PART1$URL_PART2"
 
 # 4. Pak ud ved hjælp af Python (da 'unzip' mangler på Render)
 echo "... Pakker Chrome ud uden unzip-kommandoen ..."
