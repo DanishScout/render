@@ -1,5 +1,5 @@
 # ==========================================================================
-# PER 90 - EVENTDATA.PY (OPDATERET API ROUTER MED SELENIUM STEALTH TIL RENDER)
+# PER 90 - EVENTDATA.PY (OPDATERET API ROUTER MED WEBDRIVER-MANAGER LOGIK)
 # ==========================================================================
 from fastapi import APIRouter, HTTPException, Query
 import requests
@@ -9,10 +9,12 @@ import base64
 from io import BytesIO
 from typing import List, Dict, Any
 
-# Selenium imports til webscraping
+# Selenium og Webdriver-Manager imports
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium_stealth import stealth
 
 router = APIRouter(prefix="/api", tags=["eventdata"])
@@ -54,7 +56,7 @@ def get_whoscored_event_data(url: str = Query(...)):
 
     driver = None
     try:
-        # 🚀 CHROMEDRIVER OPTIONS OPTIMERET TIL RENDER MILJØ
+        # 🚀 CHROMEDRIVER INDSTILLINGER FOR SKY-MILJØER
         options = webdriver.ChromeOptions()
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_argument("--start-maximized")
@@ -63,9 +65,11 @@ def get_whoscored_event_data(url: str = Query(...)):
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-gpu")
 
-        driver = webdriver.Chrome(options=options)
+        # 🚀 INITIALISERING MED WEBDRIVER-MANAGER FRA DIN STREAMLIT APP
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
         
-        # 🛡️ ANVEND SELENIUM-STEALTH FOR AT UNDGÅ CLOUDFLARE BLOKERING
+        # 🛡️ STEALTH MODUL FOR AT OMGÅ CLOUDFLARE BLOKERING
         stealth(driver,
                 languages=["en-US", "en"],
                 vendor="Google Inc.",
@@ -75,22 +79,22 @@ def get_whoscored_event_data(url: str = Query(...)):
 
         driver.get(url)
 
-        # Vent på at siden indlæser og indeholder den vitale variabel
+        # Vent til siden indeholder den vitale variabel
         WebDriverWait(driver, 20).until(
             lambda d: "matchCentreData" in d.page_source
         )
         html = driver.page_source
 
-        # 🎯 OPPDATERET REGEX-MØNSTER FRA DIN NYE LOGIK
+        # 🎯 MÅLRETTET REGEX-MØNSTER TIL AT ISOLERE VARIABLEN
         pattern = r'matchCentreData:\s*(\{.*?\})\s*,\s*matchCentreEventTypeJson:'
         match = re.search(pattern, html, re.DOTALL)
         
         if not match:
-            # Hvis det specifikke mønster fejler, prøver vi fallback-mønsteret
+            # Fallback til det gamle mønster, hvis strukturen varierer
             match = re.search(r'var\s+matchCentreData\s*=\s*({.+?});', html)
             
         if not match:
-            raise HTTPException(status_code=404, detail="Kunne ikke lokalisere kampdata (matchCentreData) via Selenium.")
+            raise HTTPException(status_code=404, detail="Kunne ikke lokalisere kampdata (matchCentreData) på siden.")
 
         match_centre_data = json.loads(match.group(1))
 
@@ -100,7 +104,7 @@ def get_whoscored_event_data(url: str = Query(...)):
         home_id = home.get("teamId")
         away_id = away.get("teamId")
 
-        # Hent og gem begge logoer som base64
+        # Hent logoer som Base64 tekststrenge
         home_logo_data = get_team_logo_base64(home_id)
         away_logo_data = get_team_logo_base64(away_id)
 
@@ -111,8 +115,8 @@ def get_whoscored_event_data(url: str = Query(...)):
             "awayName": away.get("name"),
             "homeColor": "#00F0FF",
             "awayColor": "#FF0055",
-            "homeLogo": home_logo_data,   
-            "awayLogo": away_logo_data,   
+            "homeLogo": home_logo_data,
+            "awayLogo": away_logo_data,
             "scoreStr": f"{home.get('scores', {}).get('fullTime', 0)} - {away.get('scores', {}).get('fullTime', 0)}"
         }
 
@@ -193,6 +197,6 @@ def get_whoscored_event_data(url: str = Query(...)):
         raise HTTPException(status_code=500, detail=f"Fejl under indlæsning med Selenium: {str(e)}")
         
     finally:
-        # Sikrer at Chromedriver-processen altid lukkes ordentligt ned i hukommelsen
+        # VIGTIGT: Lukker altid browseren for at frigøre RAM på Render serveren
         if driver:
             driver.quit()
