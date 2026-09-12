@@ -1,19 +1,23 @@
 # ==========================================================================
-# PER 90 - EVENTDATA.PY (FEJLSIKRET API ROUTER MED TYPE-KONVERTERING)
+# PER 90 - EVENTDATA.PY (KOMPLET API ROUTER BASERET PÅ SELENIUM METODEN FRA FIG.PY)
 # ==========================================================================
 from fastapi import APIRouter, HTTPException, Query
-from curl_cffi import requests as curl_requests
-import urllib.request
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
+from selenium_stealth import stealth
 import json
 import re
 import base64
+import requests
 import logging
 from io import BytesIO
 from typing import List, Dict, Any
 
 router = APIRouter(prefix="/api", tags=["eventdata"])
 
-# Konfigurer basal logging så du kan se eventuelle fejl i Render logs
+# Konfigurer basal logging til Render-konsollen
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -34,13 +38,14 @@ def lookup_xt(x: float, y: float) -> float:
     col_idx = int((x / 100) * 12) if x < 100 else 11
     return XT_MATRIX[max(0, min(7, row_idx))][max(0, min(11, col_idx))]
 
-# 🎯 SIKKER LOGO-FETCH: Bruger urllib for at undgå asynkrone konflikter
+# 🎯 DYNAMISK BACKEND FETCH OG BASE64-CACHING AF HOLDLOGOER
 def get_team_logo_base64(team_id: int) -> str:
     url = f"https://cloudfront.net{team_id}.png"
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=5) as response:
-            encoded = base64.b64encode(response.read()).decode("utf-8")
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+        res = requests.get(url, headers=headers, timeout=5)
+        if res.status_code == 200:
+            encoded = base64.b64encode(res.content).decode("utf-8")
             return f"data:image/png;base64,{encoded}"
     except Exception:
         pass
@@ -51,36 +56,70 @@ def get_whoscored_event_data(url: str = Query(...)):
     if not url.strip() or "whoscored.com" not in url:
         raise HTTPException(status_code=400, detail="Ugyldig URL. Indtast venligst en gyldig WhoScored URL.")
 
-    try:
-        # 🔥 LYNHURTIG DETEKTION: Omgår Cloudflare på under 1 sekund
-        response = curl_requests.get(url, impersonate="chrome", timeout=12)
-        if response.status_code != 200:
-            raise HTTPException(status_code=response.status_code, detail=f"WhoScored svarede med status {response.status_code}")
-        html = response.text
-    except Exception as e:
-        logger.error(f"WhoScored download fejlede: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Kunne ikke hente siden: {str(e)}")
+    # 1:1 CHROMEDRIVER ARGUMENTER FRA FIG.PY MED LINUX-SERVER REPARATIONER
+    options = Options()
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("--start-maximized")
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
 
-    # Fleksibel datalokalisering fra fig.py mønstrene
-    match_data_match = re.search(r'matchCentreData\s*:\s*(\{.*?\})\s*,\s*\n', html, re.DOTALL)
+    # Render hastighedsoptimeringer (Forhindrer timeout over 30 sek)
+    options.add_argument("--disable-gpu")
+    options.add_argument("--blink-settings=imagesEnabled=false")  # Banner- og holdsbilleder deaktiveres under skrabning
+    options.add_argument("--disable-extensions")
+    options.add_argument("--page-load-strategy=eager")  # Vent kun til DOM-træet er bygget op
+
+    driver = webdriver.Chrome(options=options)
+
+    # 1:1 STEALTH CONFIG FRA FIG.PY
+    stealth(driver,
+            languages=["en-US", "en"],
+            vendor="Google Inc.",
+            platform="Win32",
+            webgl_vendor="Intel Inc.",
+            renderer="Intel Iris OpenGL Engine")
+
+    html = ""
+    try:
+        driver.get(url)
+        # Vent op til 20 sekunder på matchCentreData præcis som i fig.py
+        WebDriverWait(driver, 20).until(
+            lambda d: "matchCentreData" in d.page_source
+        )
+        html = driver.page_source
+    except TimeoutException:
+        driver.quit()
+        raise HTTPException(status_code=408, detail="Timeout: Siden tog for lang tid at indlæse på serveren.")
+    except Exception as e:
+        driver.quit()
+        raise HTTPException(status_code=500, detail=f"Fejl under browser-start: {str(e)}")
+    finally:
+        driver.quit()
+
+    # 1:1 LOGIK FRA FIG.PY TIL LOKALISERING AF REEELLE KAMPDATA (MED RE.DOTALL)
+    pattern = r'matchCentreData:\s*(\{.*?\})\s*,\s*matchCentreEventTypeJson:'
+    match_data_match = re.search(pattern, html, re.DOTALL)
+    
+    # Backup mønstre hvis det primære fejler
     if not match_data_match:
-        match_data_match = re.search(r'var\s+matchCentreData\s*=\s*(\{.*?\});', html, re.DOTALL)
+        match_data_match = re.search(r'matchCentreData\s*:\s*({.+?})\s*,\s*\n', html, re.DOTALL)
     if not match_data_match:
-        match_data_match = re.search(r'matchCentreData:\s*(\{.*?\})\s*,\s*matchCentreEventTypeJson:', html, re.DOTALL)
+        match_data_match = re.search(r'var\s+matchCentreData\s*=\s*({.+?});', html, re.DOTALL)
+
     if not match_data_match:
-        match_data_match = re.search(r'matchCentreData\s*:\s*(\{.*?\})', html, re.DOTALL)
-        
-    if not match_data_match:
-        raise HTTPException(status_code=404, detail="Kunne ikke lokalisere matchCentreData i HTML-koden.")
+        raise HTTPException(status_code=404, detail="Kunne ikke lokalisere matchCentreData i sidens kildekode.")
 
     try:
         match_centre_data = json.loads(match_data_match.group(1))
 
+        # Metadata extraction
         home = match_centre_data.get("home", {})
         away = match_centre_data.get("away", {})
         home_id = home.get("teamId")
         away_id = away.get("teamId")
 
+        # Hent og konverter logoer live til base64 strings
         home_logo_data = get_team_logo_base64(home_id)
         away_logo_data = get_team_logo_base64(away_id)
 
@@ -96,8 +135,10 @@ def get_whoscored_event_data(url: str = Query(...)):
             "scoreStr": f"{home.get('scores', {}).get('fullTime', 0)} - {away.get('scores', {}).get('fullTime', 0)}"
         }
 
+        # Find udskiftningsminutter
         raw_events = match_centre_data.get("events", [])
-        sub_home_min, sub_away_min = 90, 90
+        sub_home_min = 90
+        sub_away_min = 90
 
         for ev in raw_events:
             if ev.get("type", {}).get("displayName") == "SubstitutionOff":
@@ -110,6 +151,7 @@ def get_whoscored_event_data(url: str = Query(...)):
         match_info["homeFirstSubMin"] = sub_home_min
         match_info["awayFirstSubMin"] = sub_away_min
 
+        # Spillerordbog mapping
         players_map = {}
         for team in ["home", "away"]:
             for p in match_centre_data.get(team, {}).get("players", []):
@@ -134,9 +176,12 @@ def get_whoscored_event_data(url: str = Query(...)):
             is_success = bool(ev.get("outcomeType", {}).get("value", 1) == 1)
             is_touch = bool(ev.get("isTouch", False))
 
-            # Sikker tal-konvertering (Løser TypeErrors hvis værdierne er strenge)
-            start_x = float(ev.get("x", 0.0))
-            start_y = float(ev.get("y", 0.0))
+            # 🔥 PANDAS FIX: Tvinger værdierne til reelle tal, så det kører 1:1 med fig.py's matematiske grundlag
+            try:
+                start_x = float(ev.get("x", 0.0))
+                start_y = float(ev.get("y", 0.0))
+            except:
+                continue
 
             end_x, end_y = None, None
             is_set_piece = False
@@ -154,14 +199,11 @@ def get_whoscored_event_data(url: str = Query(...)):
             xt_diff = 0.0
             if ev_type == "Pass" and is_success and not is_set_piece and end_x is not None and end_y is not None:
                 try:
-                    # 🔥 FIXED: Værdierne sendes nu garanteret som rene floats til matrixen
                     start_xt = lookup_xt(start_x, start_y)
                     end_xt = lookup_xt(end_x, end_y)
                     xt_diff = max(0.0, end_xt - start_xt)
-                except Exception as e:
+                except:
                     xt_diff = 0.0
-            else:
-                xt_diff = 0.0
 
             processed_events.append({
                 "minute": ev.get("minute", 0),
@@ -185,5 +227,5 @@ def get_whoscored_event_data(url: str = Query(...)):
             "events": processed_events
         }
     except Exception as e:
-        logger.error(f"Fejl under JSON-parsing eller event-mapping: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Internt datanedbrud: {str(e)}")
+        logger.error(f"Data-parsing fejl: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Fejl under JSON-behandling: {str(e)}")
