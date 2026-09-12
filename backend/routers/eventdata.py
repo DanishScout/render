@@ -1,6 +1,7 @@
 # ==========================================================================
-# PER 90 - EVENTDATA.PY (OPDATERET API ROUTER MED WEBDRIVER-MANAGER LOGIK)
+# PER 90 - EVENTDATA.PY (KOMPLET API ROUTER OPTIMERET TIL RENDER SCRIPT-INSTALL)
 # ==========================================================================
+import os
 from fastapi import APIRouter, HTTPException, Query
 import requests
 import json
@@ -60,10 +61,15 @@ def get_whoscored_event_data(url: str = Query(...)):
         options = webdriver.ChromeOptions()
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_argument("--start-maximized")
-        options.add_argument("--headless")
+        options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-gpu")
+
+        # 🚀 SIKRER AT SELENIUM FINDER DEN MANUELT INSTALLEREDE CHROME BROWSER PÅ RENDER:
+        render_chrome_path = "/opt/render/project/.render/chrome-linux64/chrome"
+        if os.path.exists(render_chrome_path):
+            options.binary_location = render_chrome_path
 
         # 🚀 INITIALISERING MED WEBDRIVER-MANAGER FRA DIN STREAMLIT APP
         service = Service(ChromeDriverManager().install())
