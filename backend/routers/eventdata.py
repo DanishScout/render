@@ -1,5 +1,5 @@
 # ==========================================================================
-# PER 90 - EVENTDATA.PY (KOMPLET API ROUTER MED RISK-FREE HEADLESS FLAGS)
+# PER 90 - EVENTDATA.PY (KOMPLET API ROUTER OPTIMERET TIL RENDER OG STEALTH)
 # ==========================================================================
 import os
 from fastapi import APIRouter, HTTPException, Query
@@ -60,13 +60,12 @@ def get_whoscored_event_data(url: str = Query(...)):
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_argument("--start-maximized")
         
-        # 🚀 SKIFTET TIL KLASSISK HEADLESS FOR STABILITET PÅ LINUX
-        options.add_argument("--headless")
+        # 🚀 MODERNE HEADLESS LOGIK - SENDER DE RIGTIGE BROWSER-HEADERNE SÅ CLOUDFLARE ACCEPTERER OS
+        options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-gpu")
         
-        # 🚀 EKSTRA FLAG FOR AT OMGÅ MANGLENDE SYSTEM-BIBLIOTEKER I CLOUD-SANDBOX
+        # Ekstra flag til cloud-miljøer
         options.add_argument("--disable-software-rasterizer")
         options.add_argument("--disable-setuid-sandbox")
         options.add_argument("--disable-extensions")
@@ -78,11 +77,11 @@ def get_whoscored_event_data(url: str = Query(...)):
         else:
             options.binary_location = "/opt/render/project/src/.render/chrome-linux64/chrome"
 
-        # Initialisering med Webdriver-Manager
+        # Tvinger driveren til at matche Chrome version 122 præcist
         service = Service(ChromeDriverManager(driver_version="122.0.6261.94").install())
         driver = webdriver.Chrome(service=service, options=options)
         
-        # Stealth modul
+        # Avanceret Stealth opsætning
         stealth(driver,
                 languages=["en-US", "en"],
                 vendor="Google Inc.",
@@ -92,8 +91,8 @@ def get_whoscored_event_data(url: str = Query(...)):
 
         driver.get(url)
 
-        # Vent til siden indeholder den vitale variabel
-        WebDriverWait(driver, 20).until(
+        # Vent på den vitale variabel i op til 25 sekunder (giver tid til Cloudflare tjek)
+        WebDriverWait(driver, 25).until(
             lambda d: "matchCentreData" in d.page_source
         )
         html = driver.page_source
