@@ -728,7 +728,7 @@ function buildFig3GameState() {
     aPoints.push("L 100,50 Z");
 
     // 2. Byg dæmpede gridlines med fulde, urokkelige HTML-attributter (Sikrer html2canvas kompabilitet)
-    let svgGridLines = [8, 50, 92].map(y => `
+    let svgGridLines = [0, 50, 100].map(y => `
         <line x1="0" y1="${y}" x2="100" y2="${y}" stroke="rgba(255,255,255,${y === 50 ? '0.15' : '0.04'})" stroke-width="${y === 50 ? '0.8' : '0.5'}" />
     `).join('');
     
@@ -770,11 +770,13 @@ function buildFig3GameState() {
             <!-- GRAF FRAME MED DE RIGTIGE TEKST-Y-AKSER -->
             <div class="mr-graph-frame" style="height:350px;">
                 <!-- Venstre Y-akse tekstlabels -->
+    
                 <div class="mr-y-axis" style="width:110px; height:100%; position:relative;">
-                    <span style="position:absolute; top:8%; right:15px; font-size:10px; font-weight:900; color:${homeColor}; text-transform:uppercase; letter-spacing:0.5px; transform:translateY(-50%);">Dominance (H)</span>
+                    <span style="position:absolute; top:0%; right:15px; font-size:10px; font-weight:900; color:${homeColor}; text-transform:uppercase; letter-spacing:0.5px; transform:translateY(-50%);">Dominance (H)</span>
                     <span style="position:absolute; top:50%; right:15px; font-size:10px; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:0.5px; transform:translateY(-50%);">Balanced</span>
-                    <span style="position:absolute; top:92%; right:15px; font-size:10px; font-weight:900; color:${awayColor}; text-transform:uppercase; letter-spacing:0.5px; transform:translateY(-50%);">Dominance (A)</span>
+                    <span style="position:absolute; top:100%; right:15px; font-size:10px; font-weight:900; color:${awayColor}; text-transform:uppercase; letter-spacing:0.5px; transform:translateY(-50%);">Dominance (A)</span>
                 </div>
+
                 
                 <!-- SVG Canvas med de rettede attributter for download-motoren -->
                 <div class="mr-svg-canvas" style="border-bottom:1px solid rgba(255,255,255,0.1); border-left:1px solid rgba(255,255,255,0.1);">
@@ -782,13 +784,14 @@ function buildFig3GameState() {
                         <!-- Baggrunds-gridlines -->
                         ${svgGridLines}
                         
-                        <!-- Farve-flader (Fill) -->
-                        <path d="${hPoints.join(' ')}" fill="${homeColor}" fill-opacity="0.12" stroke="none" />
-                        <path d="${aPoints.join(' ')}" fill="${awayColor}" fill-opacity="0.12" stroke="none" />
+                        <!-- Farve-flader (Fill) med indbygget tyk kantlinie -->
+                        <path d="${hPoints.join(' ')}" fill="${homeColor}" fill-opacity="0.12" stroke="${homeColor}" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="${aPoints.join(' ')}" fill="${awayColor}" fill-opacity="0.12" stroke="${awayColor}" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round" />
                         
-                        <!-- Slanke momentum-linjer (Med urokkelige SVG-attributter i stedet for ren CSS) -->
-                        <path d="${hPoints.join(' ')}" fill="none" stroke="${homeColor}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="${aPoints.join(' ')}" fill="none" stroke="${awayColor}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                        <!-- Slanke/ekstra momentum-linjer til at dække samlingerne helt perfekt -->
+                        <path d="${hPoints.join(' ')}" fill="none" stroke="${homeColor}" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="${aPoints.join(' ')}" fill="none" stroke="${awayColor}" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round" />
+
                     </svg>
                 </div>
             </div>
@@ -813,6 +816,18 @@ function buildFig4TopPerformers() {
     const container = getMatchReportEl("mr-display-target-area");
     const info = MATCH_GLOBAL_DATA.match_info;
     const playersList = MATCH_GLOBAL_DATA.players;
+    const formatShortName = (fullName) => {
+        if (!fullName) return "";
+        const parts = fullName.trim().split(/\s+/);
+        if (parts.length <= 1) return fullName; // Hvis der kun er ét navn, gør intet
+
+        const firstName = parts[0];
+        const lastName = parts[parts.length - 1]; // Tag det absolut sidste efternavn
+        
+        return `${firstName.charAt(0).toUpperCase()}. ${lastName}`;
+    };
+
+
 
     if (!playersList || playersList.length === 0) {
         container.innerHTML = `<div style="text-align:center; padding:50px; color:rgba(255,255,255,0.4);">Ingen spillerdata tilgængelig.</div>`;
@@ -846,8 +861,9 @@ function buildFig4TopPerformers() {
                     </span>
                     <img class="logo" src="${player.teamId == info.homeId ? info.homeLogoB64 : info.awayLogoB64 || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}" style="width: 16px !important; height: 16px !important; object-fit: contain !important; flex-shrink: 0 !important; display: block !important; margin: 0 !important; padding: 0 !important; filter: drop-shadow(0 0 4px rgba(255,255,255,0.1)) !important;">
                     <span class="p-nm" style="flex-grow: 1 !important; width: 0 !important; font-size: 11px !important; font-weight: ${is_1st ? '700' : '600'} !important; color: ${is_1st ? '#ffffff' : 'rgba(255,255,255,0.6)'} !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; display: inline-block !important; line-height: 1 !important; margin: 0 !important; padding: 0 !important;">
-                        ${player.name}
+                        ${formatShortName(player.name)}
                     </span>
+
                     <span class="p-vl" style="font-size: 11px !important; font-weight: ${is_1st ? '900' : '700'} !important; color: ${is_1st ? '#ff4d4d' : 'rgba(255,255,255,0.5)'} !important; text-shadow: ${is_1st ? '0 0 15px rgba(255, 77, 77, 0.4)' : 'none'} !important; text-align: right !important; margin-left: auto !important; font-variant-numeric: tabular-nums !important; display: inline-block !important; line-height: 1 !important; padding: 0 !important; flex-shrink: 0 !important; width: 35px !important;">
                         ${Number.isInteger(player.val) ? player.val : player.val.toFixed(2)}
                     </span>
@@ -890,10 +906,6 @@ function buildFig4TopPerformers() {
 
 
 
-// ==========================================================================
-// PER 90 - MATCHREPORT.JS - DEL 10 AF 10 (FIG 5 – PAKKE 1 AF 4 – OPDATERET)
-// ==========================================================================
-
 async function buildFig5PlayerStats() {
     const container = getMatchReportEl("mr-display-target-area");
     const info = MATCH_GLOBAL_DATA.match_info;
@@ -904,7 +916,7 @@ async function buildFig5PlayerStats() {
         return;
     }
 
-    // 🎯 NYT: Filtrer alle spillere fra, som har 0 eller mangler rating (ligesom din eligible_df i Python)
+    // Filtrer alle spillere fra, som har 0 eller mangler rating
     const players = rawPlayers.filter(p => {
         const r = parseFloat(p.stats?.["FotMob rating"] || 0);
         return r > 0;
@@ -915,10 +927,10 @@ async function buildFig5PlayerStats() {
         return;
     }
 
-    // 🎯 NYT: Sorter listen midlertidigt for altid at finde spilleren med den absolut højeste rating i kampen
+    // Sorter listen midlertidigt for altid at finde spilleren med den absolut højeste rating i kampen
     const maxRatingInMatch = Math.max(...players.map(p => parseFloat(p.stats?.["FotMob rating"] || 0)));
 
-    // Hvis brugeren ikke selv har valgt en spiller endnu, vælger vi automatisk ham med højest rating som default!
+    // Hvis brugeren ikke selv har valgt en spiller endnu, vælger vi automatisk ham med højest rating som default
     if (!MATCH_SELECTED_PLAYER) {
         const topRatedPlayer = players.find(p => parseFloat(p.stats?.["FotMob rating"] || 0) === maxRatingInMatch);
         MATCH_SELECTED_PLAYER = topRatedPlayer ? topRatedPlayer.playerId : players[0].playerId;
@@ -939,19 +951,17 @@ async function buildFig5PlayerStats() {
         rankText = `${playerRank}${suffix} HIGHEST RATING`;
     }
 
-
-    // 4. ON-DEMAND BASE64 GENERATOR: Kalder dit nye Python-endpoint KUN for denne spiller!
+    // ON-DEMAND BASE64 GENERATOR: Kalder dit Python-endpoint KUN for denne spiller
     let playerImgB64 = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
     try {
         const imgRes = await fetch(`${API_BASE_URL}/api/player-image?player_id=${current.playerId}`);
         if (imgRes.ok) {
             const imgData = await imgRes.json();
-            // Hvis spilleren mangler profilbillede, laver vi fallback til holdets Base64-logo
             playerImgB64 = imgData.player_img_b64 || (isHome ? info.homeLogoB64 : info.awayLogoB64);
         }
     } catch(e) { console.error("Fejl under on-demand hentning af backend-spillerbillede:", e); }
 
-    // 5. Byg stakkede mål- (fodbolde) og assist- (A-badges) ikoner til bunden af ansigtet
+    // Byg stakkede mål- (fodbolde) og assist- (A-badges) ikoner til bunden af ansigtet
     const goals = parseInt(current.stats?.["Goals"] || 0);
     const assists = parseInt(current.stats?.["Assists"] || 0);
     let iconsHTML = "";
@@ -973,16 +983,7 @@ async function buildFig5PlayerStats() {
         </svg>`;
     }
 
-    for (let i = 0; i < assists; i++) {
-        iconsHTML += `
-        <svg style="display:block; margin-right:-4px; filter:drop-shadow(0 2px 3px rgba(0,0,0,0.9)); flex-shrink:0;" width="16" height="16" viewBox="0 0 24 24">
-            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="#E13B4F" />
-            <text x="12" y="17" fill="#FFFFFF" font-family="sans-serif" font-weight="900" font-size="13" text-anchor="middle">A</text>
-        </svg>`;
-    }
-
-
-    // 6. Konfiguration af dine 16 metrics fordelt på de 4 Streamlit-kategorier
+    // Konfiguration af dine 16 metrics fordelt på de 4 Streamlit-kategorier
     const groupsConfig = [
         { title: "Expected", metrics: ['xG + xA', 'Expected goals (xG)', 'Expected assists (xA)', 'Expected goals on target (xGOT)'] },
         { title: "Passing", metrics: ['Big chances created', 'Chances created', 'Passes into final third', 'Accurate passes'] },
@@ -990,7 +991,7 @@ async function buildFig5PlayerStats() {
         { title: "Other", metrics: ['Defensive actions', 'Recoveries', 'Ground duels won', 'Aerial duels won'] }
     ];
 
-    // 7. Loop igennem grupperne og udregn reelle percentil-ranks ud fra alle kvalificerede spillere
+    // Loop igennem grupperne og udregn reelle percentil-ranks ud fra alle kvalificerede spillere
     const cards_html = groupsConfig.map(group => {
         const metrics_inner = group.metrics.map(metric => {
             let p_val = metric === 'xG + xA' ? (parseFloat(current.stats?.['Expected goals (xG)'] || 0) + parseFloat(current.stats?.['Expected assists (xA)'] || 0)) : parseFloat(current.stats?.[metric] || 0);
@@ -1025,16 +1026,29 @@ async function buildFig5PlayerStats() {
         </div>`;
     }).join('');
 
-    // 🎯 NYT: Dropdown-menuen filtrerer 0.0, SORTERER EFTER RATINGS (HØJEST TIL LAVEST) og mapper ud bagefter!
+    // Dropdown-menuen filtrerer 0.0, SORTERER EFTER RATINGS (HØJEST TIL LAVEST) og mapper ud bagefter
     const playerOptionsHTML = [...players]
         .sort((a, b) => parseFloat(b.stats?.["FotMob rating"] || 0) - parseFloat(a.stats?.["FotMob rating"] || 0))
         .map(p => `<option value="${p.playerId}" ${p.playerId == MATCH_SELECTED_PLAYER ? 'selected' : ''}>${p.playerName} (${parseFloat(p.stats?.["FotMob rating"] || 0).toFixed(1)})</option>`)
         .join('');
         
-    const opponentTeamName = current.teamName === info.homeName ? info.awayName : info.homeName;
+    // 🎯 FIX: Robust identifikation af holdnavne og modstander (tjekker både ID og tekst med lowercase-tolerancer)
+    const currentTeamIdStr = String(current.teamId);
+    const homeIdStr = String(info.homeId);
+    const currentTeamNameLower = current.teamName ? current.teamName.toLowerCase().trim() : "";
+    const homeNameLower = info.homeName ? info.homeName.toLowerCase().trim() : "";
 
+    let playerTeamName = "";
+    let opponentTeamName = "";
 
-    // 8. Render det endelige, smukke Streamlit-look til skærmen
+    if (currentTeamIdStr === homeIdStr || currentTeamNameLower.includes(homeNameLower) || homeNameLower.includes(currentTeamNameLower)) {
+        playerTeamName = info.homeName;
+        opponentTeamName = info.awayName;
+    } else {
+        playerTeamName = info.awayName;
+        opponentTeamName = info.homeName;
+    }
+    // Render det endelige, smukke Streamlit-look til skærmen
     container.innerHTML = `
         <!-- SPILLER SELECT DROPDOWN -->
         <div style="width:100%; max-width:600px; margin:0 auto 20px auto; display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.03); padding:10px 15px; border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
@@ -1072,7 +1086,7 @@ async function buildFig5PlayerStats() {
                     <div class="tactic-line" style="width:100%; height:2px; margin:10px 0; background:linear-gradient(90deg, ${ratingColor} 60%, transparent); opacity:0.3;"></div>
                     
                     <div class="meta-bar" style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:500; color:#94a3b8; text-transform:uppercase;">
-                        <span class="match-versus" style="font-weight:500; color:#94a3b8;">${current.teamName} VS. ${opponentTeamName}</span>
+                        <span class="match-versus" style="font-weight:500; color:#94a3b8;">VS. ${opponentTeamName}</span>
                         <span class="separator" style="color:#475569; font-weight:400;">|</span>
                         <span>${Math.round(current.stats?.["Minutes played"] || 90)} Mins Played</span>
                     </div>

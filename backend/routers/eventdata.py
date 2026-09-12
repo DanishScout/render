@@ -1,11 +1,16 @@
 # ==========================================================================
-# PER 90 - EVENTDATA.PY (OPDATERET API ROUTER MED BACKEND LOGO-CACHING)
+# PER 90 - EVENTDATA.PY (OPDATERET API ROUTER MED SELENIUM-STEALTH SCRAPING)
 # ==========================================================================
 from fastapi import APIRouter, HTTPException, Query
-import requests
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
+from selenium_stealth import stealth
 import json
 import re
 import base64
+import requests
 from io import BytesIO
 from typing import List, Dict, Any
 
@@ -28,19 +33,17 @@ def lookup_xt(x: float, y: float) -> float:
     col_idx = int((x / 100) * 12) if x < 100 else 11
     return XT_MATRIX[max(0, min(7, row_idx))][max(0, min(11, col_idx))]
 
-# 🎯 DYNAMISK BACKEND FETCH OG BASE64-CACHING AF HOLDLOGOER
+# 🎯 ENSTREMET LOGO-FETCH SOM BRUGER EN STANDARD HEADER FOR CLOUDFRONT LOGOER
 def get_team_logo_base64(team_id: int) -> str:
     url = f"https://d2zywfiolv4f83.cloudfront.net/img/teams/{team_id}.png"
     try:
-        headers = {"User-Agent": "Mozilla/5.0"}
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
         res = requests.get(url, headers=headers, timeout=5)
         if res.status_code == 200:
-            # Konverterer rå billed-bytes til en sikker data-URI tekststreng
             encoded = base64.b64encode(res.content).decode("utf-8")
             return f"data:image/png;base64,{encoded}"
     except Exception:
         pass
-    # Fallback til det rå link, hvis Cloudfront skulle fejle under anmodningen
     return url
 
 @router.get("/fetch-events")
@@ -48,18 +51,54 @@ def get_whoscored_event_data(url: str = Query(...)):
     if not url.strip() or "whoscored.com" not in url:
         raise HTTPException(status_code=400, detail="Ugyldig URL. Indtast venligst en gyldig WhoScored URL.")
 
+    # 🔥 METODE FRA fig.py INTEGRERET DIREKTE I API'ET
+    options = Options()
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("--start-maximized")
+    options.add_argument("--headless")  # Sikrer at API'et ikke prøver at åbne et fysisk vindue på serveren
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
+    driver = webdriver.Chrome(options=options)
+
+    # Anvend 1:1 stealth konfigurationen for at ligne en ægte Windows browser overfor Cloudflare
+    stealth(driver,
+            languages=["en-US", "en"],
+            vendor="Google Inc.",
+            platform="Win32",
+            webgl_vendor="Intel Inc.",
+            renderer="Intel Iris OpenGL Engine")
+
+    html = ""
     try:
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
-        response = requests.get(url, headers=headers, timeout=10)
-        if response.status_code != 200:
-            raise HTTPException(status_code=response.status_code, detail="WhoScored blokerede anmodningen.")
+        driver.get(url)
 
-        match_data_match = re.search(r'matchCentreData\s*:\s*({.+?})\s*,\s*\n', response.text)
-        if not match_data_match:
-            match_data_match = re.search(r'var\s+matchCentreData\s*=\s*({.+?});', response.text)
-        if not match_data_match:
-            raise HTTPException(status_code=404, detail="Kunne ikke lokalisere kampdata (matchCentreData).")
+        # Vent op til 20 sekunder indtil siden har indlæst kampdataene live i DOM'en
+        WebDriverWait(driver, 20).until(
+            lambda d: "matchCentreData" in d.page_source
+        )
+        html = driver.page_source
+    except TimeoutException:
+        driver.quit()
+        raise HTTPException(status_code=408, detail="Timeout: WhoScored var for længe om at svare, eller blokerede anmodningen.")
+    except Exception as e:
+        driver.quit()
+        raise HTTPException(status_code=500, detail=f"Browserfejl under hentning af data: {str(e)}")
+    finally:
+        driver.quit()
 
+    # Ekstraher matchCentreData strukturen ud fra HTML'en præcis som før
+    match_data_match = re.search(r'matchCentreData\s*:\s*({.+?})\s*,\s*\n', html)
+    if not match_data_match:
+        match_data_match = re.search(r'var\s+matchCentreData\s*=\s*({.+?});', html)
+    if not match_data_match:
+        # Prøver det mere generiske mønster fra din fig.py script hvis de ovenstående fejler
+        match_data_match = re.search(r'matchCentreData:\s*(\{.*?\})\s*,\s*matchCentreEventTypeJson:', html, re.DOTALL)
+        
+    if not match_data_match:
+        raise HTTPException(status_code=404, detail="Kunne ikke lokalisere kampdata (matchCentreData) i sidens kildekode.")
+
+    try:
         match_centre_data = json.loads(match_data_match.group(1))
 
         # Metadata extraction
@@ -68,7 +107,7 @@ def get_whoscored_event_data(url: str = Query(...)):
         home_id = home.get("teamId")
         away_id = away.get("teamId")
 
-        # 🎯 HENT OG GEM BEGGE LOGOER SOM BASE64 ÉN GANG FOR ALLE
+        # Hent og gem begge logoer som base64 i JSON svaret
         home_logo_data = get_team_logo_base64(home_id)
         away_logo_data = get_team_logo_base64(away_id)
 
@@ -79,8 +118,8 @@ def get_whoscored_event_data(url: str = Query(...)):
             "awayName": away.get("name"),
             "homeColor": "#00F0FF",
             "awayColor": "#FF0055",
-            "homeLogo": home_logo_data,   # 🟥 Gemt i cache i JSON
-            "awayLogo": away_logo_data,   # 🟥 Gemt i cache i JSON
+            "homeLogo": home_logo_data,   
+            "awayLogo": away_logo_data,   
             "scoreStr": f"{home.get('scores', {}).get('fullTime', 0)} - {away.get('scores', {}).get('fullTime', 0)}"
         }
 
@@ -100,7 +139,7 @@ def get_whoscored_event_data(url: str = Query(...)):
         match_info["homeFirstSubMin"] = sub_home_min
         match_info["awayFirstSubMin"] = sub_away_min
 
-        # Spiller mapping
+        # Spiller mapping ordbog (playerId -> metadata)
         players_map = {}
         for team in ["home", "away"]:
             for p in match_centre_data.get(team, {}).get("players", []):
@@ -110,6 +149,12 @@ def get_whoscored_event_data(url: str = Query(...)):
                     "position": p.get("position", "Sub"),
                     "isFirstEleven": bool(p.get("isFirstEleven", False))
                 }
+
+        # Genindlæs navneordbogen hvis den findes separat (Præcis som i din player_dictionary motor)
+        if "playerIdNameDictionary" in match_centre_data:
+            for k, v in match_centre_data["playerIdNameDictionary"].items():
+                if k in players_map:
+                    players_map[k]["name"] = v
 
         processed_events = []
         for ev in raw_events:
@@ -157,4 +202,4 @@ def get_whoscored_event_data(url: str = Query(...)):
             "events": processed_events
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Fejl under indlæsning: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Fejl under databehandling af kampscriptet: {str(e)}")

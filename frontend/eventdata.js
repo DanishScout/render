@@ -112,7 +112,7 @@ function initEventDataView(container) {
 
             <!-- URL INPUT -->
             <div class="mr-search-box">
-                <input type="text" id="ev-url-input" class="mr-input-field" placeholder="Indsæt WhoScored kamp-URL (f.eks. https://whoscored.com...)" value="https://www.whoscored.com/matches/2029172/live/europe-champions-league-2026-2027-manchester-united-sabah-fk">
+                <input type="text" id="ev-url-input" class="mr-input-field" placeholder="Indsæt WhoScored kamp-URL (f.eks. https://whoscored.com...)" value="https://www.whoscored.com/matches/2029109/live/europe-champions-league-2026-2027-bayern-munich-bodoe-glimt">
                 <button class="mr-btn" onclick="fetchWhoScoredEventFeed()">
                     Load Data <i class="fa-solid fa-circle-notch fa-spin" id="ev-spinner" style="display:none; margin-left: 6px;"></i>
                 </button>
@@ -196,6 +196,13 @@ function triggerEventDataDownload(filename, elementId) {
         }
     }
 
+
+    const downloadFooter = clone.querySelector("div[style*='justify-content:space-between']");
+    if (downloadFooter) {
+        downloadFooter.style.maxWidth = "620px";
+        downloadFooter.style.margin = "20px auto 0 auto";
+    }
+
     hiddenContainer.appendChild(clone);
     document.body.appendChild(hiddenContainer);
 
@@ -215,6 +222,7 @@ function triggerEventDataDownload(filename, elementId) {
         if (document.body.contains(hiddenContainer)) document.body.removeChild(hiddenContainer);
     });
 }
+
 
 // ==========================================================================
 // PER 90 - EVENTDATA.JS - DEL 3 AF 7 (API-INTEGRATION & GENEREL VISUEL HEADER)
@@ -499,10 +507,15 @@ function generateVerticalPitchSVG(playerStats, networkPairs, teamColor, isHome) 
         }
     }
 
-    // 2. GENERER SPILLER-CIRKLER (MED RETTET INITIAL-LOGIK)
+
+    // 2. GENERER SPILLER-CIRKLER (MED RETTET INITIAL-LOGIK OG DYNAMISK TEKST)
     for (const [pId, p] of Object.entries(playerStats)) {
         let meta = EV_GLOBAL_DATA.players_map[pId] || { name: "Player", shirtNo: "" };
         if (!meta.isFirstEleven) continue;
+
+        // 🎯 VARIABLER SKAL DEFINERES FØRST:
+        let size = 24 + Math.min(12, p.xtSum * 45); 
+        let fontSize = (size * 0.42).toFixed(1); // Skalerer skriften automatisk efter cirklens størrelse
 
         let avgX = p.xSum / p.count; 
         let avgY = p.ySum / p.count;
@@ -518,14 +531,14 @@ function generateVerticalPitchSVG(playerStats, networkPairs, teamColor, isHome) 
             .toUpperCase()
             .substring(0, 3); // Sikrer max 3 tegn så det ikke klemmer
 
-        let size = 24 + Math.min(12, p.xtSum * 45); 
-
         nodesHTML += `
-            <div class="mr-shot-dot" style="left:${leftPercent}%; top:${topPercent}%; width:${size}px; height:${size}px; background: rgba(10, 15, 26, 0.85); border:2.5px solid ${teamColor}; color:#fff; font-size: 9.5px; font-weight:900; line-height:${size-5}px; transform: translate(-50%, -50%); position: absolute; box-shadow: 0 4px 12px rgba(0,0,0,0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 20; text-shadow: 0 1px 4px rgba(0,0,0,0.8), 0 0 2px #fff; pointer-events: auto; backdrop-filter: blur(1px);">
+            <div class="mr-shot-dot" style="left:${leftPercent}%; top:${topPercent}%; width:${size}px; height:${size}px; background: rgba(10, 15, 26, 0.85); border:2.5px solid ${teamColor}; color:#fff; font-size: ${fontSize}px; font-weight:900; line-height:${size-5}px; transform: translate(-50%, -50%); position: absolute; box-shadow: 0 4px 12px rgba(0,0,0,0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 20; text-shadow: 0 1px 4px rgba(0,0,0,0.8), 0 0 2px #fff; pointer-events: auto; backdrop-filter: blur(1px);">
                 ${initials}
             </div>
         `;
     }
+
+
 
     // 3. LODRET BANE OVERFLADE (MED RETTEDE HARMONISKE PROPORTIONER)
     return `
@@ -785,44 +798,40 @@ function buildWhoScoredFig4XTHeatmap() {
                 </svg>
             </div>
 
-            <!-- 🔥 RETTET OG CENTRERET BUND-PANEL -->
+            <!-- 🔥 STRØMLINET BUND-PANEL: ULTRA-KOMPAKT LAYOUT -->
             <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:20px; font-size:10px; font-weight:700; color:rgba(255,255,255,0.5); padding:0 5px; box-sizing:border-box;">
                 
-                <!-- Venstre side (Tom spacer for at skubbe indholdet mod midten) -->
-                <div style="flex:1; display:flex; justify-content:flex-start;"></div>
-                
-                <!-- Midterste boks: Angrebsretning + xT Farvebjælke samlet centreret -->
-                <div style="flex:2; display:flex; align-items:center; justify-content:center; gap:40px;">
-                    
-                    <!-- Centreret Angrebsretning -->
-                    <div style="display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center;">
-                        <span style="font-size:9px; font-weight:800; text-transform:uppercase; color:rgba(255,255,255,0.35); letter-spacing:0.5px;">Attacking Direction</span>
-                        <div style="width: 80px; height: 12px; display: flex; align-items: center; justify-content:center;">
-                            <svg viewBox="0 0 80 12" style="width: 100%; height: 100%; overflow: visible;">
-                                <path d="M 2,6 L 72,6 M 68,2 L 74,6 L 68,10" 
+                <!-- VENSTRE: Attacking Direction og ultra-kort pil på samme linje -->
+                <div style="flex:1; display:flex; justify-content:flex-start; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="font-size:9px; font-weight:800; text-transform:uppercase; color:rgba(255,255,255,0.35); letter-spacing:0.5px; white-space:nowrap;">Attacking Direction</span>
+                        <!-- Mikro-pil (30px bred og super diskret) -->
+                        <div style="width:30px; height:10px; display:flex; align-items:center;">
+                            <svg viewBox="0 0 30 10" style="width:100%; height:100%; overflow:visible;">
+                                <path d="M 2,5 L 26,5 M 22,2 L 27,5 L 22,8" 
                                       fill="none" 
                                       stroke="rgba(255,255,255,0.3)" 
-                                      stroke-width="2.5" 
+                                      stroke-width="1.5" 
                                       stroke-linecap="round" 
                                       stroke-linejoin="round" />
                             </svg>
                         </div>
                     </div>
-                    
-                    <!-- Centreret xT Legende -->
-                    <div style="display:flex; align-items:center; gap:8px; text-transform:uppercase; font-size:9px; font-weight:800; color:rgba(255,255,255,0.5); padding-top:4px;">
-                        <span>Zero xT</span>
-                        <div style="width:80px; height:6px; background:linear-gradient(90deg, #0c111e, ${baseColor}); border-radius:3px; border:0.5px solid rgba(255,255,255,0.1);"></div>
-                        <span>Max Threat</span>
-                    </div>
-
                 </div>
                 
-                <!-- 🔥 Højre side: Præcis placeret footer-tekst -->
-                <div style="flex:1; display:flex; justify-content:flex-end; font-size:10px; font-weight:700; color:rgba(255,255,255,0.25); letter-spacing:1px; text-transform:uppercase; padding-top:4px;">
+                <!-- MIDTEN: Centreret xT Legende -->
+                <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; text-transform:uppercase; font-size:9px; font-weight:800; color:rgba(255,255,255,0.5);">
+                    Low xT</span>
+                    <div style="width:100px; height:6px; background:linear-gradient(90deg, #0c111e, ${baseColor}); border-radius:3px; border:0.5px solid rgba(255,255,255,0.1);"></div>
+                    <span>Max xT</span>
+                </div>
+                
+                <!-- HØJRE: Præcis placeret footer-tekst helt til højre kant -->
+                <div style="flex:1; display:flex; justify-content:flex-end; font-size:10px; font-weight:700; color:rgba(255,255,255,0.25); letter-spacing:1px; text-transform:uppercase;">
                     Via ://onrender.com
                 </div>
             </div>
+
 
         </div>
                     
