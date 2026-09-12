@@ -1,5 +1,5 @@
 # ==========================================================================
-# PER 90 - EVENTDATA.PY (KOMPLET API ROUTER MED VIRKENDE CHROME FLAGS)
+# PER 90 - EVENTDATA.PY (KOMPLET API ROUTER MED RISK-FREE HEADLESS FLAGS)
 # ==========================================================================
 import os
 from fastapi import APIRouter, HTTPException, Query
@@ -56,18 +56,20 @@ def get_whoscored_event_data(url: str = Query(...)):
 
     driver = None
     try:
-        # 🚀 CHROMEDRIVER INDSTILLINGER FOR SKY-MILJØER
         options = webdriver.ChromeOptions()
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_argument("--start-maximized")
-        options.add_argument("--headless=new")
+        
+        # 🚀 SKIFTET TIL KLASSISK HEADLESS FOR STABILITET PÅ LINUX
+        options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-gpu")
         
-        # 🚀 DISSE TO LINJER LØSER DEVTOOLSACTIVEPORT / CRASH FEJLEN PÅ RENDER:
-        options.add_argument("--remote-debugging-port=9222")
-        options.add_argument("--single-process")
+        # 🚀 EKSTRA FLAG FOR AT OMGÅ MANGLENDE SYSTEM-BIBLIOTEKER I CLOUD-SANDBOX
+        options.add_argument("--disable-software-rasterizer")
+        options.add_argument("--disable-setuid-sandbox")
+        options.add_argument("--disable-extensions")
 
         # Sikrer at Selenium finder Chrome på Render
         render_chrome_path = "/opt/render/project/.render/chrome-linux64/chrome"
