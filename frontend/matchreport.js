@@ -5,6 +5,7 @@
 let MATCH_GLOBAL_DATA = null;       // Indeholder den komplette JSON-datapakke fra matchreport.py
 let MATCH_ACTIVE_TAB = "stats";     // Aktiv visningsfane: 'stats', 'xg', 'momentum', 'performers', 'player'
 let MATCH_SELECTED_PLAYER = null;   // Den nuværende valgte spiller i Fig 5 (Player Stats)
+let MATCH_ZONES_PERIOD = "total";
 
 // 🎯 ISOLERET SELEKTOR-FUNKTION: Forhindrer 'already been declared' fejl permanent på tværs af appen!
 const getMatchReportEl = id => document.getElementById(id);
@@ -222,14 +223,15 @@ function initMatchReportView(container) {
                 </button>
             </div>
 
-            <!-- FANE NAVIGATION (Bredde sat til 100% via CSS i Del 1) -->
             <div class="mr-tabs-nav" id="mr-tabs-bar" style="display:none;">
                 <button class="mr-tab-item active" id="tab-btn-stats" onclick="switchMatchTab('stats')">Match Stats</button>
                 <button class="mr-tab-item" id="tab-btn-xg" onclick="switchMatchTab('xg')">Accumulated xG</button>
                 <button class="mr-tab-item" id="tab-btn-momentum" onclick="switchMatchTab('momentum')">Game State</button>
                 <button class="mr-tab-item" id="tab-btn-performers" onclick="switchMatchTab('performers')">Top Performers</button>
                 <button class="mr-tab-item" id="tab-btn-player" onclick="switchMatchTab('player')">Player Stats</button>
+                <button class="mr-tab-item" id="tab-btn-zones" onclick="switchMatchTab('zones')">Attacking Zones</button>
             </div>
+
 
             <!-- CENTRAL INFOGRAFIK VISNING OG SKALERINGS-VIEWPORT -->
             <div class="mr-scale-viewport" id="mr-display-viewport" style="display:block; width:100%;">
@@ -305,6 +307,7 @@ async function renderActiveMatchVisualization() {
     else if (MATCH_ACTIVE_TAB === "momentum") buildFig3GameState();
     else if (MATCH_ACTIVE_TAB === "performers") buildFig4TopPerformers();
     else if (MATCH_ACTIVE_TAB === "player") await buildFig5PlayerStats();
+    else if (MATCH_ACTIVE_TAB === "zones") buildFig6AttackingZones(); // <--- TILFØJET HER!
 }
 
 function resetLoadingState(targetArea) {
@@ -325,16 +328,6 @@ function resetLoadingState(targetArea) {
     `;
 }
 
-
-function renderActiveMatchVisualization() {
-    if (!MATCH_GLOBAL_DATA) return;
-    
-    if (MATCH_ACTIVE_TAB === "stats") buildFig1MatchStats();
-    else if (MATCH_ACTIVE_TAB === "xg") buildFig2AccumulatedXG();
-    else if (MATCH_ACTIVE_TAB === "momentum") buildFig3GameState();
-    else if (MATCH_ACTIVE_TAB === "performers") buildFig4TopPerformers();
-    else if (MATCH_ACTIVE_TAB === "player") buildFig5PlayerStats();
-}
 
 // ==========================================================================
 // ==========================================================================
@@ -1121,4 +1114,135 @@ async function buildFig5PlayerStats() {
     `;
 }
 
+// ==========================================================================
+// PER 90 - MATCHREPORT.JS - DEL 11 AF 11 (FIG 6 – ATTACKING ZONES)
+// ==========================================================================
+
+
+function buildFig6AttackingZones() {
+    const container = getMatchReportEl("mr-display-target-area");
+    if (!container) return;
+
+    const info = MATCH_GLOBAL_DATA.match_info;
+    const homeColor = info.homeColor || '#3498db';
+    const awayColor = info.awayColor || '#eed202';
+    
+    const zonesData = MATCH_GLOBAL_DATA.attacking_zones || {
+        home: { total: { left: 0, center: 0, right: 0 }, firstHalf: { left: 0, center: 0, right: 0 }, secondHalf: { left: 0, center: 0, right: 0 } },
+        away: { total: { left: 0, center: 0, right: 0 }, firstHalf: { left: 0, center: 0, right: 0 }, secondHalf: { left: 0, center: 0, right: 0 } }
+    };
+
+    const periodKey = MATCH_ZONES_PERIOD;
+    const homeZones = zonesData.home[periodKey];
+    const awayZones = zonesData.away[periodKey];
+
+    // Fast højde på pilene (FotMob stil)
+    const H = 6.0; 
+
+    // Centrerings-akser (Y) for de tre banerækker
+    const yTop = 16;
+    const yMid = 34;
+    const yBot = 52;
+
+    // 🎯 NY PLACERING: Badges rykket helt ind til midterlinjen, hvor gradienten er mest mørk
+    const xHomeBadge = 44;
+    const xAwayBadge = 61;
+
+    // KUN DYNAMISK LÆNGDE BASERET PÅ % (Udregnes ud fra midterlinjen 52.5)
+    const getArrowLength = (pct) => Math.max(15, Math.min(46, (pct / 50) * 42));
+
+    const hTopLen = getArrowLength(homeZones.right); // Flipped (Right i top)
+    const hMidLen = getArrowLength(homeZones.center);
+    const hBotLen = getArrowLength(homeZones.left);  // Flipped (Left i bund)
+
+    const aTopLen = getArrowLength(awayZones.left);
+    const aMidLen = getArrowLength(awayZones.center);
+    const aBotLen = getArrowLength(awayZones.right);
+
+    container.innerHTML = `
+        <!-- PERIOD DROPDOWN -->
+        <div style="width:100%; max-width:600px; margin:0 auto 20px auto; display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.03); padding:10px 15px; border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
+            <span style="font-size:11px; font-weight:800; color:rgba(255,255,255,0.5); text-transform:uppercase;">Period:</span>
+            <select id="mr-zones-dropdown" onchange="MATCH_ZONES_PERIOD=this.value; buildFig6AttackingZones();" style="flex:1; background:#0B1220; color:#fff; border:1px solid rgba(255,255,255,0.1); padding:6px 10px; border-radius:6px; font-weight:700; font-size:13px; outline:none; cursor:pointer;">
+                <option value="total" ${periodKey === 'total' ? 'selected' : ''}>Full Time (Total)</option>
+                <option value="firstHalf" ${periodKey === 'firstHalf' ? 'selected' : ''}>1st Half</option>
+                <option value="secondHalf" ${periodKey === 'secondHalf' ? 'selected' : ''}>2nd Half</option>
+            </select>
+        </div>
+
+        <div class="mr-capture-card" id="fig6-capture" style="padding: 40px 30px;">
+            ${generateSharedHeaderHTML("Attacking Zones")}
+            <div class="mr-pitch-wrapper">
+                <svg viewBox="0 0 105 68" style="width:100%; height:100%; overflow:visible;">
+                    
+                    <defs>
+                        <!-- Lineære gradients som i det originale design (toner ud mod midterlinjen) -->
+                        <linearGradient id="homeGrad" x1="1" y1="0" x2="0" y2="0">
+                            <stop offset="0%" stop-color="${homeColor}" stop-opacity="0.05" />
+                            <stop offset="100%" stop-color="${homeColor}" stop-opacity="0.65" />
+                        </linearGradient>
+                        <linearGradient id="awayGrad" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stop-color="${awayColor}" stop-opacity="0.05" />
+                            <stop offset="100%" stop-color="${awayColor}" stop-opacity="0.65" />
+                        </linearGradient>
+                    </defs>
+
+                    <!-- FOTBOLD-BANE GEOMETRI (Fig 1 Kopi) -->
+                    <rect x="0" y="0" width="105" height="68" class="mr-pitch-line" />
+                    <line x1="52.5" y1="0" x2="52.5" y2="68" class="mr-pitch-line" />
+                    <circle cx="52.5" cy="34" r="9.15" class="mr-pitch-line" />
+                    <rect x="0" y="13.85" width="16.5" height="40.3" class="mr-pitch-line" />
+                    <rect x="0" y="24.85" width="5.5" height="18.3" class="mr-pitch-line" />
+                    <rect x="88.5" y="13.85" width="16.5" height="40.3" class="mr-pitch-line" />
+                    <rect x="99.5" y="24.85" width="5.5" height="18.3" class="mr-pitch-line" />
+
+                    <!-- ==========================================
+                         HJEMMEHOLD (Venstre side - Peger mod Venstre)
+                         ========================================== -->
+                    <!-- Top zone (Right) -->
+                    <path d="M 50,${yTop - H} L ${52.5 - hTopLen + H},${yTop - H} L ${52.5 - hTopLen},${yTop} L ${52.5 - hTopLen + H},${yTop + H} L 50,${yTop + H} Z" fill="url(#homeGrad)" />
+                    <rect x="${xHomeBadge - 6}" y="${yTop - 3.5}" width="12" height="7" rx="3.5" fill="${homeColor}" fill-opacity="0.85" />
+                    <text x="${xHomeBadge}" y="${yTop}" fill="#ffffff" font-size="4.2" font-weight="900" text-anchor="middle" dominant-baseline="central">${homeZones.right}%</text>
+
+                    <!-- Midter zone (Center) -->
+                    <path d="M 50,${yMid - H} L ${52.5 - hMidLen + H},${yMid - H} L ${52.5 - hMidLen},${yMid} L ${52.5 - hMidLen + H},${yMid + H} L 50,${yMid + H} Z" fill="url(#homeGrad)" />
+                    <rect x="${xHomeBadge - 6}" y="${yMid - 3.5}" width="12" height="7" rx="3.5" fill="${homeColor}" fill-opacity="0.85" />
+                    <text x="${xHomeBadge}" y="${yMid}" fill="#ffffff" font-size="4.2" font-weight="900" text-anchor="middle" dominant-baseline="central">${homeZones.center}%</text>
+
+                    <!-- Bund zone (Left) -->
+                    <path d="M 50,${yBot - H} L ${52.5 - hBotLen + H},${yBot - H} L ${52.5 - hBotLen},${yBot} L ${52.5 - hBotLen + H},${yBot + H} L 50,${yBot + H} Z" fill="url(#homeGrad)" />
+                    <rect x="${xHomeBadge - 6}" y="${yBot - 3.5}" width="12" height="7" rx="3.5" fill="${homeColor}" fill-opacity="0.85" />
+                    <text x="${xHomeBadge}" y="${yBot}" fill="#ffffff" font-size="4.2" font-weight="900" text-anchor="middle" dominant-baseline="central">${homeZones.left}%</text>
+
+
+                    <!-- ==========================================
+                         UDEHOLD (Højre side - Peger mod Højre)
+                         ========================================== -->
+                    <!-- Top zone (Left) -->
+                    <path d="M 55,${yTop - H} L ${52.5 + aTopLen - H},${yTop - H} L ${52.5 + aTopLen},${yTop} L ${52.5 + aTopLen - H},${yTop + H} L 55,${yTop + H} Z" fill="url(#awayGrad)" />
+                    <rect x="${xAwayBadge - 6}" y="${yTop - 3.5}" width="12" height="7" rx="3.5" fill="${awayColor}" fill-opacity="0.85" />
+                    <text x="${xAwayBadge}" y="${yTop}" fill="#ffffff" font-size="4.2" font-weight="900" text-anchor="middle" dominant-baseline="central">${awayZones.left}%</text>
+
+                    <!-- Midter zone (Center) -->
+                    <path d="M 55,${yMid - H} L ${52.5 + aMidLen - H},${yMid - H} L ${52.5 + aMidLen},${yMid} L ${52.5 + aMidLen - H},${yMid + H} L 55,${yMid + H} Z" fill="url(#awayGrad)" />
+                    <rect x="${xAwayBadge - 6}" y="${yMid - 3.5}" width="12" height="7" rx="3.5" fill="${awayColor}" fill-opacity="0.85" />
+                    <text x="${xAwayBadge}" y="${yMid}" fill="#ffffff" font-size="4.2" font-weight="900" text-anchor="middle" dominant-baseline="central">${awayZones.center}%</text>
+
+                    <!-- Bund zone (Right) -->
+                    <path d="M 55,${yBot - H} L ${52.5 + aBotLen - H},${yBot - H} L ${52.5 + aBotLen},${yBot} L ${52.5 + aBotLen - H},${yBot + H} L 55,${yBot + H} Z" fill="url(#awayGrad)" />
+                    <rect x="${xAwayBadge - 6}" y="${yBot - 3.5}" width="12" height="7" rx="3.5" fill="${awayColor}" fill-opacity="0.85" />
+                    <text x="${xAwayBadge}" y="${yBot}" fill="#ffffff" font-size="4.2" font-weight="900" text-anchor="middle" dominant-baseline="central">${awayZones.right}%</text>
+
+                </svg>
+                <div class="mr-markers-layer" id="zones-markers-layer"></div>
+            </div>
+        </div>
+        
+        <div style="text-align:center; margin-top:20px;">
+            <button class="mr-btn" style="margin:auto;" onclick="triggerMatchReportDownload('attacking_zones', 'fig6-capture')">
+                Download as PNG
+            </button>
+        </div>
+    `;
+}
 

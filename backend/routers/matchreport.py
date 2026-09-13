@@ -125,23 +125,58 @@ def get_match_report_data(
                     "away": str(away_val)
                 })
 
+                # ------------------------------------------------------------------
+        # DATABASE 4: GAME STATE / MOMENTUM & ATTACKING ZONES
         # ------------------------------------------------------------------
-        # DATABASE 4: GAME STATE / MOMENTUM
-        # ------------------------------------------------------------------
-        momentum_data = (
-            match_data.get("content", {})
-            .get("matchFacts", {})
-            .get("momentum", {})
-            .get("main", {})
-            .get("data", [])
-        )
+        content_obj = match_data.get("content", {})
+        match_facts_obj = content_obj.get("matchFacts", {})
         
+        # 1. Hent momentum (som virker i forvejen)
+        momentum_data = match_facts_obj.get("momentum", {}).get("main", {}).get("data", [])
+        if not momentum_data:
+            # Fallback hvis momentum ligger et andet sted
+            momentum_data = content_obj.get("momentum", {}).get("main", {}).get("data", [])
+
         momentum_list = []
         for m in momentum_data:
             momentum_list.append({
                 "minute": m.get("minute", 0),
                 "value": m.get("value", 0.0)
             })
+
+        # 2. ROBUST ZONE-DETEKTION: Vi tjekker alle tænkelige steder efter 'attackingZones'
+        zones_raw = None
+        
+        # Tjek 1: Inde i matchFacts (hvor den plejer at ligge)
+        if isinstance(match_facts_obj, dict) and "attackingZones" in match_facts_obj:
+            zones_raw = match_facts_obj.get("attackingZones")
+        
+        # Tjek 2: Direkte under content
+        if not zones_raw and isinstance(content_obj, dict) and "attackingZones" in content_obj:
+            zones_raw = content_obj.get("attackingZones")
+            
+        # Tjek 3: Direkte på rod-niveau (pageProps)
+        if not zones_raw and isinstance(match_data, dict) and "attackingZones" in match_data:
+            zones_raw = match_data.get("attackingZones")
+
+        # Hvis vi overhovedet ikke fandt noget, laver vi en sikker tom struktur
+        if not zones_raw:
+            zones_raw = {}
+        
+        attacking_zones = {
+            "home": zones_raw.get("home", {
+                "total": {"left": 0, "center": 0, "right": 0},
+                "firstHalf": {"left": 0, "center": 0, "right": 0},
+                "secondHalf": {"left": 0, "center": 0, "right": 0}
+            }),
+            "away": zones_raw.get("away", {
+                "total": {"left": 0, "center": 0, "right": 0},
+                "firstHalf": {"left": 0, "center": 0, "right": 0},
+                "secondHalf": {"left": 0, "center": 0, "right": 0}
+            })
+        }
+
+
 
         # ------------------------------------------------------------------
         # DATABASE 5: PLAYER PERFORMANCE RECORDS (Forbliver ultra-let)
@@ -161,14 +196,17 @@ def get_match_report_data(
                 "stats": metrics
             })
 
+        
         return {
             "status": "SUCCESS",
             "match_info": match_info,
             "shotmap": shotmap_entries,
             "team_stats": team_stats,
             "momentum": momentum_list,
+            "attacking_zones": attacking_zones,  # <--- TILFØJET HER!
             "players": players_list
         }
+
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Fejl under generering af kamprapport-feed: {str(e)}")
