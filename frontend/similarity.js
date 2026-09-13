@@ -366,10 +366,18 @@ async function loadSimilarityAPIDataFeed() {
     try {
         const officialMetrics = [
             "Goals", "npxG", "Shots On Target", "On Target %",
-            "Assists", "xA", "Key Passes", "Pass Accuracy %", "Long Ball Accuracy %", "Cross Accuracy %",
+            "Created Own Shot", "Total Shots", "Shots Outside Box", "Shots Inside Box",
+            "Assists", "xA", "Key Passes", "xT via Live Passes",
+            "Progressive Passes", "Passes Into Final 3rd", "Forward Passes", "Passes in Opp. Half",
+            "Passes in Own Half", "Accurate Passes", "Accurate Long Balls", "Accurate Crosses",
+            "Pass Accuracy %", "Long Ball Accuracy %", "Cross Accuracy %",
             "Successful Dribbles", "Dribble Attempts", "Dribble Success %",
-            "Tackles Won %", "Aerials Won %", "Duels Won %"
+            "Progressive Carries", "xT via Prog. Carries", "Carries Into Final ⅓", "Touches In Opp. Box",
+            "Fouls Drawn", "Tackles Won %", "Aerials Won %", "Duels Won %",
+            "Tackles Won", "Aerials Won", "Duels Won", "Clearances",
+            "Blocked Shots", "Interceptions"
         ];
+
         
         let metricsParams = officialMetrics.map(m => `selected_metrics=${encodeURIComponent(m)}`).join('&');
         let filterParams = `&min_age=${SIM_FILTERS.minAge}&max_age=${SIM_FILTERS.maxAge}&min_mins=${SIM_FILTERS.minMins}&max_mins=${SIM_FILTERS.maxMins}`;

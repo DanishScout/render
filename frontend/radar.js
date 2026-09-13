@@ -3,17 +3,69 @@
 // ==========================================================================
 
 const AVAILABLE_RADAR_METRICS = [
-    "Goals", "npxG", "Shots On Target", "On Target %", "Assists", "xA", 
-    "Key Passes", "xT via Live Passes", "Successful Dribbles", "Dribble Attempts", 
-    "Dribble Success %", "Tackles Won %", "Aerials Won %", "Duels Won %", "Tackles Won"
+    "Goals", "npxG", "Shots On Target", "On Target %", "Created Own Shot", 
+    "Total Shots", "Shots Outside Box", "Shots Inside Box", "Assists", "xA", 
+    "Key Passes", "xT via Live Passes", "Progressive Passes", "Passes Into Final 3rd", 
+    "Forward Passes", "Passes in Opp. Half", "Passes in Own Half", "Accurate Passes", 
+    "Accurate Long Balls", "Accurate Crosses", "Pass Accuracy %", "Long Ball Accuracy %", 
+    "Cross Accuracy %", "Successful Dribbles", "Dribble Attempts", "Dribble Success %", 
+    "Progressive Carries", "xT via Prog. Carries", "Carries Into Final ⅓", "Touches In Opp. Box", 
+    "Fouls Drawn", "Tackles Won %", "Aerials Won %", "Duels Won %", "Tackles Won", 
+    "Aerials Won", "Duels Won", "Clearances", "Blocked Shots", "Interceptions"
 ];
 
+
 const RADAR_CATEGORIES = {
-    "Shooting": { "Goals": "Goals", "npxG": "npxG", "Shots On Target": "Shots On Target", "On Target %": "On Target %" },
-    "Passing": { "Assists": "Assists", "xA": "xA", "Key Passes": "Key Passes", "xT via Live Passes": "xT via Live Passes" },
-    "Possession": { "Successful Dribbles": "Successful Dribbles", "Dribble Attempts": "Dribble Attempts", "Dribble Success %": "Dribble Success %" },
-    "Defending": { "Tackles Won %": "Tackles Won %", "Aerials Won %": "Aerials Won %", "Duels Won %": "Duels Won %", "Tackles Won": "Tackles Won" }
+    "Shooting": {
+        "Goals": "Goals",
+        "npxG": "npxG",
+        "Shots On Target": "Shots On Target",
+        "On Target %": "On Target %",
+        "Created Own Shot": "Created Own Shot",
+        "Total Shots": "Total Shots",
+        "Shots Outside Box": "Shots Outside Box",
+        "Shots Inside Box": "Shots Inside Box"
+    },
+    "Passing": {
+        "Assists": "Assists",
+        "xA": "xA",
+        "Key Passes": "Key Passes",
+        "xT via Live Passes": "xT via Live Passes",
+        "Progressive Passes": "Progressive Passes",
+        "Passes Into Final 3rd": "Passes Into Final 3rd",
+        "Forward Passes": "Forward Passes",
+        "Passes in Opp. Half": "Passes in Opp. Half",
+        "Passes in Own Half": "Passes in Own Half",
+        "Accurate Passes": "Accurate Passes",
+        "Accurate Long Balls": "Accurate Long Balls",
+        "Accurate Crosses": "Accurate Crosses",
+        "Pass Accuracy %": "Pass Accuracy %",
+        "Long Ball Accuracy %": "Long Ball Accuracy %",
+        "Cross Accuracy %": "Cross Accuracy %"
+    },
+    "Possession": {
+        "Successful Dribbles": "Successful Dribbles",
+        "Dribble Attempts": "Dribble Attempts",
+        "Dribble Success %": "Dribble Success %",
+        "Progressive Carries": "Progressive Carries",
+        "xT via Prog. Carries": "xT via Prog. Carries",
+        "Carries Into Final ⅓": "Carries Into Final ⅓",
+        "Touches In Opp. Box": "Touches In Opp. Box",
+        "Fouls Drawn": "Fouls Drawn"
+    },
+    "Defending": {
+        "Tackles Won %": "Tackles Won %",
+        "Aerials Won %": "Aerials Won %",
+        "Duels Won %": "Duels Won %",
+        "Tackles Won": "Tackles Won",
+        "Aerials Won": "Aerials Won",
+        "Duels Won": "Duels Won",
+        "Clearances": "Clearances",
+        "Blocked Shots": "Blocked Shots",
+        "Interceptions": "Interceptions"
+    }
 };
+
 
 let RADAR_PLAYER_1 = "", RADAR_PLAYER_2 = "";
 let RADAR_COLOR_1 = "#00f0ff", RADAR_COLOR_2 = "#d946ef";

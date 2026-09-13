@@ -14,12 +14,25 @@ METRIC_CONFIG = {
         "total goals_p90": "Goals",
         "xG_p90": "npxG",
         "total ontarget attempt_p90": "Shots On Target",
-        "attempt_success_pct_p90": "On Target %"
+        "attempt_success_pct_p90": "On Target %",
+        "CreatedOwnShot_p90": "Created Own Shot",
+        "total attempt_p90": "Total Shots",
+        "total attempts obox_p90": "Shots Outside Box",
+        "total attempts ibox_p90": "Shots Inside Box"
     },
     "Passing / Playmaking": {
         "total assists_p90": "Assists",
         "xA_p90": "xA",
         "total att assist_p90": "Key Passes",
+        "xT_pass_p90": "xT via Live Passes",
+        "progressive_passes_p90": "Progressive Passes",   
+        "passes_into_final_third_p90": "Passes Into Final 3rd",
+        "forward_passes_p90": "Forward Passes",
+        "total accurate fwd zone pass_p90": "Passes in Opp. Half",
+        "total accurate back zone pass_p90": "Passes in Own Half",
+        "total accurate pass_p90": "Accurate Passes",
+        "total accurate long balls_p90": "Accurate Long Balls",
+        "total accurate cross_p90": "Accurate Crosses",
         "pass_success_pct_p90": "Pass Accuracy %",
         "long_balls_success_pct_p90": "Long Ball Accuracy %",
         "cross_success_pct_p90": "Cross Accuracy %"
@@ -27,14 +40,26 @@ METRIC_CONFIG = {
     "Possession": {
         "total won contest_p90": "Successful Dribbles",
         "total contest_p90": "Dribble Attempts",
-        "dribble_success_pct_p90": "Dribble Success %"
+        "dribble_success_pct_p90": "Dribble Success %",
+        "Total Carries_p90": "Progressive Carries",
+        "Total Carry xT_p90": "xT via Prog. Carries",
+        "Total Final Third Carries_p90": "Carries Into Final ⅓",
+        "total touches in opposition box_p90": "Touches In Opp. Box",
+        "total was fouled_p90": "Fouls Drawn"
     },
     "Defending / Duels": {
         "tackle_success_pct_p90": "Tackles Won %",
         "aerial_success_pct_p90": "Aerials Won %",
-        "duel_success_pct_p90": "Duels Won %"
+        "duel_success_pct_p90": "Duels Won %",
+        "total won tackle_p90": "Tackles Won",
+        "total aerial won_p90": "Aerials Won",
+        "total duels won_p90": "Duels Won",
+        "total effective clearance_p90": "Clearances",
+        "total blocked scoring att_p90": "Blocked Shots",
+        "total interception_p90": "Interceptions"
     }
 }
+
 
 # Flad ordbog til hurtigt opslag på tværs af kategorier
 CUSTOM_TITLES_P90 = {}

@@ -22,31 +22,57 @@ def get_scouting_table_data(
     df = GLOBAL_DATASET.copy()
 
     try:
-        # 2. MATCHING AF DINE 15 OFFICIELLE APPMETRIKKER TIL TABEL-KOLONNER
+
         custom_titles = {
-            # Shooting
+            #shot
             f"total goals{suffix}": "Goals",
             f"xG{suffix}": "npxG",
             f"total ontarget attempt{suffix}": "Shots On Target",
             f"attempt_success_pct{suffix}": "On Target %",
-            
-            # Passing / Playmaking
+            f"CreatedOwnShot{suffix}": "Created Own Shot",
+            f"total attempt{suffix}": "Total Shots",
+            f"total attempts obox{suffix}": "Shots Outside Box",
+            f"total attempts ibox{suffix}": "Shots Inside Box",
+    
+            #pass
             f"total assists{suffix}": "Assists",
             f"xA{suffix}": "xA",
             f"total att assist{suffix}": "Key Passes",
+            f"xT_pass{suffix}": "xT via Live Passes",
+            f"progressive_passes{suffix}": "Progressive Passes",     
+            f"passes_into_final_third{suffix}": "Passes Into Final 3rd",
+            f"forward_passes{suffix}": "Forward Passes",
+            f"total accurate fwd zone pass{suffix}": "Passes in Opp. Half",
+            f"total accurate back zone pass{suffix}": "Passes in Own Half",
+            f"total accurate pass{suffix}": "Accurate Passes",
+            f"total accurate long balls{suffix}": "Accurate Long Balls",
+            f"total accurate cross{suffix}": "Accurate Crosses",
             f"pass_success_pct{suffix}": "Pass Accuracy %",
             f"long_balls_success_pct{suffix}": "Long Ball Accuracy %",
             f"cross_success_pct{suffix}": "Cross Accuracy %",
-            
-            # Possession
+    
+            #poss
             f"total won contest{suffix}": "Successful Dribbles",
             f"total contest{suffix}": "Dribble Attempts",
             f"dribble_success_pct{suffix}": "Dribble Success %",
-            
-            # Defending / Duels
+            f"Total Carries{suffix}": "Progressive Carries",
+            f"Total Carry xT{suffix}": "xT via Prog. Carries",
+            f"Total Final Third Carries{suffix}": "Carries Into Final ⅓",
+            f"total touches in opposition box{suffix}": "Touches In Opp. Box",
+            f"total was fouled{suffix}": "Fouls Drawn",
+        
+            # Defending metrics
             f"tackle_success_pct{suffix}": "Tackles Won %",
             f"aerial_success_pct{suffix}": "Aerials Won %",
-            f"duel_success_pct{suffix}": "Duels Won %"
+            f"duel_success_pct{suffix}": "Duels Won %",
+            f"total won tackle{suffix}": "Tackles Won",
+            f"total aerial won{suffix}": "Aerials Won",
+            f"total duels won{suffix}": "Duels Won",
+            f"total effective clearance{suffix}": "Clearances",
+            f"total blocked scoring att{suffix}": "Blocked Shots",
+            f"total interception{suffix}": "Interceptions",
+            f"Ball Recoveries{suffix}": "Ball Recoveries"
+    
         }
 
         # Dynamisk opspuring af positionskolonnen i dit CSV-ark

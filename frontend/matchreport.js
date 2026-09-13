@@ -82,9 +82,23 @@ document.addEventListener("DOMContentLoaded", () => {
         @media (max-width: 600px) {
             .mr-search-box { flex-direction: column; padding: 15px; gap: 10px; }
             .mr-btn { width: 100%; justify-content: center; }
+            
+            /* 🔥 FIG 5 MOBIL-FIX: Skifter fra 4 kolonner til et luftigt 2x2 grid */
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 16px !important;
+            }
+
+            /* 🚫 MOBIL-SKJUL: Fjerner lodret streg og "Minutes Played" live på mobil */
+            .mr-meta-separator, 
+            .mr-meta-minutes {
+                display: none !important;
+            }
         }
     `;
     document.head.appendChild(style);
+
+
 
     const applyMatchReportScale = () => {
         const cards = document.querySelectorAll('.mr-capture-card');
@@ -441,9 +455,7 @@ function triggerMatchReportDownload(filename, elementId) {
 // ==========================================================================
 // PER 90 - MATCHREPORT.JS - DEL 6 AF 10 (FIG 1 – MATCH STATS PITCH)
 // ==========================================================================
-// ==========================================================================
-// PER 90 - MATCHREPORT.JS - DEL 6 AF 10 (FIG 1 – MATCH STATS PITCH)
-// ==========================================================================
+
 function buildFig1MatchStats() {
     const container = getMatchReportEl("mr-display-target-area");
     const info = MATCH_GLOBAL_DATA.match_info;
@@ -1087,8 +1099,9 @@ async function buildFig5PlayerStats() {
                     
                     <div class="meta-bar" style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:500; color:#94a3b8; text-transform:uppercase;">
                         <span class="match-versus" style="font-weight:500; color:#94a3b8;">VS. ${opponentTeamName}</span>
-                        <span class="separator" style="color:#475569; font-weight:400;">|</span>
-                        <span>${Math.round(current.stats?.["Minutes played"] || 90)} Mins Played</span>
+                        <!-- 🎯 Klasser tilføjet her, så de kan rammes og skjules via dit @media CSS-tag på mobilen -->
+                        <span class="separator mr-meta-separator" style="color:#475569; font-weight:400;">|</span>
+                        <span class="mr-meta-minutes">${Math.round(current.stats?.["Minutes played"] || 90)} Mins Played</span>
                     </div>
                 </div>
             </div>
@@ -1107,4 +1120,5 @@ async function buildFig5PlayerStats() {
         </div>
     `;
 }
+
 

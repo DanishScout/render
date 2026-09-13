@@ -1,7 +1,6 @@
 # ==========================================================================
-# PER 90 - EVENTDATA.PY (KOMPLET API ROUTER OPTIMERET TIL RENDER LINUX)
+# PER 90 - EVENTDATA.PY (OPDATERET API ROUTER MED BACKEND LOGO-CACHING)
 # ==========================================================================
-import os
 from fastapi import APIRouter, HTTPException, Query
 import requests
 import json
@@ -9,14 +8,6 @@ import re
 import base64
 from io import BytesIO
 from typing import List, Dict, Any
-
-# Selenium og Webdriver-Manager imports
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium_stealth import stealth
 
 router = APIRouter(prefix="/api", tags=["eventdata"])
 
@@ -37,16 +28,19 @@ def lookup_xt(x: float, y: float) -> float:
     col_idx = int((x / 100) * 12) if x < 100 else 11
     return XT_MATRIX[max(0, min(7, row_idx))][max(0, min(11, col_idx))]
 
+# 🎯 DYNAMISK BACKEND FETCH OG BASE64-CACHING AF HOLDLOGOER
 def get_team_logo_base64(team_id: int) -> str:
-    url = f"https://cloudfront.net{team_id}.png"
+    url = f"https://d2zywfiolv4f83.cloudfront.net/img/teams/{team_id}.png"
     try:
         headers = {"User-Agent": "Mozilla/5.0"}
         res = requests.get(url, headers=headers, timeout=5)
         if res.status_code == 200:
+            # Konverterer rå billed-bytes til en sikker data-URI tekststreng
             encoded = base64.b64encode(res.content).decode("utf-8")
             return f"data:image/png;base64,{encoded}"
     except Exception:
         pass
+    # Fallback til det rå link, hvis Cloudfront skulle fejle under anmodningen
     return url
 
 @router.get("/fetch-events")
@@ -54,64 +48,19 @@ def get_whoscored_event_data(url: str = Query(...)):
     if not url.strip() or "whoscored.com" not in url:
         raise HTTPException(status_code=400, detail="Ugyldig URL. Indtast venligst en gyldig WhoScored URL.")
 
-    driver = None
     try:
-        options = webdriver.ChromeOptions()
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        options.add_argument("--start-maximized")
-        
-        # 🚀 RETUR TIL DEN KLASSISKE LINUX-HEADLESS SOM IKKE CRASHER PÅ RENDER
-        options.add_argument("--headless")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-gpu")
-        
-        # 🚀 DISSE TO SIMULERER EN RIGTIG BROWSER-PROFIL MOD CLOUDFLARE I KLASSISK HEADLESS
-        options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
-        options.add_argument("--window-size=1920,1080")
-        
-        options.add_argument("--disable-software-rasterizer")
-        options.add_argument("--disable-setuid-sandbox")
-        options.add_argument("--disable-extensions")
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail="WhoScored blokerede anmodningen.")
 
-        # Find Chrome binæren på Render
-        render_chrome_path = "/opt/render/project/.render/chrome-linux64/chrome"
-        if os.path.exists(render_chrome_path):
-            options.binary_location = render_chrome_path
-        else:
-            options.binary_location = "/opt/render/project/src/.render/chrome-linux64/chrome"
+        match_data_match = re.search(r'matchCentreData\s*:\s*({.+?})\s*,\s*\n', response.text)
+        if not match_data_match:
+            match_data_match = re.search(r'var\s+matchCentreData\s*=\s*({.+?});', response.text)
+        if not match_data_match:
+            raise HTTPException(status_code=404, detail="Kunne ikke lokalisere kampdata (matchCentreData).")
 
-        # Webdriver-Manager parring
-        service = Service(ChromeDriverManager(driver_version="122.0.6261.94").install())
-        driver = webdriver.Chrome(service=service, options=options)
-        
-        # Stealth påføres for at skjule WebDriver-flag
-        stealth(driver,
-                languages=["en-US", "en"],
-                vendor="Google Inc.",
-                platform="Win32",
-                webgl_vendor="Intel Inc.",
-                renderer="Intel Iris OpenGL Engine")
-
-        driver.get(url)
-
-        # Vent på data i op til 25 sekunder
-        WebDriverWait(driver, 25).until(
-            lambda d: "matchCentreData" in d.page_source
-        )
-        html = driver.page_source
-
-        # Målrettet regex-mønster til at isolere variablen
-        pattern = r'matchCentreData:\s*(\{.*?\})\s*,\s*matchCentreEventTypeJson:'
-        match = re.search(pattern, html, re.DOTALL)
-        
-        if not match:
-            match = re.search(r'var\s+matchCentreData\s*=\s*({.+?});', html)
-            
-        if not match:
-            raise HTTPException(status_code=404, detail="Kunne ikke lokalisere kampdata (matchCentreData) på siden.")
-
-        match_centre_data = json.loads(match.group(1))
+        match_centre_data = json.loads(match_data_match.group(1))
 
         # Metadata extraction
         home = match_centre_data.get("home", {})
@@ -119,7 +68,7 @@ def get_whoscored_event_data(url: str = Query(...)):
         home_id = home.get("teamId")
         away_id = away.get("teamId")
 
-        # Hent logoer som Base64 tekststrenge
+        # 🎯 HENT OG GEM BEGGE LOGOER SOM BASE64 ÉN GANG FOR ALLE
         home_logo_data = get_team_logo_base64(home_id)
         away_logo_data = get_team_logo_base64(away_id)
 
@@ -130,8 +79,8 @@ def get_whoscored_event_data(url: str = Query(...)):
             "awayName": away.get("name"),
             "homeColor": "#00F0FF",
             "awayColor": "#FF0055",
-            "homeLogo": home_logo_data,
-            "awayLogo": away_logo_data,
+            "homeLogo": home_logo_data,   # 🟥 Gemt i cache i JSON
+            "awayLogo": away_logo_data,   # 🟥 Gemt i cache i JSON
             "scoreStr": f"{home.get('scores', {}).get('fullTime', 0)} - {away.get('scores', {}).get('fullTime', 0)}"
         }
 
@@ -207,10 +156,5 @@ def get_whoscored_event_data(url: str = Query(...)):
             "players_map": players_map,
             "events": processed_events
         }
-        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Fejl under indlæsning med Selenium: {str(e)}")
-        
-    finally:
-        if driver:
-            driver.quit()
+        raise HTTPException(status_code=500, detail=f"Fejl under indlæsning: {str(e)}")

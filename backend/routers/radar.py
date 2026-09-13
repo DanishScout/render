@@ -7,23 +7,57 @@ from typing import List
 
 router = APIRouter(prefix="/api", tags=["radar"])
 
-# Vi bruger præcis samme struktur som i pizza, men tilføjer _p90PR til CSV-kolonnerne
 AVAILABLE_RADAR_METRICS = {
     "Shooting": {
-        "total goals_p90PR": "Goals", "xG_p90PR": "npxG",
-        "total ontarget attempt_p90PR": "Shots On Target", "attempt_success_pct_p90PR": "On Target %"
+        "total goals_p90PR": "Goals",
+        "xG_p90PR": "npxG",
+        "total ontarget attempt_p90PR": "Shots\nOn Target",
+        "attempt_success_pct_p90PR": "On Target %",
+        "CreatedOwnShot_p90PR": "Created\nOwn Shot",
+        "total attempt_p90PR": "Total Shots",
+        "total attempts obox_p90PR": "Shots\nOutside Box",
+        "total attempts ibox_p90PR": "Shots\nInside Box",
+
     },
     "Passing": {
-        "total assists_p90PR": "Assists", "xA_p90PR": "xA",
-        "total att assist_p90PR": "Key Passes", "xT_pass_p90PR": "xT via Live Passes"
+        "total assists_p90PR": "Assists",
+        "xA_p90PR": "xA",
+        "total att assist_p90PR": "Key Passes",
+        "xT_pass_p90PR": "xT via\nLive Passes",
+        "progressive_passes_p90PR": "Progressive\nPasses",   
+        "passes_into_final_third_p90PR": "Passes Into\nFinal 3rd",
+        "forward_passes_p90PR": "Forward\nPasses",
+        "total accurate fwd zone pass_p90PR": "Passes in\nOpp. Half",
+        "total accurate back zone pass_p90PR": "Passes in\nOwn Half",
+        "total accurate pass_p90PR": "Accurate\nPasses",
+        "total accurate long balls_p90PR": "Accurate\nLong Balls",
+        "total accurate cross_p90PR": "Accurate\nCrosses",
+        "pass_success_pct_p90PR": "Pass\nAccuracy %",
+        "long_balls_success_pct_p90PR": "Long Ball\nAccuracy %",
+        "cross_success_pct_p90PR": "Cross\nAccuracy %",
     },
     "Possession": {
-        "total won contest_p90PR": "Successful Dribbles", "total contest_p90PR": "Dribble Attempts",
-        "dribble_success_pct_p90PR": "Dribble Success %"
+        "total won contest_p90PR": "Successful\nDribbles",
+        "total contest_p90PR": "Dribble\nAttempts",
+        "dribble_success_pct_p90PR": "Dribble\nSuccess %",
+        "Total Carries_p90PR": "Progressive\nCarries",
+        "Total Carry xT_p90PR": "xT via\nProg. Carries",
+        "Total Final Third Carries_p90PR": "Carries Into\nFinal ⅓",
+        "total touches in opposition box_p90PR": "Touches In\nOpp. Box",
+        "total was fouled_p90PR": "Fouls Drawn",
+
     },
+    
     "Defending": {
-        "tackle_success_pct_p90PR": "Tackles Won %", "aerial_success_pct_p90PR": "Aerials Won %",
-        "duel_success_pct_p90PR": "Duels Won %", "total won tackle_p90PR": "Tackles Won"
+        "tackle_success_pct_p90PR": "Tackles\nWon %",
+        "aerial_success_pct_p90PR": "Aerials\nWon %",
+        "duel_success_pct_p90PR": "Duels Won %",
+        "total won tackle_p90PR": "Tackles\nWon",
+        "total aerial won_p90PR": "Aerials\nWon",
+        "total duels won_p90PR": "Duels Won",
+        "total effective clearance_p90PR": "Clearances",
+        "total blocked scoring att_p90PR": "Blocked\nShots",
+        "total interception_p90PR": "Interceptions"
     }
 }
 
