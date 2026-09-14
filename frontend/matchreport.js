@@ -177,11 +177,12 @@ function triggerMatchReportDownload(filename, elementId) {
     }
     
     // Tving Fig 5 til 4 kolonner i det downloadede billede
-    const playerGridInClone = clone.querySelector(".grid-container");
+    const playerGridInClone = clone.querySelector("#fig5-grid-box");
     if (playerGridInClone) {
-        playerGridInClone.style.setProperty("grid-template-columns", "repeat(4, 1fr)", "important");
-        playerGridInClone.style.setProperty("gap", "12px", "important");
+        playerGridInClone.style.setProperty("grid-template-columns", "repeat(2, 1fr)", "important");
+        playerGridInClone.style.setProperty("gap", "20px", "important");
     }
+
 
     // 3. Skyd det ind i DOM'en, affyr html2canvas, og ryd op bagefter
     hiddenContainer.appendChild(clone);
@@ -364,87 +365,6 @@ function generateSharedHeaderHTML(subtitle) {
     `;
 }
 
-function triggerMatchReportDownload(filename, elementId) {
-    const originalEl = getMatchReportEl(elementId);
-    if (!originalEl) return;
-
-    // 1. Opretter en urokkelig PC-sandbox container i baggrunden (820px matcher dit dashboard max-width)
-    const hiddenContainer = document.createElement("div");
-    Object.assign(hiddenContainer.style, {
-        position: "absolute",
-        left: "-9999px",
-        top: "-9999px",
-        width: "820px",
-        minWidth: "820px",
-        maxWidth: "820px",
-        height: "auto",
-        overflow: "visible",
-        boxSizing: "border-box"
-    });
-
-    // 2. Klon det originale element og nulstil responsive begrænsninger på klonen
-    const clone = originalEl.cloneNode(true);
-    clone.id = `${elementId}-download-clone`;
-    
-    Object.assign(clone.style, {
-        width: "820px",
-        minWidth: "820px",
-        maxWidth: "820px",
-        height: "auto",
-        minHeight: "auto",
-        maxHeight: "none",
-        background: "#0B1220", // Sikrer ensartet mørk baggrund
-        boxSizing: "border-box",
-        display: "flex",
-        opacity: "1"
-    });
-
-    // 🎯 SIKKERHEDS-FIX FOR DROPDOWNS: Hvis det er Fig 5, vil vi ikke have select-boksen med på billedet
-    const dropdownInClone = clone.querySelector("#mr-player-dropdown");
-    if (dropdownInClone) {
-        dropdownInClone.parentElement.remove(); // Fjerner dropdown-bjælken fra download-billedet
-    }
-
-    // Specifikt fix for Fig 4 grid i PC-størrelse under download
-    const gridBoxInClone = clone.querySelector("#fig4-grid-box");
-    if (gridBoxInClone) {
-        gridBoxInClone.style.setProperty("grid-template-columns", "repeat(3, 1fr)", "important");
-        gridBoxInClone.style.setProperty("gap", "20px", "important");
-    }
-    
-    // Specifikt fix for Fig 5 grid i PC-størrelse under download
-    const playerGridInClone = clone.querySelector(".grid-container");
-    if (playerGridInClone) {
-        playerGridInClone.style.setProperty("grid-template-columns", "repeat(4, 1fr)", "important");
-        playerGridInClone.style.setProperty("gap", "12px", "important");
-    }
-
-    // 3. Tilføj container og klon til DOM'en midlertidigt
-    hiddenContainer.appendChild(clone);
-    document.body.appendChild(hiddenContainer);
-
-    // 4. Kør html2canvas på vores skjulte PC-klon
-    html2canvas(clone, { 
-        scale: 3, // Giver skyhøj og professionel printopløsning
-        backgroundColor: "#0B1220", 
-        useCORS: true,
-        logging: false
-    }).then(canvas => {
-        const link = document.createElement("a");
-        link.download = `${filename}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-
-        // 5. Oprydning: Fjern sandboxen fra DOM'en igen med det samme
-        document.body.removeChild(hiddenContainer);
-    }).catch(err => {
-        console.error("Download fejlede:", err);
-        if (document.body.contains(hiddenContainer)) {
-            document.body.removeChild(hiddenContainer);
-        }
-    });
-}
-
 // ==========================================================================
 // PER 90 - MATCHREPORT.JS - DEL 6 AF 10 (FIG 1 – MATCH STATS PITCH)
 // ==========================================================================
@@ -514,7 +434,27 @@ function buildFig1MatchStats() {
             ${generateSharedHeaderHTML("Match Report")}
             
             <div class="mr-pitch-wrapper">
-                <svg viewBox="0 0 105 68"><rect x="0" y="0" width="105" height="68" class="mr-pitch-line" /><line x1="52.5" y1="0" x2="52.5" y2="68" class="mr-pitch-line" /><circle cx="52.5" cy="34" r="9.15" class="mr-pitch-line" /><rect x="0" y="13.85" width="16.5" height="40.3" class="mr-pitch-line" /><rect x="0" y="24.85" width="5.5" height="18.3" class="mr-pitch-line" /><rect x="88.5" y="13.85" width="16.5" height="40.3" class="mr-pitch-line" /><rect x="99.5" y="24.85" width="5.5" height="18.3" class="mr-pitch-line" /></svg>
+                <svg viewBox="0 0 105 68">
+                    <!-- Banens ydre ramme og midterlinje -->
+                    <rect x="0" y="0" width="105" height="68" class="mr-pitch-line" />
+                    <line x1="52.5" y1="0" x2="52.5" y2="68" class="mr-pitch-line" />
+                    <circle cx="52.5" cy="34" r="9.15" class="mr-pitch-line" />
+                    
+                    <!-- Venstre målfelt og straffesparksfelt -->
+                    <rect x="0" y="24.85" width="5.5" height="18.3" class="mr-pitch-line" />
+                    <rect x="0" y="13.85" width="16.5" height="40.3" class="mr-pitch-line" />
+                    <!-- 🎯 PERFEKT SVING: Dybere og mere cirkulær Penalty Arc på venstre felt -->
+                    <path d="M 16.5,27.5 A 9.15,9.15 0 0,1 16.5,40.5" class="mr-pitch-line" />
+                    
+                    <!-- Højre målfelt og straffesparksfelt -->
+                    <rect x="99.5" y="24.85" width="5.5" height="18.3" class="mr-pitch-line" />
+                    <rect x="88.5" y="13.85" width="16.5" height="40.3" class="mr-pitch-line" />
+                    <!-- 🎯 PERFEKT SVING: Dybere og mere cirkulær Penalty Arc på højre felt -->
+                    <path d="M 88.5,27.5 A 9.15,9.15 0 0,0 88.5,40.5" class="mr-pitch-line" />
+                </svg>
+
+
+
                 <div class="mr-markers-layer">${shotsHTML}</div>
                 <!-- 🎯 ULTRA-SLIM REPARATION: Sættes nu til 165px bredde, så den sidder knivskarpt på midten af banen -->
                 <div class="mr-stats-overlay" style="width:165px; background:rgba(11, 18, 32, 0.85); padding:12px 10px; border-radius:12px;">${statsOverlayRows}</div>
@@ -909,8 +849,6 @@ function buildFig4TopPerformers() {
     `;
 }
 
-
-
 async function buildFig5PlayerStats() {
     const container = getMatchReportEl("mr-display-target-area");
     const info = MATCH_GLOBAL_DATA.match_info;
@@ -921,7 +859,7 @@ async function buildFig5PlayerStats() {
         return;
     }
 
-    // Filtrer alle spillere fra, som har 0 eller mangler rating
+    // Filtrer spillere uden gyldig rating fra
     const players = rawPlayers.filter(p => {
         const r = parseFloat(p.stats?.["FotMob rating"] || 0);
         return r > 0;
@@ -932,22 +870,30 @@ async function buildFig5PlayerStats() {
         return;
     }
 
-    // Sorter listen midlertidigt for altid at finde spilleren med den absolut højeste rating i kampen
+    // Find top-rating i kampen til default valg (MOTM) og farve-tjek
     const maxRatingInMatch = Math.max(...players.map(p => parseFloat(p.stats?.["FotMob rating"] || 0)));
-
-    // Hvis brugeren ikke selv har valgt en spiller endnu, vælger vi automatisk ham med højest rating som default
+    const topRatedPlayer = players.find(p => parseFloat(p.stats?.["FotMob rating"] || 0) === maxRatingInMatch);
+    
+    // SIKRER AT MAN OF THE MATCH (MOTM) ALTID ER DEFAULT VED NY URL
     if (!MATCH_SELECTED_PLAYER) {
-        const topRatedPlayer = players.find(p => parseFloat(p.stats?.["FotMob rating"] || 0) === maxRatingInMatch);
-        MATCH_SELECTED_PLAYER = topRatedPlayer ? topRatedPlayer.playerId : players[0].playerId;
+        MATCH_SELECTED_PLAYER = topRatedPlayer ? topRatedPlayer.playerId : players.playerId;
     }
 
-    const current = players.find(p => p.playerId == MATCH_SELECTED_PLAYER) || players[0];
-    const isHome = current.teamId == info.homeId;
+    // Tjek om den gemte MATCH_SELECTED_PLAYER overhovedet findes i den nye kamps spillere
+    let current = players.find(p => p.playerId == MATCH_SELECTED_PLAYER);
     
+    if (!current) {
+        current = topRatedPlayer ? topRatedPlayer : players;
+        MATCH_SELECTED_PLAYER = current.playerId;
+    }
+
+    const isHome = current.teamId == info.homeId;
     const rating = parseFloat(current.stats?.["FotMob rating"] || 0);
     const ratingColor = rating === maxRatingInMatch ? "#14a0ff" : (rating >= 7 ? "#33c771" : (rating >= 6 ? "#ff963f" : "#ff3939"));
 
-    // Dynamisk Rank-tekst (f.eks. "MAN OF THE MATCH" eller "2nd HIGHEST RATING")
+    // KLUBLOGO DEFINITION (Henter den korrekte Base64-streng fra din match_info)
+    const playerTeamLogoB64 = isHome ? info.homeLogoB64 : info.awayLogoB64;
+    // Dynamisk Rank-tekst
     const allRatingsSorted = [...players].map(p => parseFloat(p.stats?.["FotMob rating"] || 0)).sort((a,b)=>b-a);
     const playerRank = allRatingsSorted.indexOf(rating) + 1;
     let rankText = "MAN OF THE MATCH";
@@ -956,7 +902,7 @@ async function buildFig5PlayerStats() {
         rankText = `${playerRank}${suffix} HIGHEST RATING`;
     }
 
-    // ON-DEMAND BASE64 GENERATOR: Kalder dit Python-endpoint KUN for denne spiller
+    // ON-DEMAND BASE64 GENERATOR til spillerbillede
     let playerImgB64 = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
     try {
         const imgRes = await fetch(`${API_BASE_URL}/api/player-image?player_id=${current.playerId}`);
@@ -964,98 +910,109 @@ async function buildFig5PlayerStats() {
             const imgData = await imgRes.json();
             playerImgB64 = imgData.player_img_b64 || (isHome ? info.homeLogoB64 : info.awayLogoB64);
         }
-    } catch(e) { console.error("Fejl under on-demand hentning af backend-spillerbillede:", e); }
+    } catch(e) { console.error("Fejl under hentning af spillerbillede:", e); }
 
-    // Byg stakkede mål- (fodbolde) og assist- (A-badges) ikoner til bunden af ansigtet
+    // Mål- og assistikoner
     const goals = parseInt(current.stats?.["Goals"] || 0);
     const assists = parseInt(current.stats?.["Assists"] || 0);
     let iconsHTML = "";
-    
     for (let i = 0; i < goals; i++) {
-        const isLastGoal = i === goals - 1 && assists > 0;
-        iconsHTML += `
-        <svg style="display:block; margin-right:${isLastGoal ? '3px' : '-4px'} !important; filter:drop-shadow(0 2px 3px rgba(0,0,0,0.9)); flex-shrink:0;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M12 7l4.76 3.45l-1.76 5.55h-6l-1.76 -5.55z" fill="#1e293b" />
-            <path d="M12 7v-4m3 13l2.5 3m-.74 -8.55l3.74 -1.45m-11.44 7.05l-2.56 2.95m.74 -8.55l-3.74 -1.45" />
-        </svg>`;
+        iconsHTML += `<svg style="display:block; margin-right:-4px; filter:drop-shadow(0 2px 3px rgba(0,0,0,0.9));" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8"><circle cx="12" cy="12" r="9" /><path d="M12 7l4.76 3.45l-1.76 5.55h-6l-1.76 -5.55z" fill="#1e293b" /><path d="M12 7v-4m3 13l2.5 3m-.74 -8.55l3.74 -1.45m-11.44 7.05l-2.56 2.95m.74 -8.55l-3.74 -1.45" /></svg>`;
     }
     for (let i = 0; i < assists; i++) {
-        iconsHTML += `
-        <svg style="display:block; margin-right:-4px; filter:drop-shadow(0 2px 3px rgba(0,0,0,0.9)); flex-shrink:0;" width="16" height="16" viewBox="0 0 24 24">
-            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="#E13B4F" />
-            <text x="12" y="17" fill="#FFFFFF" font-family="sans-serif" font-weight="900" font-size="13" text-anchor="middle">A</text>
-        </svg>`;
+        iconsHTML += `<svg style="display:block; margin-right:-4px; filter:drop-shadow(0 2px 3px rgba(0,0,0,0.9));" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="#E13B4F" /><text x="12" y="17" fill="#FFFFFF" font-family="sans-serif" font-weight="900" font-size="13" text-anchor="middle">A</text></svg>`;
     }
 
-    // Konfiguration af dine 16 metrics fordelt på de 4 Streamlit-kategorier
     const groupsConfig = [
-        { title: "Expected", metrics: ['xG + xA', 'Expected goals (xG)', 'Expected assists (xA)', 'Expected goals on target (xGOT)'] },
-        { title: "Passing", metrics: ['Big chances created', 'Chances created', 'Passes into final third', 'Accurate passes'] },
-        { title: "Possession", metrics: ['Successful dribbles', 'Touches in opposition box', 'Touches', 'Was fouled'] },
-        { title: "Other", metrics: ['Defensive actions', 'Recoveries', 'Ground duels won', 'Aerial duels won'] }
+        { title: "Expected Metrics", metrics: ['xG + xA', 'Expected goals (xG)', 'Expected assists (xA)', 'Expected goals on target (xGOT)'] },
+        { title: "Passing & Build-up", metrics: ['Big chances created', 'Chances created', 'Passes into final third', 'Accurate passes'] },
+        { title: "Possession & Dribbles", metrics: ['Successful dribbles', 'Touches in opposition box', 'Touches', 'Was fouled'] },
+        { title: "Defending & Duels", metrics: ['Defensive actions', 'Recoveries', 'Ground duels won', 'Aerial duels won'] }
     ];
 
-    // Loop igennem grupperne og udregn reelle percentil-ranks ud fra alle kvalificerede spillere
-    const cards_html = groupsConfig.map(group => {
-        const metrics_inner = group.metrics.map(metric => {
-            let p_val = metric === 'xG + xA' ? (parseFloat(current.stats?.['Expected goals (xG)'] || 0) + parseFloat(current.stats?.['Expected assists (xA)'] || 0)) : parseFloat(current.stats?.[metric] || 0);
-            const allVals = players.map(p => metric === 'xG + xA' ? (parseFloat(p.stats?.['Expected goals (xG)'] || 0) + parseFloat(p.stats?.['Expected assists (xA)'] || 0)) : parseFloat(p.stats?.[metric] || 0));
-            const lessThanCount = allVals.filter(v => v < p_val).length;
-            const rankPct = allVals.length > 0 ? (lessThanCount / allVals.length) * 100 : 0;
+    const currentTeamIdStr = String(current.teamId);
+    const homeIdStr = String(info.homeId);
+    let opponentTeamName = (currentTeamIdStr === homeIdStr) ? info.awayName : info.homeName;
 
+    const blocks_html = groupsConfig.map(group => {
+        const metrics_inner = group.metrics.map(metric => {
+            let current_val = metric === 'xG + xA' 
+                ? (parseFloat(current.stats?.['Expected goals (xG)'] || 0) + parseFloat(current.stats?.['Expected assists (xA)'] || 0)) 
+                : parseFloat(current.stats?.[metric] || 0);
+
+            const allVals = players.map(p => metric === 'xG + xA' 
+                ? (parseFloat(p.stats?.['Expected goals (xG)'] || 0) + parseFloat(p.stats?.['Expected assists (xA)'] || 0)) 
+                : parseFloat(p.stats?.[metric] || 0)
+            );
+
+            const max_val = Math.max(...allVals);
             const isDecimal = metric.includes('(x') || metric === 'xG + xA';
-            const wavePath = "M 0,25 Q 25,5 50,20 T 100,15 L 100,30 L 0,30 Z";
-            const clip_id = `clip-${metric.replace(/[^a-zA-Z0-9]/g, '')}`;
+            const playerPosPct = max_val > 0 ? (current_val / max_val) * 100 : 0;
+            const isHighestInMatch = current_val === max_val && max_val > 0;
+            
+            let badgeHTML = "";
+            if (isHighestInMatch) {
+                badgeHTML = `<span style="font-size:8px; font-weight:900; background:${ratingColor}20; color:${ratingColor}; border: 1px solid ${ratingColor}35; padding:1.5px 5px; border-radius:3px; font-family:sans-serif; letter-spacing:0.5px; text-transform:uppercase; margin-left:6px; flex-shrink:0;">MOST</span>`;
+            }
+
+            const valueCounts = {};
+            allVals.forEach(v => {
+                const groupKey = isDecimal ? v.toFixed(2) : Math.round(v).toString();
+                valueCounts[groupKey] = (valueCounts[groupKey] || 0) + 1;
+            });
+
+            const maxCount = Math.max(...Object.values(valueCounts));
+            const renderedKeys = new Set();
+            let circles_html = "";
+
+            allVals.forEach(v => {
+                const groupKey = isDecimal ? v.toFixed(2) : Math.round(v).toString();
+                if (renderedKeys.has(groupKey)) return;
+                renderedKeys.add(groupKey);
+
+                const count = valueCounts[groupKey];
+                const posPct = max_val > 0 ? (v / max_val) * 100 : 0;
+                const densityOpacity = 0.12 + (count / maxCount) * 0.28;
+                const dotSize = 6 + (count / maxCount) * 1.5; 
+                const glowGlow = count > 1 ? `box-shadow: 0 0 5px rgba(255,255,255,${(count/maxCount)*0.2});` : '';
+
+                circles_html += `
+                <div style="position: absolute; left: ${Math.min(98, Math.max(1, posPct))}%; top: 50%; width: ${dotSize}px; height: ${dotSize}px; background: rgba(255, 255, 255, ${densityOpacity}); border-radius: 50%; transform: translate(-50%, -50%); ${glowGlow}"></div>`;
+            });
 
             return `
-            <div class="metric-row" style="display:flex; flex-direction:column; gap:6px; margin-bottom:32px; min-height:76px;">
-                <div class="metric-meta" style="display:flex; flex-direction:column; align-items:flex-start; gap:2px;">
-                    <span class="metric-value" style="font-size:20px; font-weight:900; line-height:1.1; color:${ratingColor}; font-variant-numeric:tabular-nums;">${isDecimal ? p_val.toFixed(2) : Math.round(p_val)}</span>
-                    <span class="metric-name" style="font-size:10px; color:rgba(255,255,255,0.6); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%;">${metric}</span>
+            <div style="display:flex; flex-direction:column; gap:2px; margin-bottom:12px;">
+                <div style="display:flex; align-items:center; width:100%; min-width:0;">
+                    <span style="font-size:12px; font-weight:900; color:${ratingColor}; font-variant-numeric:tabular-nums; flex-shrink:0; width:34px; text-align:left;">
+                        ${isDecimal ? current_val.toFixed(2) : Math.round(current_val)}
+                    </span>
+                    <span style="font-size:11px; color:rgba(255,255,255,0.7); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:70%;">
+                        ${metric}
+                    </span>
+                    ${badgeHTML}
                 </div>
-                <div class="wave-container" style="width:100%; height:16px; margin-top:auto;">
-                    <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:100%; height:100%;">
-                        <defs><clipPath id="${clip_id}"><rect x="0" y="0" width="${rankPct}" height="30" /></clipPath></defs>
-                        <path d="${wavePath}" fill="rgba(255,255,255,0.06)" />
-                        <path d="${wavePath}" clip-path="url(#${clip_id})" style="fill:${ratingColor};" />
-                    </svg>
+                
+                <div style="width:100%; height:14px; position:relative; margin-bottom:2px; display:flex; align-items:center; box-sizing:border-box; overflow:visible;">
+                    <div style="width:100%; height:1px; background:rgba(255,255,255,0.12); position:relative; overflow:visible;">
+                        ${circles_html}
+                        <div style="position: absolute; left: ${Math.min(99, Math.max(1, playerPosPct))}%; top: 50%; transform: translate(-50%, -50%); width: 11px; height: 11px; background: ${ratingColor}; border: 1.8px solid #ffffff; border-radius: 50%; box-shadow: 0 0 14px ${ratingColor}, 0 0 4px ${ratingColor}; z-index: 15;"></div>
+                    </div>
                 </div>
             </div>`;
         }).join('');
 
         return `
-        <div class="metric-card" style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); border-radius:14px; padding:12px; min-width:0; flex:1;">
-            <div class="card-title" style="font-size:11px; font-weight:900; color:rgba(255,255,255,0.3); letter-spacing:1px; margin-bottom:20px; text-align:center; text-transform:uppercase;">${group.title}</div>
+        <div style="background:rgba(255,255,255,0.015); border:1px solid rgba(255,255,255,0.03); border-radius:12px; padding:12px; min-width:0;">
+            <div style="font-size:10px; font-weight:900; color:${ratingColor}; letter-spacing:1px; margin-bottom:12px; text-transform:uppercase; border-left:2.5px solid ${ratingColor}; padding-left:8px; line-height:1;">${group.title}</div>
             ${metrics_inner}
         </div>`;
     }).join('');
-
-    // Dropdown-menuen filtrerer 0.0, SORTERER EFTER RATINGS (HØJEST TIL LAVEST) og mapper ud bagefter
     const playerOptionsHTML = [...players]
         .sort((a, b) => parseFloat(b.stats?.["FotMob rating"] || 0) - parseFloat(a.stats?.["FotMob rating"] || 0))
         .map(p => `<option value="${p.playerId}" ${p.playerId == MATCH_SELECTED_PLAYER ? 'selected' : ''}>${p.playerName} (${parseFloat(p.stats?.["FotMob rating"] || 0).toFixed(1)})</option>`)
         .join('');
-        
-    // 🎯 FIX: Robust identifikation af holdnavne og modstander (tjekker både ID og tekst med lowercase-tolerancer)
-    const currentTeamIdStr = String(current.teamId);
-    const homeIdStr = String(info.homeId);
-    const currentTeamNameLower = current.teamName ? current.teamName.toLowerCase().trim() : "";
-    const homeNameLower = info.homeName ? info.homeName.toLowerCase().trim() : "";
 
-    let playerTeamName = "";
-    let opponentTeamName = "";
-
-    if (currentTeamIdStr === homeIdStr || currentTeamNameLower.includes(homeNameLower) || homeNameLower.includes(currentTeamNameLower)) {
-        playerTeamName = info.homeName;
-        opponentTeamName = info.awayName;
-    } else {
-        playerTeamName = info.awayName;
-        opponentTeamName = info.homeName;
-    }
-    // Render det endelige, smukke Streamlit-look til skærmen
     container.innerHTML = `
-        <!-- SPILLER SELECT DROPDOWN -->
         <div style="width:100%; max-width:600px; margin:0 auto 20px auto; display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.03); padding:10px 15px; border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
             <span style="font-size:11px; font-weight:800; color:rgba(255,255,255,0.5); text-transform:uppercase;">Select Player:</span>
             <select id="mr-player-dropdown" onchange="MATCH_SELECTED_PLAYER=parseInt(this.value); buildFig5PlayerStats();" style="flex:1; background:#0B1220; color:#fff; border:1px solid rgba(255,255,255,0.1); padding:6px 10px; border-radius:6px; font-weight:700; font-size:13px; outline:none; cursor:pointer;">
@@ -1063,62 +1020,70 @@ async function buildFig5PlayerStats() {
             </select>
         </div>
 
-        <!-- DET DIGITALE CAPTURE-KORT -->
-        <div class="chart-container" id="fig5-capture" style="position:relative; padding:25px 20px 20px; border-radius:24px; width:100%; border:1px solid rgba(0,240,255,.08); box-shadow:0 30px 60px -15px #000, inset 0 1px 0 rgba(255,255,255,.05); overflow:hidden; background:#0B1220; display:flex; flex-direction:column; font-family:sans-serif; color:#e5e7eb; box-sizing:border-box;">
-            
-            <!-- STREAMLIT HEADER CARD -->
-            <div class="header-card" style="position:relative; z-index:2; width:100%; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:16px; padding:20px; display:flex; gap:28px; align-items:center;">
-                <div class="avatar-block" style="position:relative; flex-shrink:0; display:flex; align-items:center; justify-content:center;">
+        <div class="mr-capture-card" id="fig5-capture" style="padding:30px 25px; background:radial-gradient(circle at top, #0f172a 0%, #030712 100%);">
+            <div style="width:100%; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:16px; padding:16px; display:flex; gap:20px; align-items:center; margin-bottom:20px; box-sizing:border-box;">
+                
+                <div style="position:relative; flex-shrink:0;">
+                    <div style="position:absolute; top:-6px; left:-8px; background:${ratingColor}; color:#000; font-weight:900; border-radius:6px; font-size:11px; height:18px; padding:2px 5px 0 5px; text-align:center; box-shadow:0 3px 6px rgba(0,0,0,0.4); line-height:14px; z-index:3;">
+                        ${rating.toFixed(1)}
+                    </div>
                     
-                    <div class="rating-badge" style="position:absolute; top:-6px; left:-10px; background:${ratingColor}; color:#000; font-weight:900; border-radius:10px; font-size:13px; box-shadow:0 4px 10px rgba(0,0,0,0.5); z-index:3; display:block; height:24px; padding:3px 7px 0px 7px; text-align:center; line-height:18px; white-space:nowrap;">
-                        <span>${rating.toFixed(1)}</span>
+                    <div style="position:absolute; top:-6px; right:-8px; background:rgba(15, 23, 42, 0.95); border:1px solid rgba(255,255,255,0.2); border-radius:6px; width:18px; height:18px; display:flex; align-items:center; justify-content:center; padding:1.5px; box-shadow:0 3px 6px rgba(0,0,0,0.5); z-index:3; box-sizing:border-box; overflow:hidden;">
+                        <img src="${playerTeamLogoB64}" style="max-width:100%; max-height:100%; object-fit:contain;">
                     </div>
 
-                    <div class="img-container" style="width:80px; height:80px; background:#1e293b; border-radius:50%; border:3px solid ${ratingColor}; overflow:hidden; display:flex; align-items:center; justify-content:center;">
-                        <img class="player-img" src="${playerImgB64}" style="width:100%; height:100%; object-fit:cover;">
+                    <div style="width:60px; height:60px; background:#1e293b; border-radius:50%; border:2.5px solid ${ratingColor}; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+                        <img src="${playerImgB64}" style="width:100%; height:100%; object-fit:cover;">
                     </div>
-
-                    <div class="corner-team-box" style="position:absolute; top:-6px; right:-10px; width:24px; height:24px; background:#1e293b; border-radius:50%; padding:3px; border:1px solid rgba(255,255,255,0.15); box-shadow:0 4px 8px rgba(0,0,0,0.4); z-index:3; display:flex; align-items:center; justify-content:center;">
-                        <img class="corner-team-logo" src="${isHome ? info.homeLogoB64 : info.awayLogoB64}" style="width:100%; height:100%; object-fit:contain;" />
-                    </div>
-
-                    ${iconsHTML ? `<div class="icon-fan" style="position:absolute; bottom:-8px; left:50%; transform:translateX(-50%); display:flex; align-items:center; justify-content:center; z-index:4; white-space:nowrap;">${iconsHTML}</div>` : ''}
+                    ${iconsHTML ? `<div style="position:absolute; bottom:-6px; left:50%; transform:translateX(-50%); display:flex; align-items:center; justify-content:center; white-space:nowrap; z-index:4;">${iconsHTML}</div>` : ''}
                 </div>
-
-                <div class="info-container" style="flex-grow:1; min-width:0; display:flex; flex-direction:column;">
-                    <h2 class="player-name" style="font-size:28px; font-weight:900; margin:0; text-transform:uppercase; color:#ffffff; line-height:1.0;">${current.playerName}</h2>
-                    <div class="rank-kicker" style="font-size:11px; font-weight:900; color:${ratingColor}; letter-spacing:1px; text-transform:uppercase; margin-top:6px;">${rankText}</div>
-                    <div class="tactic-line" style="width:100%; height:2px; margin:10px 0; background:linear-gradient(90deg, ${ratingColor} 60%, transparent); opacity:0.3;"></div>
+                
+                <div style="flex-grow:1; min-width:0; display:flex; flex-direction:column; gap:1px;">
+                    <h2 style="font-size:22px; font-weight:900; margin:0; text-transform:uppercase; color:#ffffff; line-height:1.1; letter-spacing:0.5px;">${current.playerName}</h2>
+                    <div style="font-size:10px; font-weight:900; color:${ratingColor}; letter-spacing:0.8px; text-transform:uppercase; margin-bottom:4px;">${rankText}</div>
                     
-                    <div class="meta-bar" style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:500; color:#94a3b8; text-transform:uppercase;">
-                        <span class="match-versus" style="font-weight:500; color:#94a3b8;">VS. ${opponentTeamName}</span>
-                        <!-- 🎯 Klasser tilføjet her, så de kan rammes og skjules via dit @media CSS-tag på mobilen -->
-                        <span class="separator mr-meta-separator" style="color:#475569; font-weight:400;">|</span>
-                        <span class="mr-meta-minutes">${Math.round(current.stats?.["Minutes played"] || 90)} Mins Played</span>
+                    <div style="width:100%; height:1px; background:${ratingColor}; opacity:0.85; box-shadow:0 0 8px ${ratingColor}, 0 0 3px ${ratingColor}; margin:4px 0 6px 0;"></div>
+                    
+                    <div style="display:flex; align-items:center; gap:8px; font-size:10px; font-weight:600; color:rgba(255,255,255,0.4); text-transform:uppercase;">
+                        <span>VS. ${opponentTeamName}</span>
+                        <span>•</span>
+                        <span>${Math.round(current.stats?.["Minutes played"] || 90)} Mins Played</span>
                     </div>
                 </div>
             </div>
 
-            <div class="grid-container" style="position:relative; z-index:2; display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; margin-top:20px; width:100%; box-sizing:border-box;">
-                ${cards_html}
+            <div class="grid-container" id="fig5-grid-box" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:14px; width:100%; box-sizing:border-box;">
+                ${blocks_html}
             </div>
             
-            <div class="footer" style="position:relative; z-index:2; text-align:center; font-size:11px; color:#94a3b8; margin-top:20px; width:100%;">
-                The waves show distribution and the <span style="color:${ratingColor}; font-weight:700;">filled area</span> represents the player's rank.
+            <!-- 🎯 SPLIT BUNDBAR: Flexbox opdelt med 'space-between', hvor ikonerne trækkes til venstre og footer-teksten lander helt ude til højre -->
+            <div style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-top:20px; border-top:1px solid rgba(255,255,255,0.04); padding-top:12px; box-sizing:border-box;">
+                
+                <!-- Venstrestillede Legends -->
+                <div style="display:flex; gap:24px; font-size:10px; color:rgba(255,255,255,0.4); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">
+                    <div style="display:flex; align-items:center; gap:6px;"><div style="width:8px; height:8px; background:${ratingColor}; border:1.5px solid #fff; border-radius:50%; box-shadow:0 0 4px ${ratingColor};"></div><span>Selected Player</span></div>
+                    <div style="display:flex; align-items:center; gap:6px;"><div style="width:6px; height:6px; background:rgba(255,255,255,0.35); border-radius:50%;"></div><span>Squad Spreading</span></div>
+                </div>
+
+                <!-- Højrestillet Ny Streamlit Footer -->
+                <div style="font-size:9px; font-weight:800; color:rgba(255,255,255,0.25); letter-spacing:1px; text-transform:uppercase;">
+                    GENERATED VIA PER-90.STREAMLIT.APP
+                </div>
             </div>
         </div>
 
         <div style="text-align:center; margin-top:20px;">
-            <button class="mr-btn" style="margin:auto;" onclick="triggerMatchReportDownload('${current.playerName.replace(/\s+/g,'_')}_report', 'fig5-capture')">Download as PNG</button>
+            <button class="mr-btn" style="margin:auto;" onclick="triggerMatchReportDownload('${current.playerName.replace(/\s+/g,'_')}_refined_swarm_chart', 'fig5-capture')">
+                Download as PNG
+            </button>
         </div>
     `;
 }
 
+                 
 // ==========================================================================
 // PER 90 - MATCHREPORT.JS - DEL 11 AF 11 (FIG 6 – ATTACKING ZONES)
 // ==========================================================================
-
-
 function buildFig6AttackingZones() {
     const container = getMatchReportEl("mr-display-target-area");
     if (!container) return;
@@ -1136,30 +1101,56 @@ function buildFig6AttackingZones() {
     const homeZones = zonesData.home[periodKey];
     const awayZones = zonesData.away[periodKey];
 
-    // Fast højde på pilene (FotMob stil)
+    // DYNAMISK TITEL-LOGIK
+    let subtitleText = "Attacking Zones";
+    if (periodKey === "firstHalf") {
+        subtitleText = "Attacking Zones in 1st half";
+    } else if (periodKey === "secondHalf") {
+        subtitleText = "Attacking Zones in 2nd half";
+    }
+
+    // 🎯 KONTRAST-FUNKTION: Beregner lysstyrken (YIQ) af HEX-farven og returnerer sort eller hvid tekst
+    const getContrastColor = (hex) => {
+        if (!hex) return "#ffffff";
+        const cleanHex = hex.replace("#", "");
+        if (cleanHex.length !== 6) return "#ffffff";
+        const r = parseInt(cleanHex.substr(0, 2), 16);
+        const g = parseInt(cleanHex.substr(2, 2), 16);
+        const b = parseInt(cleanHex.substr(4, 2), 16);
+        const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+        return (yiq >= 170) ? "#060a13" : "#ffffff"; // Hvis farven er lys, bruges kulsort
+    };
+
+    const homeTextContrast = getContrastColor(homeColor);
+    const awayTextContrast = getContrastColor(awayColor);
+
     const H = 6.0; 
 
-    // Centrerings-akser (Y) for de tre banerækker
+    // Centrerings-akser (Y)
     const yTop = 16;
     const yMid = 34;
     const yBot = 52;
 
-    // 🎯 NY PLACERING: Badges rykket helt ind til midterlinjen, hvor gradienten er mest mørk
-    const xHomeBadge = 44;
-    const xAwayBadge = 61;
+    const xHomeBadge = 44.5;
+    const xAwayBadge = 60.5;
 
-    // KUN DYNAMISK LÆNGDE BASERET PÅ % (Udregnes ud fra midterlinjen 52.5)
+    // KUN DYNAMISK LÆNGDE BASERET PÅ %
     const getArrowLength = (pct) => Math.max(15, Math.min(46, (pct / 50) * 42));
 
-    const hTopLen = getArrowLength(homeZones.right); // Flipped (Right i top)
+    const hTopLen = getArrowLength(homeZones.right);
     const hMidLen = getArrowLength(homeZones.center);
-    const hBotLen = getArrowLength(homeZones.left);  // Flipped (Left i bund)
+    const hBotLen = getArrowLength(homeZones.left);
 
     const aTopLen = getArrowLength(awayZones.left);
     const aMidLen = getArrowLength(awayZones.center);
     const aBotLen = getArrowLength(awayZones.right);
-
     container.innerHTML = `
+        <style>
+            #fig6-capture span[style*="font-size:22px"] {
+                font-size: 16px !important;
+            }
+        </style>
+
         <!-- PERIOD DROPDOWN -->
         <div style="width:100%; max-width:600px; margin:0 auto 20px auto; display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.03); padding:10px 15px; border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
             <span style="font-size:11px; font-weight:800; color:rgba(255,255,255,0.5); text-transform:uppercase;">Period:</span>
@@ -1171,12 +1162,12 @@ function buildFig6AttackingZones() {
         </div>
 
         <div class="mr-capture-card" id="fig6-capture" style="padding: 40px 30px;">
-            ${generateSharedHeaderHTML("Attacking Zones")}
+            ${generateSharedHeaderHTML(subtitleText)}
+            
             <div class="mr-pitch-wrapper">
                 <svg viewBox="0 0 105 68" style="width:100%; height:100%; overflow:visible;">
                     
                     <defs>
-                        <!-- Lineære gradients som i det originale design (toner ud mod midterlinjen) -->
                         <linearGradient id="homeGrad" x1="1" y1="0" x2="0" y2="0">
                             <stop offset="0%" stop-color="${homeColor}" stop-opacity="0.05" />
                             <stop offset="100%" stop-color="${homeColor}" stop-opacity="0.65" />
@@ -1187,54 +1178,66 @@ function buildFig6AttackingZones() {
                         </linearGradient>
                     </defs>
 
-                    <!-- FOTBOLD-BANE GEOMETRI (Fig 1 Kopi) -->
+                    <!-- FOTBOLD-BANE GEOMETRI -->
                     <rect x="0" y="0" width="105" height="68" class="mr-pitch-line" />
                     <line x1="52.5" y1="0" x2="52.5" y2="68" class="mr-pitch-line" />
                     <circle cx="52.5" cy="34" r="9.15" class="mr-pitch-line" />
+                    
                     <rect x="0" y="13.85" width="16.5" height="40.3" class="mr-pitch-line" />
                     <rect x="0" y="24.85" width="5.5" height="18.3" class="mr-pitch-line" />
+                    <!-- 🎯 PERFEKT SVING: Halvcirkel venstre side -->
+                    <path d="M 16.5,27.5 A 9.15,9.15 0 0,1 16.5,40.5" class="mr-pitch-line" />
+                    
                     <rect x="88.5" y="13.85" width="16.5" height="40.3" class="mr-pitch-line" />
                     <rect x="99.5" y="24.85" width="5.5" height="18.3" class="mr-pitch-line" />
+                    <!-- 🎯 PERFEKT SVING: Halvcirkel højre side -->
+                    <path d="M 88.5,27.5 A 9.15,9.15 0 0,0 88.5,40.5" class="mr-pitch-line" />
+
 
                     <!-- ==========================================
-                         HJEMMEHOLD (Venstre side - Peger mod Venstre)
+                         HJEMMEHOLD (Venstre side)
                          ========================================== -->
-                    <!-- Top zone (Right) -->
+                    <!-- Top zone (Right) - 🎯 TILFØJET DYNAMISK KONTRASTFARVE: fill="${homeTextContrast}" -->
                     <path d="M 50,${yTop - H} L ${52.5 - hTopLen + H},${yTop - H} L ${52.5 - hTopLen},${yTop} L ${52.5 - hTopLen + H},${yTop + H} L 50,${yTop + H} Z" fill="url(#homeGrad)" />
-                    <rect x="${xHomeBadge - 6}" y="${yTop - 3.5}" width="12" height="7" rx="3.5" fill="${homeColor}" fill-opacity="0.85" />
-                    <text x="${xHomeBadge}" y="${yTop}" fill="#ffffff" font-size="4.2" font-weight="900" text-anchor="middle" dominant-baseline="central">${homeZones.right}%</text>
+                    <rect x="${xHomeBadge - 3.75}" y="${yTop - 2.25}" width="7.5" height="4.5" rx="2.25" fill="${homeColor}" fill-opacity="0.85" />
+                    <text x="${xHomeBadge}" y="${yTop}" fill="${homeTextContrast}" font-size="3.0" font-weight="900" text-anchor="middle" dominant-baseline="central">${homeZones.right}%</text>
 
                     <!-- Midter zone (Center) -->
                     <path d="M 50,${yMid - H} L ${52.5 - hMidLen + H},${yMid - H} L ${52.5 - hMidLen},${yMid} L ${52.5 - hMidLen + H},${yMid + H} L 50,${yMid + H} Z" fill="url(#homeGrad)" />
-                    <rect x="${xHomeBadge - 6}" y="${yMid - 3.5}" width="12" height="7" rx="3.5" fill="${homeColor}" fill-opacity="0.85" />
-                    <text x="${xHomeBadge}" y="${yMid}" fill="#ffffff" font-size="4.2" font-weight="900" text-anchor="middle" dominant-baseline="central">${homeZones.center}%</text>
+                    <rect x="${xHomeBadge - 3.75}" y="${yMid - 2.25}" width="7.5" height="4.5" rx="2.25" fill="${homeColor}" fill-opacity="0.85" />
+                    <text x="${xHomeBadge}" y="${yMid}" fill="${homeTextContrast}" font-size="3.0" font-weight="900" text-anchor="middle" dominant-baseline="central">${homeZones.center}%</text>
 
                     <!-- Bund zone (Left) -->
                     <path d="M 50,${yBot - H} L ${52.5 - hBotLen + H},${yBot - H} L ${52.5 - hBotLen},${yBot} L ${52.5 - hBotLen + H},${yBot + H} L 50,${yBot + H} Z" fill="url(#homeGrad)" />
-                    <rect x="${xHomeBadge - 6}" y="${yBot - 3.5}" width="12" height="7" rx="3.5" fill="${homeColor}" fill-opacity="0.85" />
-                    <text x="${xHomeBadge}" y="${yBot}" fill="#ffffff" font-size="4.2" font-weight="900" text-anchor="middle" dominant-baseline="central">${homeZones.left}%</text>
-
-
+                    <rect x="${xHomeBadge - 3.75}" y="${yBot - 2.25}" width="7.5" height="4.5" rx="2.25" fill="${homeColor}" fill-opacity="0.85" />
+                    <text x="${xHomeBadge}" y="${yBot}" fill="${homeTextContrast}" font-size="3.0" font-weight="900" text-anchor="middle" dominant-baseline="central">${homeZones.left}%</text>
                     <!-- ==========================================
-                         UDEHOLD (Højre side - Peger mod Højre)
+                         UDEHOLD (Højre side)
                          ========================================== -->
-                    <!-- Top zone (Left) -->
+                    <!-- Top zone (Left) - 🎯 TILFØJET DYNAMISK KONTRASTFARVE: fill="${awayTextContrast}" -->
                     <path d="M 55,${yTop - H} L ${52.5 + aTopLen - H},${yTop - H} L ${52.5 + aTopLen},${yTop} L ${52.5 + aTopLen - H},${yTop + H} L 55,${yTop + H} Z" fill="url(#awayGrad)" />
-                    <rect x="${xAwayBadge - 6}" y="${yTop - 3.5}" width="12" height="7" rx="3.5" fill="${awayColor}" fill-opacity="0.85" />
-                    <text x="${xAwayBadge}" y="${yTop}" fill="#ffffff" font-size="4.2" font-weight="900" text-anchor="middle" dominant-baseline="central">${awayZones.left}%</text>
+                    <rect x="${xAwayBadge - 3.75}" y="${yTop - 2.25}" width="7.5" height="4.5" rx="2.25" fill="${awayColor}" fill-opacity="0.85" />
+                    <text x="${xAwayBadge}" y="${yTop}" fill="${awayTextContrast}" font-size="3.0" font-weight="900" text-anchor="middle" dominant-baseline="central">${awayZones.left}%</text>
 
                     <!-- Midter zone (Center) -->
                     <path d="M 55,${yMid - H} L ${52.5 + aMidLen - H},${yMid - H} L ${52.5 + aMidLen},${yMid} L ${52.5 + aMidLen - H},${yMid + H} L 55,${yMid + H} Z" fill="url(#awayGrad)" />
-                    <rect x="${xAwayBadge - 6}" y="${yMid - 3.5}" width="12" height="7" rx="3.5" fill="${awayColor}" fill-opacity="0.85" />
-                    <text x="${xAwayBadge}" y="${yMid}" fill="#ffffff" font-size="4.2" font-weight="900" text-anchor="middle" dominant-baseline="central">${awayZones.center}%</text>
+                    <rect x="${xAwayBadge - 3.75}" y="${yMid - 2.25}" width="7.5" height="4.5" rx="2.25" fill="${awayColor}" fill-opacity="0.85" />
+                    <text x="${xAwayBadge}" y="${yMid}" fill="${awayTextContrast}" font-size="3.0" font-weight="900" text-anchor="middle" dominant-baseline="central">${awayZones.center}%</text>
 
                     <!-- Bund zone (Right) -->
                     <path d="M 55,${yBot - H} L ${52.5 + aBotLen - H},${yBot - H} L ${52.5 + aBotLen},${yBot} L ${52.5 + aBotLen - H},${yBot + H} L 55,${yBot + H} Z" fill="url(#awayGrad)" />
-                    <rect x="${xAwayBadge - 6}" y="${yBot - 3.5}" width="12" height="7" rx="3.5" fill="${awayColor}" fill-opacity="0.85" />
-                    <text x="${xAwayBadge}" y="${yBot}" fill="#ffffff" font-size="4.2" font-weight="900" text-anchor="middle" dominant-baseline="central">${awayZones.right}%</text>
+                    <rect x="${xAwayBadge - 3.75}" y="${yBot - 2.25}" width="7.5" height="4.5" rx="2.25" fill="${awayColor}" fill-opacity="0.85" />
+                    <text x="${xAwayBadge}" y="${yBot}" fill="${awayTextContrast}" font-size="3.0" font-weight="900" text-anchor="middle" dominant-baseline="central">${awayZones.right}%</text>
 
                 </svg>
                 <div class="mr-markers-layer" id="zones-markers-layer"></div>
+            </div>
+
+            <!-- CENTRAL FOOTER -->
+            <div style="width:100%; display:flex; justify-content:center; align-items:center; margin-top:20px; box-sizing:border-box;">
+                <div style="font-size:9px; font-weight:800; color:rgba(255,255,255,0.25); letter-spacing:1px; text-transform:uppercase; text-align:center;">
+                    GENERATED VIA PER-90.STREAMLIT.APP
+                </div>
             </div>
         </div>
         
