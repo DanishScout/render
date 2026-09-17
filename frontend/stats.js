@@ -395,7 +395,7 @@ function downloadPlayerStatsPNG() {
     setTimeout(() => {
         html2canvas(clone, { scale: 3, pixelRatio: 1, backgroundColor: "#0B1220", useCORS: true, logging: false }).then(canvas => {
             const link = document.createElement("a"); 
-            link.download = `player_stats_${STATS_CURRENT_PLAYER.replace(/\s+/g, '_')}.png`;
+            link.download = "player_stats.png";
             link.href = canvas.toDataURL("image/png"); link.click();
             clone.remove(); overrideStyle.remove();
         }).catch(e => { console.error("Fejl under tvunget PC-download:", e); clone.remove(); overrideStyle.remove(); });

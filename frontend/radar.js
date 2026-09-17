@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
         #radar-svg-element { display: block; margin: 0 auto; overflow: visible; max-width: 100%; height: auto; }
         #view-radar .grid-poly { fill: rgba(255,255,255,0.005); stroke: rgba(255,255,255,0.1); }
         #view-radar .grid-line { stroke: rgba(255,255,255,0.075); stroke-dasharray: 4,4; }
-        #view-radar .ax-lbl { font-size: 10px; fill: #94a3b8; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; font-family: 'Gabarito', sans-serif; }
+        #view-radar .ax-lbl { font-size: 11px; fill: #ffffff; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; font-family: 'Gabarito', sans-serif; }
         
         /* SEMANTISK FOOTER-TABEL */
         .radar-footer-table {
@@ -577,7 +577,7 @@ async function loadRadarChartDataWithFilters(p1, p2, metricsList) {
                 <svg width="710" height="600" viewBox="0 0 710 600" id="radar-svg-element"></svg>
 
                 <table class="radar-footer-table">
-                    <tr><td>Percentile Spiderweb Comparison</td></tr>
+                    <tr><td>Percentile rank vs. positional peers in league</td></tr>
                     <tr><td style="opacity:0.6;">Generated via per-90.streamlit.app</td></tr>
                 </table>
             </div>
@@ -712,7 +712,12 @@ function downloadRadarPNG() {
 
         #radar-download-clone .p-row .info-tag:nth-child(3) { display: inline-block !important; }
         
-        #radar-download-clone .ax-lbl { font-size: 10px !important; font-weight: 800 !important; }
+        #radar-download-clone .ax-lbl { 
+            font-size: 11px !important; 
+            font-weight: 700 !important; 
+            fill: #ffffff !important; /* ⬅️ Gør teksten hvid på det downloadede PNG-billede */
+        }
+
         #radar-download-clone .svg-score-text { font-size: 10px !important; font-weight: 700 !important; }
         
         #radar-download-clone .radar-footer-table { 
@@ -747,7 +752,7 @@ function downloadRadarPNG() {
             logging: false 
         }).then(canvas => {
             const link = document.createElement("a"); 
-            link.download = `radar_comparison.png`;
+            link.download = "radar.png";
             link.href = canvas.toDataURL("image/png"); 
             link.click();
             hiddenContainer.remove(); overrideStyle.remove();

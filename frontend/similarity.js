@@ -563,14 +563,6 @@ function buildSimilarityLeaderboardEngine() {
         `;
     }).join('');
 
-    markup += `
-            </tbody>
-        </table>
-        <table style="width:100%; border-collapse:collapse; margin-top:15px; font-family:'Gabarito',sans-serif; text-align:center;">
-            <tr style="opacity:0.45;"><td style="font-size:11px; color:#e5e7eb; letter-spacing:0.4px; padding:2px 0;">Generated via per-90.streamlit.app</td></tr>
-        </table>
-    `;
-
     container.innerHTML = markup;
 
     top10.forEach(async (p, idx) => {

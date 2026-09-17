@@ -237,6 +237,11 @@ function buildScatterPlotVektorEngine() {
         else if (residual < 7) cleanStep = 5 * magnitude;
         else cleanStep = 10 * magnitude;
 
+        // HVIS STAT TYPE ER "TOTAL": Tvinger vi trinnet til altid at være mindst et helt tal
+        if (SCATTER_STAT_TYPE === "Total") {
+            cleanStep = Math.max(1, Math.ceil(cleanStep));
+        }
+
         let cleanMin = Math.floor(minVal / cleanStep) * cleanStep;
         if (minVal >= 0 && cleanMin < 0) cleanMin = 0;
         let cleanMax = cleanMin + (cleanStep * 4);
@@ -244,8 +249,17 @@ function buildScatterPlotVektorEngine() {
         while (cleanMax < maxVal) cleanMax += cleanStep;
         if (cleanMin > minVal) cleanMin -= cleanStep;
 
+        // 🎯 MASTER-FIX FOR "TOTAL": Sørg for at den samlede rækkevidde (Max - Min) er delelig med 4.
+        // Dette tvinger akserne til udelukkende at lande på hele tal (f.eks. 0, 3, 6, 9, 12 i stedet for 2.50).
+        if (SCATTER_STAT_TYPE === "Total") {
+            while ((cleanMax - cleanMin) % 4 !== 0) {
+                cleanMax++;
+            }
+        }
+
         return { min: cleanMin, max: cleanMax };
     };
+
 
     // Beregn akse-grænser udelukkende ud fra de aktive data
     const boundsX = calculateNiceAxisBounds(Math.min(...xVals), Math.max(...xVals));
@@ -278,11 +292,16 @@ function buildScatterPlotVektorEngine() {
         const px = getXPixel(xVal);
         const py = getYPixel(yVal);
         
+        // Formaterer værdierne: Hvis det er et helt tal, fjernes decimalerne helt (.toFixed(2) bruges kun ved kommatal)
+        const displayX = Number.isInteger(xVal) ? xVal.toString() : xVal.toFixed(2);
+        const displayY = Number.isInteger(yVal) ? yVal.toString() : yVal.toFixed(2);
+        
         markup += `<line x1="${px}" y1="${padding.top}" x2="${px}" y2="${padding.top + graphHeight}" class="scatter-grid-line" style="stroke-dasharray:3,3;" />`;
         markup += `<line x1="${padding.left}" y1="${py}" x2="${padding.left + graphWidth}" y2="${py}" class="scatter-grid-line" style="stroke-dasharray:3,3;" />`;
-        markup += `<text x="${px}" y="${padding.top + graphHeight + 16}" fill="#475569" font-size="9" text-anchor="middle" font-family="'Gabarito', sans-serif" font-weight="700">${xVal.toFixed(2)}</text>`;
-        markup += `<text x="${padding.left - 8}" y="${py}" fill="#475569" font-size="9" text-anchor="end" dominant-baseline="middle" font-family="'Gabarito', sans-serif" font-weight="700">${yVal.toFixed(2)}</text>`;
+        markup += `<text x="${px}" y="${padding.top + graphHeight + 16}" fill="#475569" font-size="9" text-anchor="middle" font-family="'Gabarito', sans-serif" font-weight="700">${displayX}</text>`;
+        markup += `<text x="${padding.left - 8}" y="${py}" fill="#475569" font-size="9" text-anchor="end" dominant-baseline="middle" font-family="'Gabarito', sans-serif" font-weight="700">${displayY}</text>`;
     }
+
 
     markup += `<line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${padding.top + graphHeight}" class="scatter-axis-line" />`;
     markup += `<line x1="${padding.left}" y1="${padding.top + graphHeight}" x2="${padding.left + graphWidth}" y2="${padding.top + graphHeight}" class="scatter-axis-line" />`;
@@ -351,6 +370,11 @@ function continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPix
 
 function showScatterLiveTooltip(e, name, team, league, pos, nat, age, mins, xVal, yVal) {
     const tooltip = $sc("scatter-live-tooltip"); if (!tooltip) return;
+    
+    // Sørger for at fjerne ligegyldige .00 decimaler for både X og Y værdier live i popup
+    const cleanXVal = Number.isInteger(xVal) ? xVal.toString() : xVal.toFixed(2);
+    const cleanYVal = Number.isInteger(yVal) ? yVal.toString() : yVal.toFixed(2);
+
     tooltip.innerHTML = `
         <div class="sc-tt-header-box"><div class="sc-tt-name">${name}</div><div class="sc-tt-meta">${team} | ${league}</div></div>
         <div class="sc-tt-body-box">
@@ -358,8 +382,8 @@ function showScatterLiveTooltip(e, name, team, league, pos, nat, age, mins, xVal
             <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">Nationality:</span><span class="sc-tt-stat-val" style="color:#fff;">${nat}</span></div>
             <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">Age:</span><span class="sc-tt-stat-val">${age} ÅR</span></div>
             <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">Minutes:</span><span class="sc-tt-stat-val">${mins}m</span></div>
-            <div class="sc-tt-stat-row" style="margin-top:4px;"><span class="sc-tt-stat-lbl">${SCATTER_X_AXIS}:</span><span class="sc-tt-stat-val">${xVal.toFixed(2)}</span></div>
-            <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">${SCATTER_Y_AXIS}:</span><span class="sc-tt-stat-val">${yVal.toFixed(2)}</span></div>
+            <div class="sc-tt-stat-row" style="margin-top:4px;"><span class="sc-tt-stat-lbl">${SCATTER_X_AXIS}:</span><span class="sc-tt-stat-val">${cleanXVal}</span></div>
+            <div class="sc-tt-stat-row"><span class="sc-tt-stat-lbl">${SCATTER_Y_AXIS}:</span><span class="sc-tt-stat-val">${cleanYVal}</span></div>
         </div>
     `;
     tooltip.style.opacity = "1";
@@ -731,7 +755,7 @@ function downloadScatterPNG() {
             logging: false 
         }).then(canvas => {
             const link = document.createElement("a"); 
-            link.download = `scatter_plot_${SCATTER_X_AXIS}_vs_${SCATTER_Y_AXIS}.png`;
+            link.download = "scatter_plot.png";
             link.href = canvas.toDataURL("image/png"); link.click();
             hiddenContainer.remove(); overrideStyle.remove();
         }).catch(e => { console.error("Fejl under urokkelig scatter eksport:", e); hiddenContainer.remove(); overrideStyle.remove(); });

@@ -594,7 +594,7 @@ function downloadTablePNG() {
             logging: false 
         }).then(canvas => {
             const link = document.createElement("a"); 
-            link.download = `leaderboard_top10_${TABLE_SELECTED_METRIC.replace(/\\s+/g, '_')}.png`;
+            link.download = "table.png";
             link.href = canvas.toDataURL("image/png"); link.click();
             hiddenContainer.remove(); overrideStyle.remove();
         }).catch(e => { console.error("Fejl under urokkelig tabel eksport:", e); hiddenContainer.remove(); overrideStyle.remove(); });

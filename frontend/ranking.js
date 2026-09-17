@@ -56,12 +56,12 @@ document.addEventListener("DOMContentLoaded", () => {
         .rank-leaderboard-card { background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important; border: 1px solid rgba(255,255,255,0.04); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 12px 25px rgba(0,0,0,0.4); box-sizing: border-box; transition: transform 0.15s ease, border-color 0.15s; position: relative; }
         .rank-leaderboard-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.09); }
         .rank-card-top-row { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 12px; }
-        .rank-row-left { display: flex; align-items: center; gap: 12px; min-width: 0; flex-grow: 1; }
+        .rank-row-left { display: flex; align-items: center; gap: 12px; min-width: 0 !important; width: 0 !important; flex-grow: 1; }
+        .rank-row-names { display: flex; flex-direction: column; gap: 2px; min-width: 0 !important; width: 0 !important; flex-grow: 1; text-align: left; }
         .rank-row-logo-box { width: 42px; height: 42px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 3px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box; }
         .rank-row-crest { width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.25s ease-in-out; }
         .rank-row-crest.logo-loaded { opacity: 1 !important; }
-        .rank-row-names { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex-grow: 1; text-align: left; }
-        .rank-row-player-name { font-size: 12.5px !important; font-weight: 900; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; line-height: 1.2; }
+        .rank-row-player-name { font-size: 12.5px !important; font-weight: 900; color: #fff; margin: 0; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; display: block !important; max-width: 100% !important; line-height: 1.2; }
         .rank-row-subtext { font-size: 9.5px !important; color: #94a3b8 !important; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .rank-row-meta-val-pos { color: inherit !important; font-weight: 800; }
         .rank-row-pipe-divider { color: inherit !important; opacity: 0.4 !important; padding: 0 5px; font-weight: 400; }

@@ -750,7 +750,7 @@ function buildFig3GameState() {
                 </div>
             </div>
         </div>
-        <div style="text-align:center; margin-top:20px;"><button class="mr-btn" style="margin:auto;" onclick="triggerMatchReportDownload('game_momentum', 'fig3-capture')">Download as PNG</button></div>
+        <div style="text-align:center; margin-top:20px;"><button class="mr-btn" style="margin:auto;" onclick="triggerMatchReportDownload('game_state', 'fig3-capture')">Download as PNG</button></div>
     `;
 }
 
@@ -952,7 +952,7 @@ async function buildFig5PlayerStats() {
             
             let badgeHTML = "";
             if (isHighestInMatch) {
-                badgeHTML = `<span style="font-size:8px; font-weight:900; background:${ratingColor}20; color:${ratingColor}; border: 1px solid ${ratingColor}35; padding:1.5px 5px; border-radius:3px; font-family:sans-serif; letter-spacing:0.5px; text-transform:uppercase; margin-left:6px; flex-shrink:0;">MOST</span>`;
+                badgeHTML = `<span style="font-size:8px; font-weight:900; background:${ratingColor}20; color:${ratingColor}; border: 1px solid ${ratingColor}35; padding:1.5px 5px; border-radius:3px; font-family:sans-serif; letter-spacing:0.5px; text-transform:uppercase; flex-shrink:0;">MOST</span>`;
             }
 
             const valueCounts = {};
@@ -980,13 +980,14 @@ async function buildFig5PlayerStats() {
                 <div style="position: absolute; left: ${Math.min(98, Math.max(1, posPct))}%; top: 50%; width: ${dotSize}px; height: ${dotSize}px; background: rgba(255, 255, 255, ${densityOpacity}); border-radius: 50%; transform: translate(-50%, -50%); ${glowGlow}"></div>`;
             });
 
+            // 🎯 REDESIGN: Faste kolonne-bredder er fjernet. Alt pakkes nu helt tæt med display: inline-flex og gap: 8px
             return `
             <div style="display:flex; flex-direction:column; gap:2px; margin-bottom:12px;">
-                <div style="display:flex; align-items:center; width:100%; min-width:0;">
-                    <span style="font-size:12px; font-weight:900; color:${ratingColor}; font-variant-numeric:tabular-nums; flex-shrink:0; width:34px; text-align:left;">
+                <div style="display:inline-flex; align-items:center; width:100%; min-width:0; gap:8px;">
+                    <span style="font-size:12px; font-weight:900; color:${ratingColor}; font-variant-numeric:tabular-nums; flex-shrink:0;">
                         ${isDecimal ? current_val.toFixed(2) : Math.round(current_val)}
                     </span>
-                    <span style="font-size:11px; color:rgba(255,255,255,0.7); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:70%;">
+                    <span style="font-size:11px; color:rgba(255,255,255,0.7); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                         ${metric}
                     </span>
                     ${badgeHTML}
@@ -1007,6 +1008,7 @@ async function buildFig5PlayerStats() {
             ${metrics_inner}
         </div>`;
     }).join('');
+
     const playerOptionsHTML = [...players]
         .sort((a, b) => parseFloat(b.stats?.["FotMob rating"] || 0) - parseFloat(a.stats?.["FotMob rating"] || 0))
         .map(p => `<option value="${p.playerId}" ${p.playerId == MATCH_SELECTED_PLAYER ? 'selected' : ''}>${p.playerName} (${parseFloat(p.stats?.["FotMob rating"] || 0).toFixed(1)})</option>`)
@@ -1073,7 +1075,7 @@ async function buildFig5PlayerStats() {
         </div>
 
         <div style="text-align:center; margin-top:20px;">
-            <button class="mr-btn" style="margin:auto;" onclick="triggerMatchReportDownload('${current.playerName.replace(/\s+/g,'_')}_refined_swarm_chart', 'fig5-capture')">
+            <button class="mr-btn" style="margin:auto;" onclick="triggerMatchReportDownload('${current.playerName.replace(/\s+/g,'_')}_stats', 'fig5-capture')">
                 Download as PNG
             </button>
         </div>

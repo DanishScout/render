@@ -6,6 +6,7 @@ import pandas as pd
 import os
 import requests
 import base64
+import random
 
 app = FastAPI(
     title="PER 90 - Analytics API Engine",
@@ -76,7 +77,79 @@ def get_team_logo_base64(team_id: str):
         print(f"ADVARSEL: Cloudflare proxy-fejl for hold {team_id}: {str(e)}")
         return {"logo_base64": ""}
 
-# Vi kobler dine tre fane-routers på API-strukturen bagefter
+# --- UPGRADERET ENDPOINT: LIGA-FOKUSERET LIVE KARRUSEL DATA ---
+@app.get("/api/carousel")
+def get_carousel_data():
+    """Returnerer top 3 spillere fra en tilfældig liga for en tilfældig metric"""
+    global GLOBAL_DATASET
+    if GLOBAL_DATASET is None or GLOBAL_DATASET.empty:
+        return {"error": "Databasen er tom eller ikke indlæst"}
+
+    metrics_map = {
+        "total goals": "Goals",
+        "xG": "npxG",
+        "total attempt": "Shots",
+        "total assists": "Assists",
+        "xA": "xA",
+        "total att assist": "Key Passes",
+        "total won tackle": "Tackles Won",
+        "total aerial won": "Aerials Won",
+        "total duels won": "Duels Won"
+    }
+
+    # Find ud af hvad ligakolonnen hedder i dit datasæt
+    league_col = 'League' if 'League' in GLOBAL_DATASET.columns else 'league'
+    if league_col not in GLOBAL_DATASET.columns:
+        return {"error": "Kolonnen 'League' blev ikke fundet i datasættet"}
+
+    unique_leagues = GLOBAL_DATASET[league_col].dropna().unique().tolist()
+    if not unique_leagues:
+        return {"error": "Ingen ligaer fundet i datasættet"}
+
+    # Vælg en tilfældig liga til dette specifikke slide
+    random_league = random.choice(unique_leagues)
+
+    # Filtrer datasættet til KUN at matche den valgte liga
+    df_league = GLOBAL_DATASET[GLOBAL_DATASET[league_col] == random_league].copy()
+
+    # Sorter outliers fra baseret på dit krav om minimum 200 minutter
+    if 'total mins played' in df_league.columns:
+        df_league = df_league[df_league['total mins played'] >= 200]
+
+    if df_league.empty:
+        return {"metric_name": "Ingen data", "suffix_type": "", "league_name": str(random_league), "players": []}
+
+    # Vælg en tilfældig metric og et tilfældigt suffix
+    raw_metric = random.choice(list(metrics_map.keys()))
+    suffix = random.choice(["_p90", "_Total"])
+    actual_column = f"{raw_metric}{suffix}"
+
+    display_metric = metrics_map[raw_metric]
+    display_suffix = "Per 90" if suffix == "_p90" else "Total"
+
+    if actual_column not in df_league.columns:
+        return {"metric_name": display_metric, "suffix_type": display_suffix, "league_name": str(random_league), "players": []}
+
+    # Sorter og nap de 3 bedste spillere i denne liga
+    top_3 = df_league.sort_values(by=actual_column, ascending=False).head(3)
+
+    players_list = []
+    for _, row in top_3.iterrows():
+        players_list.append({
+            "player_name": row.get("Player Name", row.get("Player", "Ukendt Spiller")),
+            "team_name": row.get("Team", "Ukendt Hold"),
+            "team_id": str(row.get("contestantId", "")),
+            "value": round(float(row[actual_column]), 2)
+        })
+
+    return {
+        "metric_name": display_metric,
+        "suffix_type": display_suffix,
+        "league_name": str(random_league),
+        "players": players_list
+    }
+
+# Vi kobler dine fane-routers på API-strukturen bagefter
 from routers.pizza import router as pizza_router
 from routers.stats import router as stats_router
 from routers.radar import router as radar_router
@@ -87,7 +160,6 @@ from routers.similarity import router as similarity_router
 from routers.ranking import router as ranking_router
 from routers.matchreport import router as matchreport_router
 from routers.eventdata import router as eventdata_router
-
 
 app.include_router(pizza_router)
 app.include_router(stats_router)
@@ -100,7 +172,6 @@ app.include_router(ranking_router)
 app.include_router(matchreport_router)
 app.include_router(eventdata_router)
 
-
 # FRONTEND-STI: Går ét niveau op fra 'backend' og ind i 'frontend'
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend"))
 
@@ -111,6 +182,13 @@ def read_root():
     if os.path.exists(index_path):
         return FileResponse(index_path)
     return {"status": "ONLINE", "msg": f"FastAPI kører, men kunne ikke finde index.html i: {FRONTEND_DIR}"}
+
+# MONTERING AF STATISKE FILER (Billeder, logoer osv. fra backend/static)
+STATIC_DIR = os.path.join(DATA_DIR, "static")
+if os.path.exists(STATIC_DIR):
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+else:
+    print(f"ADVARSEL: Static-mappen blev ikke fundet på stien: {STATIC_DIR}")
 
 # MONTERING AF FRONTEND-FILER: Sørger for at browseren kan finde style.css, global.js osv.
 if os.path.exists(FRONTEND_DIR):
