@@ -360,7 +360,7 @@ function generateSharedHeaderHTML(subtitle) {
                     <span style="color:${info.awayColor};">${info.awayName}</span>
                 </div>
             </div>
-            <div style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.3); letter-spacing:1.2px; text-transform:uppercase; margin-top:8px;">${subtitle} via per-90.streamlit.app</div>
+            <div style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.3); letter-spacing:1.2px; text-transform:uppercase; margin-top:8px;">${subtitle} via per90.vercel.app</div>
         </div>
     `;
 }
@@ -590,7 +590,7 @@ function buildFig2AccumulatedXG() {
                 
                 <div style="text-align:right; padding-top:4px;">
                     <h2 style="font-size:15px; font-weight:900; color:#fff; letter-spacing:1.2px; margin:0; text-transform:uppercase;">Accumulated xG</h2>
-                    <span style="font-size:9px; font-weight:800; color:rgba(255,255,255,0.25); letter-spacing:1px;">VIA PER-90.STREAMLIT.APP</span>
+                    <span style="font-size:9px; font-weight:800; color:rgba(255,255,255,0.25); letter-spacing:1px;">VIA PER90.VERCEL.APP</span>
                 </div>
             </div>
 
@@ -708,7 +708,7 @@ function buildFig3GameState() {
                 
                 <div style="text-align:right; padding-top:4px;">
                     <h2 style="font-size:15px; font-weight:900; color:#fff; letter-spacing:1.2px; margin:0; text-transform:uppercase;">Game State</h2>
-                    <span style="font-size:9px; font-weight:800; color:rgba(255,255,255,0.25); letter-spacing:1px;">VIA PER-90.STREAMLIT.APP</span>
+                    <span style="font-size:9px; font-weight:800; color:rgba(255,255,255,0.25); letter-spacing:1px;">VIA PER90.VERCEL.APP</span>
                 </div>
             </div>
 
@@ -837,7 +837,7 @@ function buildFig4TopPerformers() {
             </style>
             <div style="display:flex; flex-direction:column; align-items:flex-start; margin-bottom:40px; position:relative; z-index:2;">
                 <h1 style="font-size:30px; font-weight:900; text-transform:uppercase; margin:0; letter-spacing:2px; line-height:0.85; color:#ffffff;">Top <strong style="font-weight:900; letter-spacing:2px; color:#ff4d4d;">Performers</strong></h1>
-                <div style="font-size:9px; font-weight:700; color:#ff4d4d; letter-spacing:2px; margin-top:8px; text-transform:uppercase; padding-left:12px; border-left:2px solid #ff4d4d;">Generated via per-90.streamlit.app</div>
+                <div style="font-size:9px; font-weight:700; color:#ff4d4d; letter-spacing:2px; margin-top:8px; text-transform:uppercase; padding-left:12px; border-left:2px solid #ff4d4d;">Generated via per90.vercel.app</div>
             </div>
             
             <!-- 🔥 STRUKTUR FIX: Vi tvinger containeren til altid at bruge flex og fordele kolonnerne ensartet under download -->
@@ -1069,7 +1069,7 @@ async function buildFig5PlayerStats() {
 
                 <!-- Højrestillet Ny Streamlit Footer -->
                 <div style="font-size:9px; font-weight:800; color:rgba(255,255,255,0.25); letter-spacing:1px; text-transform:uppercase;">
-                    GENERATED VIA PER-90.STREAMLIT.APP
+                    GENERATED VIA PER90.VERCEL.APP
                 </div>
             </div>
         </div>
@@ -1238,7 +1238,7 @@ function buildFig6AttackingZones() {
             <!-- CENTRAL FOOTER -->
             <div style="width:100%; display:flex; justify-content:center; align-items:center; margin-top:20px; box-sizing:border-box;">
                 <div style="font-size:9px; font-weight:800; color:rgba(255,255,255,0.25); letter-spacing:1px; text-transform:uppercase; text-align:center;">
-                    GENERATED VIA PER-90.STREAMLIT.APP
+                    GENERATED VIA PER90.VERCEL.APP
                 </div>
             </div>
         </div>

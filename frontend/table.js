@@ -55,11 +55,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
-        /* DET FLOTTE, MØRKE DIAGRAM-KORT (Bygget direkte på <td>-rækken) */
+        /* DET FLOTTE, MØRKE DIAGRAM-KORT */
         .scouting-leaderboard-table tbody tr {
             background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
             transition: transform 0.15s ease;
+            
+            /* 🎯 FIX FOR OUTLINE: Tvinger rækken til at have afrundede hjørner og klipper alt udenfor væk */
+            border-radius: 12px !important;
+            clip-path: inset(0 round 12px);
+        }
+        
+        /* Fjern eventuel individuel celle-baggrund, så de ikke overlapper */
+        .scouting-leaderboard-table tbody td {
+            background: transparent !important;
         }
         
         /* 🎯 FIX: Tvinger alle interne linjer og borders væk under hover, så der ikke popper streger op */
@@ -163,6 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
     document.head.appendChild(style);
 });
+
 // ==========================================================================
 // PER 90 - TABLE.JS - DEL 3 AF 6 (VIEW INITIALISERING & DRAWER UI BUILDER)
 // ==========================================================================

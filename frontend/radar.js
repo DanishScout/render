@@ -578,7 +578,7 @@ async function loadRadarChartDataWithFilters(p1, p2, metricsList) {
 
                 <table class="radar-footer-table">
                     <tr><td>Percentile rank vs. positional peers in league</td></tr>
-                    <tr><td style="opacity:0.6;">Generated via per-90.streamlit.app</td></tr>
+                    <tr><td style="opacity:0.6;">Generated via per90.vercel.app</td></tr>
                 </table>
             </div>
             

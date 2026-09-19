@@ -313,7 +313,7 @@ function buildScatterPlotVektorEngine() {
     markup += `
         <rect x="235" y="${barY}" width="250" height="8" rx="4" fill="url(#scatterColorbarGrad)" stroke="rgba(255,255,255,0.05)" stroke-width="1" />
         <text x="360" y="${barY + 24}" fill="#ffffff" font-size="11" font-weight="900" text-anchor="middle" style="font-family: 'Gabarito', sans-serif; letter-spacing: 1.5px; opacity: 0.3; text-transform: uppercase;">MINUTES PLAYED &rarr;</text>
-        <text x="360" y="${barY + 60}" fill="#e5e7eb" font-size="11" font-weight="400" text-anchor="middle" style="font-family: 'Gabarito', sans-serif; letter-spacing: 0.4px; opacity: 0.45;">Generated via per-90.streamlit.app</text>
+        <text x="360" y="${barY + 60}" fill="#e5e7eb" font-size="11" font-weight="400" text-anchor="middle" style="font-family: 'Gabarito', sans-serif; letter-spacing: 0.4px; opacity: 0.45;">Generated via per90.vercel.app</text>
     `;
 
     continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPixel, getYPixel, getMinutesColor);

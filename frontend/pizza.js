@@ -529,7 +529,7 @@ async function loadPizzaChartDataWithFilters(playerName, comparePos, metricsList
             
             <table class="pizza-footer-table" style="position: relative; z-index: 2;">
                 <tr class="footer-line-top"><td>${apiResponse.player_name}'s percentile rank vs. ${leagueVal} ${CURRENT_SELECTED_POS}s</td></tr>
-                <tr class="footer-line-bottom"><td>Generated via per-90.streamlit.app</td></tr>
+                <tr class="footer-line-bottom"><td>Generated via per90.vercel.app</td></tr>
             </table>
         `;
         

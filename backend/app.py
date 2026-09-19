@@ -149,6 +149,35 @@ def get_carousel_data():
         "players": players_list
     }
 
+@app.get("/api/stats-summary")
+def get_stats_summary():
+    """Returnerer live-optællinger af datasættet (ligaer, spillere og metrics)"""
+    global GLOBAL_DATASET
+    if GLOBAL_DATASET is None or GLOBAL_DATASET.empty:
+        return {
+            "leagues": 25,
+            "players": 0,
+            "metrics": 0
+        }
+
+    # 1. Antal spillere er lig med det samlede antal rækker i din samlede dataframe
+    total_players = len(GLOBAL_DATASET)
+
+    # 2. Find antal unikke metrics, der slutter på '_Total' i filerne
+    total_metrics = len([col for col in GLOBAL_DATASET.columns if col.endswith('_Total')])
+
+    # Hvis der af en eller anden grund ikke er indlæst kolonner endnu, laver vi en fallback 
+    # baseret på dine 9 grundlæggende metrics fra karrusellen.
+    if total_metrics == 0:
+        total_metrics = 9
+
+    return {
+        "leagues": 25,  # Statisk sat til 25 som ønsket
+        "players": total_players,
+        "metrics": total_metrics
+    }
+
+
 # Vi kobler dine fane-routers på API-strukturen bagefter
 from routers.pizza import router as pizza_router
 from routers.stats import router as stats_router

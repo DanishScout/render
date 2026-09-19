@@ -61,6 +61,10 @@ document.addEventListener("DOMContentLoaded", () => {
 // PER 90 - SIMILARITY.JS - DEL 3 AF 8 (KORT-STYLING & LÅSTE HOVER-EFFEKTER)
 // ==========================================================================
 
+// ==========================================================================
+// PER 90 - SIMILARITY.JS - DEL 3 AF 8 (KORT-STYLING & LÅSTE HOVER-EFFEKTER)
+// ==========================================================================
+
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
@@ -71,7 +75,12 @@ document.addEventListener("DOMContentLoaded", () => {
             transition: transform 0.15s ease;
             height: 64px !important;
             max-height: 64px !important;
+            
+            /* 🎯 FIX FRA TABLE.JS: Tvinger rækken til at have afrundede hjørner og klipper alt udenfor væk */
+            border-radius: 12px !important;
+            clip-path: inset(0 round 12px);
         }
+        
         .sim-scouting-table tbody tr:hover { 
             transform: translateX(3px) !important; 
         }
@@ -81,7 +90,9 @@ document.addEventListener("DOMContentLoaded", () => {
             border-right: none !important;
         }
 
+        /* 🎯 FIX FRA TABLE.JS: Fjerner den individuelle celle-baggrund, så den ikke overlapper outline-klippet */
         .sim-scouting-table tbody td {
+            background: transparent !important;
             padding: 0 20px !important;
             border-top: 1px solid rgba(255,255,255,0.04);
             border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -97,6 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
     document.head.appendChild(style);
 });
+
 // ==========================================================================
 // PER 90 - SIMILARITY.JS - DEL 4 AF 8 (FASTE BREDDE-KANALER & DATA-TEKST CSS)
 // ==========================================================================
@@ -125,10 +137,17 @@ document.addEventListener("DOMContentLoaded", () => {
         .sim-row-player-name { font-size: 14px; font-weight: 900; color: #fff; margin: 0 !important; padding: 0 !important; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 16px !important; height: 16px !important; display: block !important; }
         .sim-row-subtext { font-size: 10.5px; color: #64748b; font-weight: 600; margin: 4px 0 0 0 !important; padding: 0 !important; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 12px !important; height: 12px !important; display: block !important; }
         
-        .sim-row-bar-container { display: block !important; width: 100%; text-align: center; }
-        .sim-row-bar-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.04); border-radius: 10px; overflow: hidden; margin: 6px auto 0 auto !important; }
-        .sim-row-bar-fill { height: 100%; background: var(--accent-purple); border-radius: 10px; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-        .sim-row-score-value { font-size: 14px; font-weight: 900; color: var(--accent-purple); margin: 0 !important; padding: 0 !important; width: 100%; text-shadow: 0 0 10px rgba(168,85,247,0.2); line-height: 16px !important; height: 16px !important; display: block !important; }
+        /* 🎯 FIX FRA TABLE.JS: Omdannet til flexbox for at sikre perfekt spredning af bjælken uden brud i venstre side */
+        .sim-row-bar-container { display: flex !important; flex-direction: column; align-items: center; justify-content: center; width: 100%; text-align: center; }
+        
+        /* 🎯 FIX: Tvunget overflow og border-radius, så rektanglen bagved klippes fuldstændig væk */
+        .sim-row-bar-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.04); border-radius: 10px !important; overflow: hidden !important; margin: 6px auto 0 auto !important; }
+        
+        /* 🎯 FIX: Sikrer fuld og blød afrunding i BÅDE venstre og højre side af bjælken */
+        .sim-row-bar-fill { height: 100%; background: var(--accent-purple); border-radius: 10px !important; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* 🎯 FIX: Fjernet de hårde højder for at lade flex-motoren placere teksten perfekt over bjælken */
+        .sim-row-score-value { font-size: 14px; font-weight: 900; color: var(--accent-purple); margin: 0 !important; padding: 0 !important; width: 100%; text-shadow: 0 0 10px rgba(168,85,247,0.2); line-height: 1 !important; display: block !important; }
 
         .sim-custom-option-item { padding: 10px 14px; color: #f3f1f6; cursor: pointer; font-size: 14px; transition: all 0.15s ease; font-family: Gabarito, sans-serif; }
         .sim-custom-option-item:hover { background-color: rgba(168, 85, 247, 0.25) !important; color: #ffffff !important; padding-left: 18px; }
@@ -136,6 +155,11 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
     document.head.appendChild(style);
 });
+
+// ==========================================================================
+// PER 90 - SIMILARITY.JS - DEL 5 AF 8 (ULTRA-COMPACT MOBIL SENSOR-CSS)
+// ==========================================================================
+
 // ==========================================================================
 // PER 90 - SIMILARITY.JS - DEL 5 AF 8 (ULTRA-COMPACT MOBIL SENSOR-CSS)
 // ==========================================================================
@@ -158,7 +182,9 @@ document.addEventListener("DOMContentLoaded", () => {
             .sim-row-logo-box { width: 26px !important; height: 30px !important; padding: 2px !important; border-radius: 5px !important; }
             .sim-row-player-name { font-size: 10px !important; }
             .sim-row-subtext { font-size: 8px !important; margin-top: 1px !important; }
-            .sim-row-score-value { font-size: 10px !important; }
+            
+            /* 🎯 FIX FRA TABLE.JS: Låser linjehøjden til 1 på mobil, så flex-containeren centrerer teksten perfekt */
+            .sim-row-score-value { font-size: 10px !important; line-height: 1 !important; }
             
             /* Aktiverer mobil-metateksten under navnet på små skærme */
             .sim-mobile-meta-span { display: block !important; font-size: 7.5px !important; color: #475569 !important; text-transform: uppercase; margin-top: 2px; }
@@ -177,6 +203,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
+
 // ==========================================================================
 // PER 90 - SIMILARITY.JS - DEL 6 AF 8 (HTML INITIALISERING & BOOTSTRAP LOGIK)
 // ==========================================================================
