@@ -225,7 +225,7 @@ function initMatchReportView(container) {
             </div>
 
             <div class="mr-tabs-nav" id="mr-tabs-bar" style="display:none;">
-                <button class="mr-tab-item active" id="tab-btn-stats" onclick="switchMatchTab('stats')">Match Stats</button>
+                <button class="mr-tab-item active" id="tab-btn-stats" onclick="switchMatchTab('stats')">Match Report</button>
                 <button class="mr-tab-item" id="tab-btn-xg" onclick="switchMatchTab('xg')">Accumulated xG</button>
                 <button class="mr-tab-item" id="tab-btn-momentum" onclick="switchMatchTab('momentum')">Game State</button>
                 <button class="mr-tab-item" id="tab-btn-performers" onclick="switchMatchTab('performers')">Top Performers</button>
@@ -238,7 +238,7 @@ function initMatchReportView(container) {
             <div class="mr-scale-viewport" id="mr-display-viewport" style="display:block; width:100%;">
                 <div id="mr-display-target-area" style="width:100%;">
                     <div id="mr-placeholder-msg" style="text-align:center; padding:80px 20px; color:rgba(255,255,255,0.4); font-size:14px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase;">
-                        Press 'Load Data' to view the different visualizations
+                        Insert URL as seen above and press 'Load Data'
                     </div>
                 </div>
             </div>
@@ -314,7 +314,7 @@ async function renderActiveMatchVisualization() {
 function resetLoadingState(targetArea) {
     targetArea.innerHTML = `
         <div id="mr-placeholder-msg" style="text-align:center; padding:80px 20px; color:rgba(255,255,255,0.4); font-size:14px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase;">
-            Press 'Load Data' to view the different visualizations
+            Insert URL as seen above and press 'Load Data'
         </div>
     `;
 }
@@ -347,23 +347,23 @@ function generateSharedHeaderHTML(subtitle) {
                 <div style="display:flex; align-items:center; gap:12px; font-size:22px; font-weight:900; text-transform:uppercase; justify-content:flex-end; flex:1;">
                     <span style="color:${info.homeColor};">${info.homeName}</span>
                     <div style="width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; padding:5px;">
-                        <!-- RETTELSE: Bruger nu den lokale Base64-streng fra din backend for hjemmeholdet -->
                         <img src="${info.homeLogoB64}" style="max-width:100%; max-height:100%; object-fit:contain;">
                     </div>
                 </div>
                 <div style="font-size:26px; font-weight:900; color:#fff; letter-spacing:1px; padding:0 10px;">${homeGoals} - ${awayGoals}</div>
                 <div style="display:flex; align-items:center; gap:12px; font-size:22px; font-weight:900; text-transform:uppercase; justify-content:flex-start; flex:1;">
                     <div style="width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:center; padding:5px;">
-                        <!-- RETTELSE: Bruger nu den lokale Base64-streng fra din backend for udeholdet -->
                         <img src="${info.awayLogoB64}" style="max-width:100%; max-height:100%; object-fit:contain;">
                     </div>
                     <span style="color:${info.awayColor};">${info.awayName}</span>
                 </div>
             </div>
-            <div style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.3); letter-spacing:1.2px; text-transform:uppercase; margin-top:8px;">${subtitle} via per90.vercel.app</div>
+            <!-- 🎯 FIX: 'via per90.vercel.app' er fjernet herfra, så undertitlen står helt ren -->
+            <div style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.3); letter-spacing:1.2px; text-transform:uppercase; margin-top:8px;">${subtitle}</div>
         </div>
     `;
 }
+
 
 // ==========================================================================
 // PER 90 - MATCHREPORT.JS - DEL 6 AF 10 (FIG 1 – MATCH STATS PITCH)
@@ -383,15 +383,36 @@ function buildFig1MatchStats() {
         const pctLeft = effectiveTeam == info.homeId ? (shot.x / 105) * 100 : 100 - ((shot.x / 105) * 100);
         const pctTop = effectiveTeam == info.homeId ? 100 - ((shot.y / 68) * 100) : (shot.y / 68) * 100;
 
-        let color = "#C82929"; let content = "";
-        if (is_og) { color = "#D1257E"; content = "&times;"; }
-        else if (shot.eventType === "Goal") color = "#47B745";
-        else if (shot.expectedGoalsOnTarget > 0) color = "#C8C329";
+        // Vi definerer basisfarverne som RGBA-strenge
+        let baseColor = "200, 41, 41";   // Off Target / Red
+        let content = "";
+
+        if (is_og) { 
+            baseColor = "209, 37, 126"; // Own Goal / Pink-ish
+            content = "&times;"; 
+        } else if (shot.eventType === "Goal") {
+            baseColor = "71, 183, 69";   // Goal / Green
+        } else if (shot.expectedGoalsOnTarget > 0) {
+            baseColor = "200, 195, 41";  // On Target / Yellow
+        }
 
         const size = is_og ? 15 : Math.max(10, Math.min(48, Math.sqrt(shot.expectedGoals) * 30));
 
-        return `<div class="mr-shot-dot" style="left:${pctLeft.toFixed(2)}%; top:${pctTop.toFixed(2)}%; width:${size}px; height:${size}px; background:${is_og ? 'transparent' : color}; color:${color}; line-height:${size-2}px; font-size:${parseInt(size*1.6)}px;">${content}</div>`;
+        // Vi bruger 0.25 (25%) opacity på fyldet (background) og 0.95 (95%) på kanten (border)
+        return `<div class="mr-shot-dot" style="
+            left: ${pctLeft.toFixed(2)}%; 
+            top: ${pctTop.toFixed(2)}%; 
+            width: ${size}px; 
+            height: ${size}px; 
+            background: rgba(${baseColor}, 0.4); 
+            border: 1px solid rgba(${baseColor}, 0.95); 
+            color: rgba(${baseColor}, 0.95); 
+            line-height: ${size - 3}px; 
+            font-size: ${parseInt(size * 1.6)}px;
+            box-sizing: border-box;
+        ">${content}</div>`;
     }).join('');
+
 
     // 2. Map dine 8 Streamlit-metrics til rækker
     const statMapping = [
@@ -431,7 +452,7 @@ function buildFig1MatchStats() {
     // 3. Render det samlede view med den strømlinede legende
     container.innerHTML = `
         <div class="mr-capture-card" id="fig1-capture">
-            ${generateSharedHeaderHTML("Match Report")}
+            ${generateSharedHeaderHTML("Match Report via per90.vercel.app")}
             
             <div class="mr-pitch-wrapper">
                 <svg viewBox="0 0 105 68">
@@ -457,7 +478,7 @@ function buildFig1MatchStats() {
 
                 <div class="mr-markers-layer">${shotsHTML}</div>
                 <!-- 🎯 ULTRA-SLIM REPARATION: Sættes nu til 165px bredde, så den sidder knivskarpt på midten af banen -->
-                <div class="mr-stats-overlay" style="width:165px; background:rgba(11, 18, 32, 0.85); padding:12px 10px; border-radius:12px;">${statsOverlayRows}</div>
+                <div class="mr-stats-overlay" style="width:165px; background:rgba(11, 18, 32, 0.25); padding:12px 10px; border-radius:12px;">${statsOverlayRows}</div>
             </div>
 
             <!-- LEGENDE -->
@@ -474,19 +495,21 @@ function buildFig1MatchStats() {
                 <!-- ANGREBSRETNING -->
                 <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
                     <span style="color:rgba(255,255,255,0.3); font-size:9px; letter-spacing:1px;">Attacking Direction</span>
-                    <div style="display:flex; align-items:center;">
+                    <div style="display:flex; align-items:center; height:12px;">
+                        
                         <!-- Udeholdets pil: Højre mod venstre -->
-                        <div style="width:40px; height:2px; position:relative; background:${awayColor};">
-                            <div style="position:absolute; left:0; top:-3px; border-top:4px solid transparent; border-bottom:4px solid transparent; border-right:6px solid ${awayColor};"></div>
-                        </div>
+                        <svg width="40" height="12" viewBox="0 0 40 12" style="display:block;">
+                            <path d="M 40,6 L 2,6 M 7,1 L 1,6 L 7,11" fill="none" stroke="${awayColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
                         
                         <!-- Lodret adskiller -->
-                        <div style="width:1px; height:12px; background:rgba(255,255,255,0.15); margin:0 6px;"></div>
+                        <div style="width:1px; height:12px; background:rgba(255,255,255,0.15); margin:0 10px;"></div>
                         
                         <!-- Hjemmeholdets pil: Venstre mod højre -->
-                        <div style="width:40px; height:2px; position:relative; background:${homeColor};">
-                            <div style="position:absolute; right:0; top:-3px; border-top:4px solid transparent; border-bottom:4px solid transparent; border-left:6px solid ${homeColor};"></div>
-                        </div>
+                        <svg width="40" height="12" viewBox="0 0 40 12" style="display:block;">
+                            <path d="M 0,6 L 38,6 M 33,1 L 39,6 L 33,11" fill="none" stroke="${homeColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        
                     </div>
                 </div>
 
@@ -514,11 +537,16 @@ function buildFig2AccumulatedXG() {
     const homeColor = info.homeColor || '#ff4d4d';
     const awayColor = info.awayColor || '#eed202';
 
-    // 1. Sorter og filtrer skuddata
-    const hShots = MATCH_GLOBAL_DATA.shotmap.filter(s => s.teamId == info.homeId && !s.isOwnGoal).sort((a,b)=>a.min-b.min);
-    const aShots = MATCH_GLOBAL_DATA.shotmap.filter(s => s.teamId == info.awayId && !s.isOwnGoal).sort((a,b)=>a.min-b.min);
+    // 1. Sorter og filtrer skuddata (Inkluderer KUN FirstHalf og SecondHalf)
+    const validShots = MATCH_GLOBAL_DATA.shotmap.filter(s => 
+        s.period === "FirstHalf" || s.period === "SecondHalf"
+    );
 
-    const maxMin = Math.max(90, ...MATCH_GLOBAL_DATA.shotmap.map(s=>s.min));
+    const hShots = validShots.filter(s => s.teamId == info.homeId && !s.isOwnGoal).sort((a,b)=>a.min-b.min);
+    const aShots = validShots.filter(s => s.teamId == info.awayId && !s.isOwnGoal).sort((a,b)=>a.min-b.min);
+
+    // Vi låser aksen til 90 minutter for ordinær spilletid
+    const maxMin = 90;
     const totXGHome = hShots.reduce((sum,s)=>sum+s.expectedGoals, 0);
     const totXGAway = aShots.reduce((sum,s)=>sum+s.expectedGoals, 0);
     
@@ -547,19 +575,23 @@ function buildFig2AccumulatedXG() {
     let svgGridLines = yTicks.map(t => `<line x1="0" y1="${100-(t/maxY)*100}" x2="100" y2="${100-(t/maxY)*100}" stroke="rgba(255,255,255,0.04)" stroke-width="0.5" />`).join('');
     svgGridLines += [15, 30, 45, 60, 75, 90].map(m => `<line x1="${(m/maxMin)*100}" y1="0" x2="${(m/maxMin)*100}" y2="100" stroke="rgba(255,255,255,0.03)" stroke-width="0.5" stroke-dasharray="2 2" />`).join('');
 
-  
-    const goalMarkersHTML = MATCH_GLOBAL_DATA.shotmap.filter(s => s.eventType === "Goal").map(g => {
+    // 3. Filtrer og opbyg mål-flueben (Kun for mål scoret i FirstHalf/SecondHalf)
+    const goalMarkersHTML = validShots.filter(s => s.eventType === "Goal").map(g => {
         const isHome = (!!g.isOwnGoal ? (g.teamId != info.homeId) : (g.teamId == info.homeId));
         const cumulative = (isHome ? hShots : aShots).filter(s => s.min <= g.min).reduce((sum,s)=>sum+s.expectedGoals, 0);
 
+        // Hvis tillægstid skubber et skud over 90, låser vi den visuelt til kanten af x-aksen (99%)
+        const xPosPct = Math.min(99, (g.min / maxMin) * 100);
+
         return `
-            <div style="position:absolute; left:${(g.min/maxMin)*100}%; top:${100-(cumulative/maxY)*100}%; transform:translate(-50%, -50%); z-index:10; width:16px; height:16px; background:#47B745; border:1.5px solid #ffffff; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center;">
+            <div style="position:absolute; left:${xPosPct}%; top:${100-(cumulative/maxY)*100}%; transform:translate(-50%, -50%); z-index:10; width:16px; height:16px; background:#47B745; border:1.5px solid #ffffff; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center;">
                 <!-- Super clean hvidt vektor-flueben på den grønne baggrund -->
                 <svg viewBox="0 0 24 24" style="width:9px; height:9px; fill:none; stroke:#ffffff; stroke-width:4; stroke-linecap:round; stroke-linejoin:round;">
                     <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
             </div>`;
     }).join('');
+
 
 
     // 4. Split måltallene til top-headeren
@@ -805,9 +837,10 @@ function buildFig4TopPerformers() {
                         ${idx + 1}
                     </span>
                     <img class="logo" src="${player.teamId == info.homeId ? info.homeLogoB64 : info.awayLogoB64 || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}" style="width: 16px !important; height: 16px !important; object-fit: contain !important; flex-shrink: 0 !important; display: block !important; margin: 0 !important; padding: 0 !important; filter: drop-shadow(0 0 4px rgba(255,255,255,0.1)) !important;">
-                    <span class="p-nm" style="flex-grow: 1 !important; width: 0 !important; font-size: 11px !important; font-weight: ${is_1st ? '700' : '600'} !important; color: ${is_1st ? '#ffffff' : 'rgba(255,255,255,0.6)'} !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; display: inline-block !important; line-height: 1 !important; margin: 0 !important; padding: 0 !important;">
+                    <span class="p-nm" style="flex-grow: 1 !important; width: 0 !important; font-size: 11px !important; font-weight: ${is_1st ? '700' : '600'} !important; color: ${is_1st ? '#ffffff' : 'rgba(255,255,255,0.6)'} !important; letter-spacing: 0.5px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; display: inline-block !important; line-height: 1 !important; margin: 0 !important; padding: 0 !important;">
                         ${formatShortName(player.name)}
                     </span>
+
 
                     <span class="p-vl" style="font-size: 11px !important; font-weight: ${is_1st ? '900' : '700'} !important; color: ${is_1st ? '#ff4d4d' : 'rgba(255,255,255,0.5)'} !important; text-shadow: ${is_1st ? '0 0 15px rgba(255, 77, 77, 0.4)' : 'none'} !important; text-align: right !important; margin-left: auto !important; font-variant-numeric: tabular-nums !important; display: inline-block !important; line-height: 1 !important; padding: 0 !important; flex-shrink: 0 !important; width: 35px !important;">
                         ${Number.isInteger(player.val) ? player.val : player.val.toFixed(2)}
@@ -924,9 +957,9 @@ async function buildFig5PlayerStats() {
     }
 
     const groupsConfig = [
-        { title: "Expected Metrics", metrics: ['xG + xA', 'Expected goals (xG)', 'Expected assists (xA)', 'Expected goals on target (xGOT)'] },
-        { title: "Passing & Build-up", metrics: ['Big chances created', 'Chances created', 'Passes into final third', 'Accurate passes'] },
-        { title: "Possession & Dribbles", metrics: ['Successful dribbles', 'Touches in opposition box', 'Touches', 'Was fouled'] },
+        { title: "Expected Output", metrics: ['xG + xA', 'Expected goals (xG)', 'Expected assists (xA)', 'Expected goals on target (xGOT)'] },
+        { title: "Passing", metrics: ['Big chances created', 'Chances created', 'Passes into final third', 'Accurate passes'] },
+        { title: "Possession", metrics: ['Successful dribbles', 'Touches in opposition box', 'Touches', 'Was fouled'] },
         { title: "Defending & Duels", metrics: ['Defensive actions', 'Recoveries', 'Ground duels won', 'Aerial duels won'] }
     ];
 
@@ -1048,7 +1081,7 @@ async function buildFig5PlayerStats() {
                     
                     <div style="display:flex; align-items:center; gap:8px; font-size:10px; font-weight:600; color:rgba(255,255,255,0.4); text-transform:uppercase;">
                         <span>VS. ${opponentTeamName}</span>
-                        <span>•</span>
+                        <span>|</span>
                         <span>${Math.round(current.stats?.["Minutes played"] || 90)} Mins Played</span>
                     </div>
                 </div>
@@ -1064,7 +1097,7 @@ async function buildFig5PlayerStats() {
                 <!-- Venstrestillede Legends -->
                 <div style="display:flex; gap:24px; font-size:10px; color:rgba(255,255,255,0.4); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">
                     <div style="display:flex; align-items:center; gap:6px;"><div style="width:8px; height:8px; background:${ratingColor}; border:1.5px solid #fff; border-radius:50%; box-shadow:0 0 4px ${ratingColor};"></div><span>Selected Player</span></div>
-                    <div style="display:flex; align-items:center; gap:6px;"><div style="width:6px; height:6px; background:rgba(255,255,255,0.35); border-radius:50%;"></div><span>Squad Spreading</span></div>
+                    <div style="display:flex; align-items:center; gap:6px;"><div style="width:6px; height:6px; background:rgba(255,255,255,0.35); border-radius:50%;"></div><span>Other Players</span></div>
                 </div>
 
                 <!-- Højrestillet Ny Streamlit Footer -->
@@ -1157,7 +1190,7 @@ function buildFig6AttackingZones() {
         <div style="width:100%; max-width:600px; margin:0 auto 20px auto; display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.03); padding:10px 15px; border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
             <span style="font-size:11px; font-weight:800; color:rgba(255,255,255,0.5); text-transform:uppercase;">Period:</span>
             <select id="mr-zones-dropdown" onchange="MATCH_ZONES_PERIOD=this.value; buildFig6AttackingZones();" style="flex:1; background:#0B1220; color:#fff; border:1px solid rgba(255,255,255,0.1); padding:6px 10px; border-radius:6px; font-weight:700; font-size:13px; outline:none; cursor:pointer;">
-                <option value="total" ${periodKey === 'total' ? 'selected' : ''}>Full Time (Total)</option>
+                <option value="total" ${periodKey === 'total' ? 'selected' : ''}>Full Game</option>
                 <option value="firstHalf" ${periodKey === 'firstHalf' ? 'selected' : ''}>1st Half</option>
                 <option value="secondHalf" ${periodKey === 'secondHalf' ? 'selected' : ''}>2nd Half</option>
             </select>

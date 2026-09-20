@@ -187,7 +187,7 @@ body { background-color: var(--bg-dark); color: var(--text-primary); font-family
 /* ==========================================================================
    PER 90 - RESPONSIV MOBILOPTIMERING (RETTET: INGEN HOVER-CRASH & FRI SCROLL)
    ========================================================================== */
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 910px) {
     body { overflow-y: scroll !important; height: auto; } /* 🎯 FIX: Sikrer universel scroll på mobil */
     .app-container { flex-direction: column; height: auto; width: 100vw; }
 

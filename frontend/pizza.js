@@ -459,7 +459,7 @@ async function onPizzaPlayerChange() {
 function buildCategorizedMetrics() {
     const container = $("checkboxes-container"); if (!container) return;
     const colors = { "Shooting": "#ff007f", "Passing": "#00ffd5", "Possession": "#ffb700", "Defending": "#00ff66" };
-    const defaults = ["Goals", "Assists", "Successful Dribbles", "Tackles Won %"];
+    const defaults = ["Goals", "npxG", "Assists", "xA", "Key Passes", "Successful Dribbles", "Progressive Carries", "Duels Won", "Aerials Won"];
     container.innerHTML = Object.entries(PIZZA_CATEGORIES).map(([cat, metrics]) => {
         const c = colors[cat] || "var(--accent-purple)";
         const body = Object.values(metrics).map(m => {
@@ -469,6 +469,7 @@ function buildCategorizedMetrics() {
         return `<div style="margin-bottom: 12px;"><div style="font-size: 11px; color: ${c}; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid ${c}44; padding-bottom: 4px; margin-bottom: 6px;">${cat}</div><div style="display: flex; flex-direction: column; gap: 6px; padding-left: 4px;">${body}</div></div>`;
     }).join('');
 }
+
 
 async function loadPizzaChartDataWithFilters(playerName, comparePos, metricsList) {
     try {
@@ -574,7 +575,7 @@ function downloadPNG() {
             opacity: 0.06 !important;
             transform: rotate(-15deg) !important;
             z-index: 1 !important;
-            right: auto !important; /* Tvinger overskrivning af eventuel højre-styring */
+            right: auto !important;
         }
         
         #pizza-download-clone .pizza-header-profile-table {
@@ -590,7 +591,6 @@ function downloadPNG() {
             margin-bottom: 16px !important; width: 100% !important; display: block !important; height: 3px !important; border-radius: 2px !important;
         }
 
-        /* Retter html2canvas flex-gap bug så elementer ikke skubber sig vertikalt */
         #pizza-download-clone .pizza-meta-container {
             display: flex !important; 
             align-items: center !important; 
@@ -600,21 +600,43 @@ function downloadPNG() {
             gap: 0px !important; 
         }
 
-        /* Erstatte gap med fast margin-right for perfekt synkronisering */
         #pizza-download-clone .meta-pill {
             display: inline-flex !important; 
             align-items: center !important; 
+            justify-content: center !important;
             margin-right: 8px !important; 
             background: rgba(255, 255, 255, 0.03) !important;
-            padding: 6px 12px !important; border-radius: 8px !important; font-size: 11px !important; font-weight: 700 !important;
+            padding: 0px 12px !important; 
+            height: 28px !important;
+            box-sizing: border-box !important;
+            border-radius: 8px !important; font-size: 11px !important; font-weight: 700 !important;
             text-transform: uppercase !important; letter-spacing: .5px !important; color: #94a3b8 !important; white-space: nowrap !important;
         }
         #pizza-download-clone .meta-pill:last-child {
             margin-right: 0px !important;
         }
 
-        #pizza-download-clone .meta-pill svg { opacity: .9 !important; width: 14px !important; height: 14px !important; stroke-width: 2.2 !important; }
-        #pizza-download-clone .data-val { color: #ffffff !important; font-weight: 700 !important; }
+        /* 🎯 FIX: margin-right sat ned til 3px for at bringe teksten tættere på ikonet */
+        #pizza-download-clone .meta-pill svg { 
+            opacity: .9 !important; 
+            width: 14px !important; 
+            min-width: 14px !important;
+            max-width: 14px !important;
+            height: 14px !important; 
+            stroke-width: 2.2 !important; 
+            display: inline-block !important;
+            margin-right: 1px !important;
+            margin-top: 0px !important;
+        }
+        
+        #pizza-download-clone .meta-pill .data-val { 
+            color: #ffffff !important; 
+            font-weight: 700 !important; 
+            display: inline-block !important;
+            line-height: normal !important; 
+            height: auto !important;
+            padding-bottom: 2px !important; 
+        }
         
         #pizza-download-clone #pizza-svg-element { 
             display: block !important; margin: 5px auto 0 auto !important; width: 100% !important; max-width: 100% !important;
@@ -658,3 +680,5 @@ document.addEventListener("click", e => {
     if (!e.target.closest('#custom-pos-wrapper')) { const pos = $("custom-pos-options"); if(pos) pos.style.display = "none"; }
     if (!e.target.closest('.multiselect')) { const cb = $("checkboxes-container"); if(cb) cb.style.display = "none"; }
 });
+
+

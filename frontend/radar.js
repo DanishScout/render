@@ -604,17 +604,6 @@ async function loadRadarChartDataWithFilters(p1, p2, metricsList) {
 // PER 90 - RADAR.JS - DEL 6 - APART B (ISOLERET DOWNLOAD-MOTOR)
 // ==========================================================================
 
-// ==========================================================================
-// PER 90 - RADAR.JS - DEL 6 - PART B - SPLIT 1 (KLONING & OVERRIDE STYLE)
-// ==========================================================================
-
-// ==========================================================================
-// PER 90 - RADAR.JS - DEL 6 - PART B - SPLIT 1 (KLONING & OVERRIDE STYLE)
-// ==========================================================================
-
-// ==========================================================================
-// PER 90 - RADAR.JS - DEL 6 - PART B - SPLIT 1 (KLONING & OVERRIDE STYLE)
-// ==========================================================================
 
 function downloadRadarPNG() {
     const originalEl = $r("radar-capture-target-area"); if (!originalEl) return;
@@ -698,6 +687,7 @@ function downloadRadarPNG() {
         
         #radar-download-clone .info-tag { 
             font-size: 11px !important; 
+            font-weight: 700 !important; 
             padding: 2px 6px !important; 
             letter-spacing: 0.5px !important; 
             display: inline-block !important; 

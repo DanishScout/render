@@ -89,9 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
     document.head.appendChild(style);
 });
-// ==========================================================================
-// PER 90 - RANKING.JS - VIEW INITIALIZATION & API DATA ENGINE (DEL 3 AF 6)
-// ==========================================================================
 
 async function initRankingView(container) {
     container.innerHTML = `
@@ -104,12 +101,17 @@ async function initRankingView(container) {
                 <button class="open-drawer-btn" onclick="openGlobalDrawer()">Customize Ranking Engine <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
             </div>
             <div class="rank-blocks-container" id="rank-capture-target-area" style="padding: 15px 5px; width: 100%; box-sizing: border-box;">
-                <div style="text-align:center; padding:50px; color:#64748b; font-weight:700; grid-column: span 3;">ÅBEN INDSTILLINGER FOR AT VÆLGE POSITION OG SCOUTE ROLLEN</div>
+                <!-- 🎯 SAMME LILLA LOADING SPINNER SOM I DINE ANDRE MODULER -->
+                <div id="rank-initial-spinner" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; gap: 12px; color: #94a3b8; font-family: 'Gabarito', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; grid-column: span 3; width: 100%;">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 40px; color: var(--accent-purple); height: 40px; width: 40px; display: flex; align-items: center; justify-content: center;"></i>
+                    <span>Loading...</span>
+                </div>
             </div>
         </section>
     `;
     await bootstrapRankingFilters();
 }
+
 
 async function loadRankingAPIDataFeed() {
     try {
@@ -292,12 +294,11 @@ function buildAndAppendRankingDrawerHTML(configData, leagueList = []) {
     `;
     document.body.appendChild(drawerDiv);
 }
-// ==========================================================================
-// PER 90 - RANKING.JS - LEADERBOARD CARD & LOGO PARALLEL ENGINE (DEL 6 AF 6)
-// ==========================================================================
 
 function buildRankingLeaderboardEngine() {
     const container = getRankEl("rank-capture-target-area"); if (!container || !RANK_GLOBAL_DATA) return;
+    
+    // 🎯 FJERNER AUTOMATISK SPINNEREN VED AT RYDDE CONTAINEREN INDEN DET NYE PRINT
     container.innerHTML = "";
 
     const list = RANK_GLOBAL_DATA.players || [];
@@ -305,6 +306,7 @@ function buildRankingLeaderboardEngine() {
         container.innerHTML = `<div style="text-align:center; padding:50px; color:#64748b; font-weight:700; grid-column: span 3;">NO MATCHES WITHIN FILTERS</div>`;
         return;
     }
+
 
     const barColors = ["#3498db", "#2ecc71", "#9b59b6", "#e74c3c", "#1abc9c", "#e67e22"];
     const top9 = list; 

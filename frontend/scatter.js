@@ -118,7 +118,6 @@ document.addEventListener("DOMContentLoaded", () => {
 // PER 90 - SCATTER.JS - DEL 3 AF 7 (HTML INITIALISERING & QUICK-TOOLBAR)
 // ==========================================================================
 
-// EFTER (Opdateret med det rigtige diagram-ikon)
 async function initScatterView(container) {
     container.innerHTML = `
         <section id="view-scatter" class="content-view active" style="padding-top: 10px;">
@@ -127,16 +126,21 @@ async function initScatterView(container) {
                 <span style="font-size: 12px; color: #ffffff; opacity: 0.45; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Scatter Plot</span>
             </div>
 
-
             <div class="control-trigger-wrapper" style="margin-bottom: 25px; display: flex; justify-content: center; width: 100%;">
                 <button class="open-drawer-btn" onclick="openGlobalDrawer()">Customize Plot <i class="fa-solid fa-sliders" style="margin-left: 6px;"></i></button>
             </div>
 
             <div class="scatter-quick-toolbar" id="scatter-live-quick-toolbar"></div>
             
-            <div class="scatter-chart-card" id="scatter-capture-target-area">
-                <!-- 🎯 MASTER-FIX: Al tekst, titler og colorbars flyttes ind som urokkelige SVG-vektorer i denne beholder -->
+            <div class="scatter-chart-card" id="scatter-capture-target-area" style="position: relative;">
                 <div class="scatter-hover-tooltip" id="scatter-live-tooltip"></div>
+                
+                <!-- 🎯 IDENTISK LOADING SPINNER - Synkroniseret med filters.js og table.js -->
+                <div id="scatter-initial-spinner" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: #94a3b8; font-family: 'Gabarito', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; z-index: 100;">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 40px; color: var(--accent-purple); height: 40px; width: 40px; display: flex; align-items: center; justify-content: center;"></i>
+                    <span>Loading...</span>
+                </div>
+
                 <svg width="730" height="620" viewBox="0 0 730 620" id="scatter-svg-canvas"></svg>
             </div>
 
@@ -165,11 +169,16 @@ function buildScatterQuickToolbarUI() {
         </label>
     `;
 }
+
 function buildScatterPlotVektorEngine() {
     const svg = $sc("scatter-svg-canvas"); if (!svg || !SCATTER_GLOBAL_DATA) return;
+    
+    // 🎯 FJERNER SPINNEREN FRA DOM'EN: Fjernes med det samme her, når data er klar
+    const spinner = document.getElementById("scatter-initial-spinner");
+    if (spinner) spinner.remove();
+
     svg.innerHTML = "";
 
-    // Titlen bages solidt ind som en urokkelig SVG-vektor i toppen af kanvassen
     let markup = `
         <defs>
             <linearGradient id="scatterColorbarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -186,7 +195,6 @@ function buildScatterPlotVektorEngine() {
     const graphWidth = width - padding.left - padding.right;
     const graphHeight = height - padding.top - padding.bottom;
 
-    // Hent KUN de spillere der rent faktisk klarer de aktive filtre lige nu
     const filteredPlayers = getFilteredPlayersList(true);
 
     if (filteredPlayers.length === 0) {
@@ -197,7 +205,6 @@ function buildScatterPlotVektorEngine() {
     let xVals = filteredPlayers.map(p => p.stats[SCATTER_X_AXIS] || 0);
     let yVals = filteredPlayers.map(p => p.stats[SCATTER_Y_AXIS] || 0);
     
-    // Globale min/max minutter bevares til farveskalaen
     let minMinsGlobal = Math.min(...SCATTER_GLOBAL_DATA.players.map(p => p.mins_played || 0));
     let maxMinsGlobal = Math.max(...SCATTER_GLOBAL_DATA.players.map(p => p.mins_played || 1));
 
@@ -218,14 +225,12 @@ function buildScatterPlotVektorEngine() {
         `;
     }
 
+
     // Forbedret akseberegner med en indbygget 5% buffer mod kanterne
     const calculateNiceAxisBounds = (minVal, maxVal) => {
         if (maxVal === minVal) maxVal += 1;
-        
-        // Tilføj en lille buffer i toppen så prikkerne ikke skæres af eller rører kanten
         const buffer = (maxVal - minVal) * 0.05;
         maxVal += buffer;
-
         const rawRange = maxVal - minVal;
         const rawStep = rawRange / 4;
         const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
@@ -237,7 +242,6 @@ function buildScatterPlotVektorEngine() {
         else if (residual < 7) cleanStep = 5 * magnitude;
         else cleanStep = 10 * magnitude;
 
-        // HVIS STAT TYPE ER "TOTAL": Tvinger vi trinnet til altid at være mindst et helt tal
         if (SCATTER_STAT_TYPE === "Total") {
             cleanStep = Math.max(1, Math.ceil(cleanStep));
         }
@@ -249,19 +253,14 @@ function buildScatterPlotVektorEngine() {
         while (cleanMax < maxVal) cleanMax += cleanStep;
         if (cleanMin > minVal) cleanMin -= cleanStep;
 
-        // 🎯 MASTER-FIX FOR "TOTAL": Sørg for at den samlede rækkevidde (Max - Min) er delelig med 4.
-        // Dette tvinger akserne til udelukkende at lande på hele tal (f.eks. 0, 3, 6, 9, 12 i stedet for 2.50).
         if (SCATTER_STAT_TYPE === "Total") {
             while ((cleanMax - cleanMin) % 4 !== 0) {
                 cleanMax++;
             }
         }
-
         return { min: cleanMin, max: cleanMax };
     };
 
-
-    // Beregn akse-grænser udelukkende ud fra de aktive data
     const boundsX = calculateNiceAxisBounds(Math.min(...xVals), Math.max(...xVals));
     const boundsY = calculateNiceAxisBounds(Math.min(...yVals), Math.max(...yVals));
 
@@ -292,7 +291,6 @@ function buildScatterPlotVektorEngine() {
         const px = getXPixel(xVal);
         const py = getYPixel(yVal);
         
-        // Formaterer værdierne: Hvis det er et helt tal, fjernes decimalerne helt (.toFixed(2) bruges kun ved kommatal)
         const displayX = Number.isInteger(xVal) ? xVal.toString() : xVal.toFixed(2);
         const displayY = Number.isInteger(yVal) ? yVal.toString() : yVal.toFixed(2);
         
@@ -301,7 +299,6 @@ function buildScatterPlotVektorEngine() {
         markup += `<text x="${px}" y="${padding.top + graphHeight + 16}" fill="#475569" font-size="9" text-anchor="middle" font-family="'Gabarito', sans-serif" font-weight="700">${displayX}</text>`;
         markup += `<text x="${padding.left - 8}" y="${py}" fill="#475569" font-size="9" text-anchor="end" dominant-baseline="middle" font-family="'Gabarito', sans-serif" font-weight="700">${displayY}</text>`;
     }
-
 
     markup += `<line x1="${padding.left}" y1="${padding.top}" x2="${padding.left}" y2="${padding.top + graphHeight}" class="scatter-axis-line" />`;
     markup += `<line x1="${padding.left}" y1="${padding.top + graphHeight}" x2="${padding.left + graphWidth}" y2="${padding.top + graphHeight}" class="scatter-axis-line" />`;
@@ -318,6 +315,7 @@ function buildScatterPlotVektorEngine() {
 
     continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPixel, getYPixel, getMinutesColor);
 }
+
 
 
 function continueBuildingScatterPlotPoints(svg, markup, filteredPlayers, getXPixel, getYPixel, getMinutesColor) {

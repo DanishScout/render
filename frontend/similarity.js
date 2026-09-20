@@ -125,6 +125,17 @@ document.addEventListener("DOMContentLoaded", () => {
         .sim-col-min { width: 90px !important; min-width: 90px !important; max-width: 90px !important; text-align: center !important; }
         .sim-col-metric { width: 180px !important; min-width: 180px !important; max-width: 180px !important; text-align: center !important; }
 
+        /* 💻 RESPONSIVT TABLET LAYOUT (600px - 1100px): Gør Similarity-baren markant større */
+        @media (min-width: 600px) and (max-width: 1100px) {
+            .sim-col-pos, .sim-col-age, .sim-col-min { 
+                display: none !important; 
+            }
+            /* Giver Similarity-kolonnen ekstra meget plads og bredde, når de andre kolonner er væk */
+            .sim-col-metric { 
+                width: 260px !important; min-width: 260px !important; max-width: 260px !important; 
+            }
+        }
+
         /* Datakomponent-formatering baseret på de nye taljusteringer */
         .sim-row-rank { font-size: 16px !important; font-weight: 800; color: var(--accent-purple); text-shadow: 0 0 12px rgba(168,85,247,0.25); line-height: 64px !important; height: 64px !important; display: block !important; }
         .sim-row-meta-val { font-size: 13px !important; font-weight: 900; color: #94a3b8 !important; line-height: 64px !important; }
@@ -160,15 +171,11 @@ document.addEventListener("DOMContentLoaded", () => {
 // PER 90 - SIMILARITY.JS - DEL 5 AF 8 (ULTRA-COMPACT MOBIL SENSOR-CSS)
 // ==========================================================================
 
-// ==========================================================================
-// PER 90 - SIMILARITY.JS - DEL 5 AF 8 (ULTRA-COMPACT MOBIL SENSOR-CSS)
-// ==========================================================================
-
 document.addEventListener("DOMContentLoaded", () => {
     const style = document.createElement('style');
     style.innerHTML = `
         /* 📱 ULTRA-COMPACT MOBILOPTIMERING V6 */
-        @media (max-width: 480px) {
+        @media (max-width: 599px) {
             .sim-scouting-table th { padding: 6px 6px !important; }
             .sim-scouting-table tbody td { padding: 0 6px !important; height: 48px !important; max-height: 48px !important; }
             .sim-scouting-table tbody tr { height: 48px !important; max-height: 48px !important; }
@@ -191,8 +198,9 @@ document.addEventListener("DOMContentLoaded", () => {
             .sim-pc-meta-span { display: none !important; }
         }
         
-        @media (min-width: 481px) {
+        @media (min-width: 600px) {
             .sim-mobile-meta-span { display: none !important; }
+            .sim-pc-meta-span { display: inline !important; }
         }
     `;
     document.head.appendChild(style);

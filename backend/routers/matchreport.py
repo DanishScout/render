@@ -98,10 +98,12 @@ def get_match_report_data(
                     "y": shot.get("y", 0.0),
                     "min": shot.get("min", 0),
                     "minAdded": shot.get("minAdded"),
+                    "period": shot.get("period"),  # <--- TILFØJET: Sender perioden (f.eks. FirstHalf) med til JS
                     "expectedGoals": shot.get("expectedGoals", 0.0),
                     "expectedGoalsOnTarget": shot.get("expectedGoalsOnTarget", 0.0),
                     "isOwnGoal": shot.get("isOwnGoal", False)
                 })
+
 
         # ------------------------------------------------------------------
         # DATABASE 3: TEAM STATS MATRIX
