@@ -22,7 +22,7 @@ const minimalSaaSStyles = `
     
     #view-landing .hero-title { 
         color: #ffffff !important; font-size: 38px !important; font-weight: 900;
-        letter-spacing: -1.5px; line-height: 1.1; margin: 0 0 12px 0; text-transform: uppercase;
+        letter-spacing: -0.5px; line-height: 1.1; margin: 0 0 12px 0; text-transform: uppercase;
         white-space: nowrap;
     }
     #view-landing .hero-title span {

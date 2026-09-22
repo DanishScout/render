@@ -48,12 +48,41 @@ def startup_load_data():
             except Exception as e:
                 print(f"ADVARSEL: Kunne ikke indlæse {f}. Fejl: {str(e)}")
                 continue
-                
+             
     if combined_df:
         GLOBAL_DATASET = pd.concat(combined_df, ignore_index=True)
+        
+        # Opret en midlertidig ordbog til at holde alle de nye beregninger
+        # Det forhindrer at datasættet fragmenteres i hukommelsen
+        nye_beregninger = {}
+        
+        # 🛠️ 1. BEREGN NY NPXG + XA METRIC
+        if 'xG_Total' in GLOBAL_DATASET.columns and 'xA_Total' in GLOBAL_DATASET.columns:
+            nye_beregninger['npxG + xA_Total'] = GLOBAL_DATASET['xG_Total'] + GLOBAL_DATASET['xA_Total']
+            
+        if 'xG_p90' in GLOBAL_DATASET.columns and 'xA_p90' in GLOBAL_DATASET.columns:
+            nye_beregninger['npxG + xA_p90'] = GLOBAL_DATASET['xG_p90'] + GLOBAL_DATASET['xA_p90']
+
+        # 🛠️ 2. BEREGN NY G/A METRIC (Mål + Assists lagt sammen)
+        if 'total goals_Total' in GLOBAL_DATASET.columns and 'total assists_Total' in GLOBAL_DATASET.columns:
+            nye_beregninger['G/A_Total'] = GLOBAL_DATASET['total goals_Total'] + GLOBAL_DATASET['total assists_Total']
+            
+        if 'total goals_p90' in GLOBAL_DATASET.columns and 'total assists_p90' in GLOBAL_DATASET.columns:
+            nye_beregninger['G/A_p90'] = GLOBAL_DATASET['total goals_p90'] + GLOBAL_DATASET['total assists_p90']
+
+        # 🛠️ 3. BEREGN NY PROGRESSIVE ACTIONS METRIC (Progressive Passes + Carries)
+        if 'progressive_passes_Total' in GLOBAL_DATASET.columns and 'Total Carries_Total' in GLOBAL_DATASET.columns:
+            nye_beregninger['Progressive Actions_Total'] = GLOBAL_DATASET['progressive_passes_Total'] + GLOBAL_DATASET['Total Carries_Total']
+            
+        if 'progressive_passes_p90' in GLOBAL_DATASET.columns and 'Total Carries_p90' in GLOBAL_DATASET.columns:
+            nye_beregninger['Progressive Actions_p90'] = GLOBAL_DATASET['progressive_passes_p90'] + GLOBAL_DATASET['Total Carries_p90']
+
+        # 🚀 "LIM" ALLE KOLONNER PÅ ÉN GANG (axis=1 betyder kolonne-retning)
+        if nye_beregninger:
+            GLOBAL_DATASET = pd.concat([GLOBAL_DATASET, pd.DataFrame(nye_beregninger)], axis=1)
+
         print(f"LOG: Datamotor klar! Samlet database indeholder {len(GLOBAL_DATASET)} aktive spillere.")
-    else:
-        print(f"KRITISK ADVARSEL: Ingen CSV-filer fundet under opstart! Tjekkede sti: {DATA_DIR}")
+
 
 # --- DELT CLOUDFLARE-BILLEDPROXY TIL DINE CANVAS-VISUALISERINGER ---
 @app.get("/api/logo/{team_id}")

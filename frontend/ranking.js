@@ -352,11 +352,7 @@ function buildRankingLeaderboardEngine() {
                         </div>
                         <div class="rank-row-names">
                             <h4 class="rank-row-player-name" style="font-size: ${dynamicFontSize} !important;" title="${p.player_name}">${fullPlayerName}</h4>
-                            <div class="rank-row-subtext">
-                                <span>${p.age} y/o <span class="rank-row-meta-val-pos">${p.position}</span></span>
-                                <span class="rank-row-pipe-divider">|</span>
-                                <span class="rank-row-team-name">${p.team}</span>
-                            </div>
+                            <div class="rank-row-subtext"><span>${p.age} y/o</span><span class="rank-row-pipe-divider">|</span><span class="rank-row-team-name">${p.team}</span></div>
                         </div>
                     </div>
                     <div class="rank-score-block">
