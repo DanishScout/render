@@ -1087,19 +1087,20 @@ async function buildFig5PlayerStats() {
 
 
           return `
-            <div style="display:block; width:100%; margin-bottom:14px; box-sizing:border-box; overflow:visible;">
-                
-                <!-- 🔥 FLUGTNINGS-FIX: Teksten står nu helt normalt uden margin-forskydning, så den starter ved absolut nul -->
-                <div style="display: flex; align-items: center; gap: 8px; padding-left: 0px; margin-bottom: 4px; line-height: 1; box-sizing: border-box;">
-                    <!-- 📊 Metric værdi -->
-                    <span style="color: ${ratingColor}; font-family: sans-serif; font-size: 12px; font-weight: 900; font-variant-numeric: tabular-nums;">
-                        ${isDecimal ? current_val.toFixed(2) : Math.round(current_val)}
-                    </span>
-                    
-                    <!-- 🏷️ Metric navn -->
-                    <span style="color: rgba(255,255,255,0.7); font-family: sans-serif; font-size: 11px; font-weight: 700;">
-                        ${metric}
-                    </span>
+              <div style="display:block; width:100%; margin-bottom:14px; box-sizing:border-box; overflow:visible;">
+                  
+                  <!-- OPDATER DETTE DISKRETE DIV-TAG SÅDET SER SÅLEDES UD: -->
+                  <div style="display: flex; align-items: center; gap: 8px; padding: 0; margin: 0 0 4px 0; line-height: 1; box-sizing: border-box; width: 100%;">
+                      <!-- 📊 Metric værdi -->
+                      <span style="color: ${ratingColor}; font-family: sans-serif; font-size: 12px; font-weight: 900; font-variant-numeric: tabular-nums; margin: 0; padding: 0; display: inline-block;">
+                          ${isDecimal ? current_val.toFixed(2) : Math.round(current_val)}
+                      </span>
+                      
+                      <!-- 🏷️ Metric navn -->
+                      <span style="color: rgba(255,255,255,0.7); font-family: sans-serif; font-size: 11px; font-weight: 700; margin: 0; padding: 0;">
+                          ${metric}
+                      </span>
+
                     
                     <!-- 🎯 'MOST' BADGE: SVG-tricket der sikrer perfekt centrering live og ved download -->
                     ${isHighestInMatch && max_val > 0 ? `
@@ -1112,11 +1113,12 @@ async function buildFig5PlayerStats() {
                     ` : ''}
                 </div>
 
-                <!-- 📍 Fordelingslinje / xG-prikker: margin-left: -8px trækker hele lærredets pufferzone ud af syne visuelt, så 0-prikken lander præcis under tallet -->
-                <div style="width:100%; height: 14px; position: relative; margin-top: 2px; margin-left: -8px; overflow: visible;">
-                    <svg width="100%" height="14" viewBox="-8 0 336 14" style="overflow:visible; display:block;" preserveAspectRatio="none">
-                        <!-- Baggrundsstreg -->
-                        <line x1="0" y1="7" x2="320" y2="7" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
+  
+               
+                <div style="width:100%; height: 14px; position: relative; margin-top: 2px; overflow: visible;">
+                    <svg width="100%" height="14" viewBox="0 0 320 14" style="overflow:visible; display:block;" preserveAspectRatio="none">
+                        <!-- Baggrundsstreg: Rykket ind til X=6 for at give plads til prikkernes radius i enderne -->
+                        <line x1="6" y1="7" x2="314" y2="7" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
                         
                         <!-- De andre spilleres prikker indlagt via HTML-strengen -->
                         <foreignObject x="0" y="0" width="320" height="14" style="overflow:visible; pointer-events:none;">
@@ -1125,8 +1127,8 @@ async function buildFig5PlayerStats() {
                             </div>
                         </foreignObject>
                         
-                        <!-- 🎯 Den aktive spillers markør-prik -->
-                        <circle cx="${Math.min(99, Math.max(1, playerPosPct)) * 3.2}" cy="7" r="4.5" fill="${ratingColor}" stroke="#ffffff" stroke-width="1.4" style="filter: drop-shadow(0 0 4px ${ratingColor});" />
+                        <!-- 🎯 Den aktive spillers markør-prik: Skaleret ind på den nye 6px til 314px akse -->
+                        <circle cx="${6 + (Math.min(100, Math.max(0, playerPosPct)) / 100) * 308}" cy="7" r="4.5" fill="${ratingColor}" stroke="#ffffff" stroke-width="1.4" style="filter: drop-shadow(0 0 4px ${ratingColor});" />
                     </svg>
                 </div>
             </div>`;

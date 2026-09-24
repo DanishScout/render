@@ -198,7 +198,7 @@ async function initTableView(container) {
             </div>
 
             <div style="display: flex; justify-content: center; margin-top: 30px; width: 100%;">
-                <button onclick="downloadTablePNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px;">Download Leaderboard as PNG</button>
+                <button onclick="downloadTablePNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px;">Download as PNG</button>
             </div>
         </section>
     `;

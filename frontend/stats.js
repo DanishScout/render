@@ -163,7 +163,7 @@ async function initPlayerStatsView(container) {
                 <div class="stats-blocks-container" id="stats-live-blocks-grid"></div>
             </div>
             <div style="display: flex; justify-content: center; margin-top: 30px; width: 100%;">
-                <button onclick="downloadPlayerStatsPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px;">Download Profile as PNG</button>
+                <button onclick="downloadPlayerStatsPNG()" style="background: var(--accent-purple); color: #06140c; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 14px;">Download as PNG</button>
             </div>
         </section>
     `;
